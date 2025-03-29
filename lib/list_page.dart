@@ -16,9 +16,48 @@ class ListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
         title: Text(title),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
+      ),
+      drawer: Drawer(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(0),
+            bottomRight: Radius.circular(0),
+          ),
+        ),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              child: Text('Drawer Header'),
+            ),
+            ListTile(
+              title: const Text('Item 1'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Item 2'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: SpGrid(
@@ -30,9 +69,9 @@ class ListPage extends StatelessWidget {
             for (var rec in records!)
               SpGridItem(
                 xs: 12,
-                sm: 6,
-                md: 4,
-                lg: 3,
+                sm: 4,
+                md: 3,
+                lg: 2,
                 decoration: BoxDecoration(color: Colors.grey[300]),
                 child: ContentCard(
                   image: rec['thumb'],
@@ -93,57 +132,59 @@ class ContentCard extends StatelessWidget {
               Text(
                 title,
                 overflow: TextOverflow.ellipsis,
-                style: textTheme.titleLarge,
+                style: textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    tooltip: 'Edit',
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    tooltip: 'Edit',
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.paste),
-                    tooltip: 'Edit',
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.gps_fixed),
-                    tooltip: 'Edit',
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     IconButton(
+              //       icon: const Icon(Icons.delete),
+              //       tooltip: 'Edit',
+              //       onPressed: () {},
+              //     ),
+              //     IconButton(
+              //       icon: const Icon(Icons.edit),
+              //       tooltip: 'Edit',
+              //       onPressed: () {},
+              //     ),
+              //     IconButton(
+              //       icon: const Icon(Icons.paste),
+              //       tooltip: 'Edit',
+              //       onPressed: () {},
+              //     ),
+              //     IconButton(
+              //       icon: const Icon(Icons.gps_fixed),
+              //       tooltip: 'Edit',
+              //       onPressed: () {},
+              //     ),
+              //   ],
+              // ),
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       subtitle,
                       overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodyMedium,
-                    ),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    child: Text(
-                      badge,
-                      overflow: TextOverflow.ellipsis,
                       style: textTheme.bodySmall,
                     ),
                   ),
+                  // Container(
+                  //   decoration: const BoxDecoration(
+                  //     color: Colors.white,
+                  //     borderRadius: BorderRadius.all(Radius.circular(5)),
+                  //   ),
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 12,
+                  //     vertical: 4,
+                  //   ),
+                  //   child: Text(
+                  //     badge,
+                  //     overflow: TextOverflow.ellipsis,
+                  //     style: textTheme.bodySmall,
+                  //   ),
+                  // ),
                 ],
               ),
             ],

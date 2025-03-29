@@ -9,8 +9,8 @@ class SettingsProvider extends ChangeNotifier {
   Map<String, dynamic>? lastRecord;
   Map<String, dynamic>? firstRecord;
   Map<String, Map<String, int>>? values;
-  Map<String, dynamic>? find = {'year': 2025};
-  List<Map<String, dynamic>>? records = [];
+  Map<String, dynamic>? find = {'year': 2024, 'month': 6};
+  List<Map<String, dynamic>> records = [];
 
   SettingsProvider() {
     initializeRecords();
@@ -68,11 +68,12 @@ class SettingsProvider extends ChangeNotifier {
           await db
               .collection('Photo')
               .where('year', isEqualTo: find!['year'])
+              .where('month', isEqualTo: find!['month'])
               .orderBy('date', descending: true)
               .get();
       if (querySnapshot.docs.isNotEmpty) {
         for (var doc in querySnapshot.docs) {
-          records!.add(doc.data());
+          records.add(doc.data());
         }
         notifyListeners();
       }

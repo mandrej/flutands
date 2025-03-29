@@ -38,12 +38,12 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal.shade500),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade500),
         ),
         initialRoute: '/',
         routes: {
           '/': (context) => const HomePage(title: 'MDA'),
-          '/list': (context) => const ListPage(title: 'List'),
+          '/list': (context) => const ListPage(title: 'Andrejeвићи'),
         },
         // home: const HomePage(title: 'MDA'),
       ),
