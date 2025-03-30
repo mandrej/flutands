@@ -3,16 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'dart:collection';
 
-class SettingsProvider extends ChangeNotifier {
+class ApiProvider extends ChangeNotifier {
   final db = FirebaseFirestore.instance;
 
   Map<String, dynamic>? lastRecord;
   Map<String, dynamic>? firstRecord;
   Map<String, Map<String, int>>? values;
-  Map<String, dynamic>? find = {'year': 2024, 'month': 6};
+  Map<String, dynamic>? find = {'year': 2024};
   List<Map<String, dynamic>> records = [];
 
-  SettingsProvider() {
+  ApiProvider() {
     initializeRecords();
   }
 
@@ -68,7 +68,7 @@ class SettingsProvider extends ChangeNotifier {
           await db
               .collection('Photo')
               .where('year', isEqualTo: find!['year'])
-              .where('month', isEqualTo: find!['month'])
+              // .where('month', isEqualTo: find!['month'])
               .orderBy('date', descending: true)
               .get();
       if (querySnapshot.docs.isNotEmpty) {

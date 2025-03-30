@@ -1,17 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'settings_provider.dart';
+import 'api_provider.dart';
 import 'package:simple_grid/simple_grid.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class ListPage extends StatelessWidget {
+class ListPage extends StatefulWidget {
   const ListPage({super.key, required this.title});
   final String title;
 
   @override
+  State<ListPage> createState() => _ListPageState();
+}
+
+class _ListPageState extends State<ListPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the API provider
+    ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
+    api.fetchRecords();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    SettingsProvider settings = Provider.of<SettingsProvider>(context);
-    final records = settings.records;
+    ApiProvider api = Provider.of<ApiProvider>(context);
+    final records = api.records;
 
     return Scaffold(
       appBar: AppBar(
@@ -26,7 +39,7 @@ class ListPage extends StatelessWidget {
             );
           },
         ),
-        title: Text(title),
+        title: Text(widget.title),
       ),
       drawer: Drawer(
         shape: const RoundedRectangleBorder(
