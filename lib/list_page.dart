@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'api_provider.dart';
 import 'package:simple_grid/simple_grid.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 
 class ListPage extends StatefulWidget {
   const ListPage({super.key, required this.title});
@@ -26,50 +27,49 @@ class _ListPageState extends State<ListPage> {
     ApiProvider api = Provider.of<ApiProvider>(context);
     final records = api.records;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-        ),
-        title: Text(widget.title),
-      ),
-      drawer: Drawer(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(0),
-            bottomRight: Radius.circular(0),
+    return AdminScaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      sideBar: SideBar(
+        backgroundColor: Colors.white,
+        items: const [
+          AdminMenuItem(title: 'Home', route: '/', icon: Icons.home),
+          AdminMenuItem(title: 'Add', route: '/add', icon: Icons.add),
+          AdminMenuItem(title: 'Admin', route: '/admin', icon: Icons.settings),
+        ],
+        selectedRoute: '/',
+        onSelected: (item) {
+          if (item.route != null) {
+            Navigator.of(context).pushNamed(item.route!);
+          }
+        },
+        // header: Container(
+        //   height: 50,
+        //   width: double.infinity,
+        //   color: const Color(0xff444444),
+        //   child: const Center(
+        //     child: Text('header', style: TextStyle(color: Colors.white)),
+        //   ),
+        // ),
+        header: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: 'search by text'),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: 'search by tags'),
+              ),
+            ],
           ),
         ),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              child: Text('Drawer Header'),
-            ),
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        footer: Container(
+          height: 50,
+          width: double.infinity,
+          color: const Color(0xff444444),
+          child: const Center(
+            child: Text('footer', style: TextStyle(color: Colors.white)),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -79,7 +79,7 @@ class _ListPageState extends State<ListPage> {
           spacing: 10,
           runSpacing: 10,
           children: [
-            for (var rec in records!)
+            for (var rec in records)
               SpGridItem(
                 xs: 12,
                 sm: 4,
@@ -90,7 +90,6 @@ class _ListPageState extends State<ListPage> {
                   image: rec['thumb'],
                   title: rec['headline'],
                   subtitle: rec['date'],
-                  badge: '30',
                 ),
               ),
           ],
@@ -106,14 +105,12 @@ class ContentCard extends StatelessWidget {
     required this.image,
     required this.title,
     this.subtitle = '',
-    this.badge = '',
   });
 
   // final String kTransparentImage = 'assets/image.png';
   final String image;
   final String title;
   final String subtitle;
-  final String badge;
 
   @override
   Widget build(BuildContext context) {
@@ -183,21 +180,6 @@ class ContentCard extends StatelessWidget {
                       style: textTheme.bodySmall,
                     ),
                   ),
-                  // Container(
-                  //   decoration: const BoxDecoration(
-                  //     color: Colors.white,
-                  //     borderRadius: BorderRadius.all(Radius.circular(5)),
-                  //   ),
-                  //   padding: const EdgeInsets.symmetric(
-                  //     horizontal: 12,
-                  //     vertical: 4,
-                  //   ),
-                  //   child: Text(
-                  //     badge,
-                  //     overflow: TextOverflow.ellipsis,
-                  //     style: textTheme.bodySmall,
-                  //   ),
-                  // ),
                 ],
               ),
             ],
