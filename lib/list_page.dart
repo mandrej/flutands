@@ -51,9 +51,10 @@ class _ListPageState extends State<ListPage> {
         //   ),
         // ),
         header: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(12),
           child: Column(
             children: [
+              Text('Search'),
               TextField(
                 decoration: InputDecoration(labelText: 'search by text'),
               ),
@@ -85,7 +86,7 @@ class _ListPageState extends State<ListPage> {
                 sm: 4,
                 md: 3,
                 lg: 2,
-                decoration: BoxDecoration(color: Colors.grey[300]),
+                // decoration: BoxDecoration(color: Colors.grey[300]),
                 child: ContentCard(
                   image: rec['thumb'],
                   title: rec['headline'],
@@ -116,76 +117,37 @@ class ContentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-          ),
-          child: FadeInImage.memoryNetwork(
+    return Card(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      child: Column(
+        children: [
+          FadeInImage.memoryNetwork(
             image: image,
             placeholder: kTransparentImage,
             fit: BoxFit.cover,
           ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10),
+          Container(
+            padding: EdgeInsets.all(10),
+            child: Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          child: Column(
-            children: [
-              Text(
-                title,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     IconButton(
-              //       icon: const Icon(Icons.delete),
-              //       tooltip: 'Edit',
-              //       onPressed: () {},
-              //     ),
-              //     IconButton(
-              //       icon: const Icon(Icons.edit),
-              //       tooltip: 'Edit',
-              //       onPressed: () {},
-              //     ),
-              //     IconButton(
-              //       icon: const Icon(Icons.paste),
-              //       tooltip: 'Edit',
-              //       onPressed: () {},
-              //     ),
-              //     IconButton(
-              //       icon: const Icon(Icons.gps_fixed),
-              //       tooltip: 'Edit',
-              //       onPressed: () {},
-              //     ),
-              //   ],
-              // ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      subtitle,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodySmall,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          Container(
+            padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: Text(
+              subtitle,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.bodySmall,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
