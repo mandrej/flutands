@@ -87,11 +87,7 @@ class _ListPageState extends State<ListPage> {
                 md: 3,
                 lg: 2,
                 // decoration: BoxDecoration(color: Colors.grey[300]),
-                child: ContentCard(
-                  image: rec['thumb'],
-                  title: rec['headline'],
-                  subtitle: rec['date'],
-                ),
+                child: ContentCard(rec: rec),
               ),
           ],
         ),
@@ -101,17 +97,9 @@ class _ListPageState extends State<ListPage> {
 }
 
 class ContentCard extends StatelessWidget {
-  const ContentCard({
-    super.key,
-    required this.image,
-    required this.title,
-    this.subtitle = '',
-  });
+  const ContentCard({super.key, required this.rec});
 
-  // final String kTransparentImage = 'assets/image.png';
-  final String image;
-  final String title;
-  final String subtitle;
+  final Map<String, dynamic> rec;
 
   @override
   Widget build(BuildContext context) {
@@ -123,15 +111,27 @@ class ContentCard extends StatelessWidget {
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Column(
         children: [
-          FadeInImage.memoryNetwork(
-            image: image,
-            placeholder: kTransparentImage,
-            fit: BoxFit.cover,
+          GestureDetector(
+            child: FadeInImage.memoryNetwork(
+              image: rec['thumb'],
+              placeholder: kTransparentImage,
+              fit: BoxFit.cover,
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) {
+                    return DetailScreen(rec: rec);
+                  },
+                ),
+              );
+            },
           ),
           Container(
             padding: EdgeInsets.all(10),
             child: Text(
-              title,
+              rec['headline'] ?? '',
               overflow: TextOverflow.ellipsis,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
@@ -141,7 +141,7 @@ class ContentCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
             child: Text(
-              subtitle,
+              rec['date'] ?? '',
               overflow: TextOverflow.ellipsis,
               style: textTheme.bodySmall,
             ),
@@ -149,5 +149,16 @@ class ContentCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class DetailScreen extends StatelessWidget {
+  const DetailScreen({super.key, required this.rec});
+
+  final Map<String, dynamic> rec;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image(image: NetworkImage(rec['url']), fit: BoxFit.contain);
   }
 }
