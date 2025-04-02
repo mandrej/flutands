@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 import 'api_provider.dart';
 import 'package:simple_grid/simple_grid.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
+// import 'package:photo_view/photo_view.dart';
+// import 'package:photo_view/photo_view_gallery.dart';
 
 class ListPage extends StatefulWidget {
   const ListPage({super.key, required this.title});
@@ -122,7 +125,7 @@ class ContentCard extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (_) {
-                    return DetailScreen(rec: rec);
+                    return DetailScreen();
                   },
                 ),
               );
@@ -152,13 +155,32 @@ class ContentCard extends StatelessWidget {
   }
 }
 
-class DetailScreen extends StatelessWidget {
-  const DetailScreen({super.key, required this.rec});
+class DetailScreen extends StatefulWidget {
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
 
-  final Map<String, dynamic> rec;
-
+class _DetailScreenState extends State<DetailScreen> {
   @override
   Widget build(BuildContext context) {
-    return Image(image: NetworkImage(rec['url']), fit: BoxFit.contain);
+    ApiProvider api = Provider.of<ApiProvider>(context);
+    final records = api.records;
+
+    return Column(
+      children: [
+        Expanded(
+          child: PhotoViewGallery.builder(
+            itemCount: records.length,
+            builder: (BuildContext context, int index) {
+              return PhotoViewGalleryPageOptions(
+                // maxScale: PhotoViewComputedScale.covered,
+                maxScale: 1,
+                imageProvider: NetworkImage(records[index]['url']),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }
