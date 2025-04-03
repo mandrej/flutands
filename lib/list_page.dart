@@ -5,6 +5,7 @@ import 'api_provider.dart';
 import 'package:simple_grid/simple_grid.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
+// import 'sidebar_find.dart';
 // import 'package:photo_view/photo_view.dart';
 // import 'package:photo_view/photo_view_gallery.dart';
 
@@ -45,14 +46,6 @@ class _ListPageState extends State<ListPage> {
             Navigator.of(context).pushNamed(item.route!);
           }
         },
-        // header: Container(
-        //   height: 50,
-        //   width: double.infinity,
-        //   color: const Color(0xff444444),
-        //   child: const Center(
-        //     child: Text('header', style: TextStyle(color: Colors.white)),
-        //   ),
-        // ),
         header: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -89,6 +82,7 @@ class _ListPageState extends State<ListPage> {
                 sm: 4,
                 md: 3,
                 lg: 2,
+                // decoration: ,
                 // decoration: BoxDecoration(color: Colors.grey[300]),
                 child: ContentCard(rec: rec),
               ),

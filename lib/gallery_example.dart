@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_grid/simple_grid.dart';
+import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'api_provider.dart';
 
 class Item {
-  Item({required this.id, required this.thumb, required this.url});
+  Item({
+    required this.id,
+    required this.thumb,
+    required this.url,
+    required this.headline,
+  });
 
   final String id;
   final String thumb;
   final String url;
+  final String headline;
 }
 
 class ItemThumbnail extends StatelessWidget {
@@ -20,18 +28,36 @@ class ItemThumbnail extends StatelessWidget {
   });
 
   final Item galleryItem;
-
   final GestureTapCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5.0),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Hero(
-          tag: galleryItem.id,
-          child: Image.network(galleryItem.thumb, height: 80.0),
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: Hero(
+        tag: galleryItem.id,
+        child: Card(
+          semanticContainer: true,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Column(
+            children: [
+              Image.network(galleryItem.thumb),
+              Container(
+                padding: EdgeInsets.all(5.0),
+                child: Text(
+                  galleryItem.headline,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -39,6 +65,9 @@ class ItemThumbnail extends StatelessWidget {
 }
 
 class GalleryExample extends StatefulWidget {
+  const GalleryExample({super.key, required this.title});
+  final String title;
+
   @override
   State<GalleryExample> createState() => _GalleryExampleState();
 }
@@ -65,28 +94,71 @@ class _GalleryExampleState extends State<GalleryExample> {
             id: record['filename'],
             thumb: record['thumb'],
             url: record['url'],
+            headline: record['headline'],
           );
         }).toList();
 
-    return Scaffold(
-      // appBar: AppBar(title: const Text("Gallery Example")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children:
-                  galleryItems.map((item) {
-                    return ItemThumbnail(
-                      galleryItem: item,
-                      onTap: () {
-                        open(context, galleryItems.indexOf(item));
-                      },
-                    );
-                  }).toList(),
-            ),
-          ],
+    return AdminScaffold(
+      // backgroundColor: Colors.pink.shade100,
+      appBar: AppBar(title: Text(widget.title)),
+      sideBar: SideBar(
+        backgroundColor: Colors.white,
+        items: const [
+          AdminMenuItem(title: 'Home', route: '/', icon: Icons.home),
+          AdminMenuItem(title: 'Add', route: '/add', icon: Icons.add),
+          AdminMenuItem(title: 'Admin', route: '/admin', icon: Icons.settings),
+        ],
+        selectedRoute: '/',
+        onSelected: (item) {
+          if (item.route != null) {
+            Navigator.of(context).pushNamed(item.route!);
+          }
+        },
+        header: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              Text('Search'),
+              TextField(
+                decoration: InputDecoration(labelText: 'search by text'),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: 'search by tags'),
+              ),
+            ],
+          ),
+        ),
+        footer: Container(
+          height: 50,
+          width: double.infinity,
+          color: const Color(0xff444444),
+          child: const Center(
+            child: Text('footer', style: TextStyle(color: Colors.white)),
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: SpGrid(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          spacing: 10,
+          runSpacing: 10,
+          children:
+              galleryItems.map((item) {
+                return SpGridItem(
+                  xs: 12,
+                  sm: 4,
+                  md: 3,
+                  lg: 2,
+                  child: ItemThumbnail(
+                    galleryItem: item,
+                    onTap: () {
+                      open(context, galleryItems.indexOf(item));
+                    },
+                  ),
+                  // decoration: BoxDecoration(color: Colors.grey[300]),
+                );
+              }).toList(),
         ),
       ),
     );
@@ -152,7 +224,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
           height: MediaQuery.of(context).size.height,
         ),
         child: Stack(
-          alignment: Alignment.bottomRight,
+          alignment: Alignment.topLeft,
           children: <Widget>[
             PhotoViewGallery.builder(
               scrollPhysics: const BouncingScrollPhysics(),
@@ -165,12 +237,14 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
               scrollDirection: widget.scrollDirection,
             ),
             Container(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(10.0),
+              color: Colors.amber,
               child: Text(
-                "Image ${currentIndex + 1}",
+                widget.galleryItems[currentIndex].headline,
+                // "Image ${currentIndex + 1}",
                 style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 17.0,
+                  // color: Colors.white,
+                  fontSize: 14.0,
                   decoration: null,
                 ),
               ),
