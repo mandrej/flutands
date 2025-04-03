@@ -8,7 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'api_provider.dart';
 import 'home_page.dart';
-import 'list_page.dart';
+// import 'list_page.dart';
+import 'gallery_example.dart';
 
 Future<void> main() async {
   setPathUrlStrategy();
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const HomePage(title: 'MDA'),
-          '/list': (context) => const ListPage(title: 'Andrejeвићи'),
+          '/list': (context) => GalleryExample(),
         },
         // home: const HomePage(title: 'MDA'),
       ),
