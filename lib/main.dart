@@ -8,8 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'api_provider.dart';
 import 'home_page.dart';
-// import 'list_page.dart';
-import 'gallery_example.dart';
+import 'list_page.dart';
 
 Future<void> main() async {
   setPathUrlStrategy();
@@ -28,6 +27,13 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
+ThemeData theme = ThemeData(
+  primaryColor: Colors.black,
+  scaffoldBackgroundColor: Colors.white10,
+  fontFamily: 'PTSans',
+  useMaterial3: true,
+);
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -36,14 +42,15 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (context) => ApiProvider())],
       child: MaterialApp(
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo.shade700),
-          useMaterial3: true,
-        ),
+        theme: theme,
+        // theme: ThemeData(
+        //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo.shade700),
+        //   useMaterial3: true,
+        // ),
         initialRoute: '/',
         routes: {
           '/': (context) => const HomePage(title: 'MDA'),
-          '/list': (context) => GalleryExample(title: 'Example'),
+          '/list': (context) => ListPage(title: 'Example'),
         },
         // home: const HomePage(title: 'MDA'),
       ),

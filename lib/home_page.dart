@@ -23,11 +23,11 @@ class HomePage extends StatelessWidget {
       //   title: Text(title),
       //   actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
       // ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {},
-      //   child: Icon(Icons.add),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       body:
           lastRecord != null && firstRecord != null
               ? SpGrid(
