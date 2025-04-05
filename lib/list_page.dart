@@ -33,9 +33,10 @@ class ItemThumbnail extends StatelessWidget {
         child: Card(
           semanticContainer: true,
           color: Colors.grey.shade200,
+          shadowColor: Colors.transparent,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5.0),
+            borderRadius: BorderRadius.circular(3.0),
           ),
           child: Column(
             children: [
@@ -90,9 +91,10 @@ class _ListPageState extends State<ListPage> {
     return AdminScaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        elevation: 4,
-        backgroundColor: Colors.white,
-        shadowColor: Colors.black,
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        elevation: 5,
+        shadowColor: Colors.grey,
       ),
       sideBar: SideBar(
         backgroundColor: Colors.white,
@@ -211,47 +213,64 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: widget.backgroundDecoration,
-        constraints: BoxConstraints.expand(
-          height: MediaQuery.of(context).size.height,
-        ),
-        child: Stack(
-          alignment: Alignment.topCenter,
-          children: <Widget>[
-            PhotoViewGallery.builder(
-              scrollPhysics: const BouncingScrollPhysics(),
-              builder: _buildItem,
-              itemCount: widget.galleryItems.length,
-              loadingBuilder: widget.loadingBuilder,
-              backgroundDecoration: widget.backgroundDecoration,
-              pageController: widget.pageController,
-              onPageChanged: onPageChanged,
-              scrollDirection: widget.scrollDirection,
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(icon: const Icon(Icons.delete), onPressed: () {}),
+            Text(
+              widget.galleryItems[currentIndex].record['headline'] ?? '',
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
-            Container(
-              padding: const EdgeInsets.all(5.0),
-              color: Colors.amber,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(icon: const Icon(Icons.delete), onPressed: () {}),
-                  Text(
-                    widget.galleryItems[currentIndex].record['headline'] ?? '',
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  IconButton(icon: const Icon(Icons.edit), onPressed: () {}),
-                ],
-              ),
-            ),
+            IconButton(icon: const Icon(Icons.edit), onPressed: () {}),
           ],
         ),
-      ),
+        Expanded(
+          child: PhotoViewGallery.builder(
+            scrollPhysics: const BouncingScrollPhysics(),
+            builder: _buildItem,
+            itemCount: widget.galleryItems.length,
+            loadingBuilder: widget.loadingBuilder,
+            backgroundDecoration: widget.backgroundDecoration,
+            pageController: widget.pageController,
+            onPageChanged: onPageChanged,
+            scrollDirection: widget.scrollDirection,
+          ),
+        ),
+      ],
     );
+    // return Scaffold(
+    //   body: Container(
+    //     decoration: widget.backgroundDecoration,
+    //     constraints: BoxConstraints.expand(
+    //       height: MediaQuery.of(context).size.height,
+    //     ),
+    //     child: Stack(
+    //       alignment: Alignment.topCenter,
+    //       children: <Widget>[
+    //         PhotoViewGallery.builder(
+    //         ),
+    //         Container(
+    //           padding: const EdgeInsets.all(5.0),
+    //           color: Colors.amber,
+    //           child: Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             children: [
+    //               IconButton(icon: const Icon(Icons.delete), onPressed: () {}),
+    //               Text(
+    //               ),
+    //               IconButton(icon: const Icon(Icons.edit), onPressed: () {}),
+    //             ],
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {

@@ -28,9 +28,9 @@ Future<void> main() async {
 }
 
 ThemeData theme = ThemeData(
-  primaryColor: Colors.black,
+  primaryColor: Colors.amber,
   scaffoldBackgroundColor: Colors.white10,
-  fontFamily: 'PTSans',
+  // fontFamily: 'PTSans',
   useMaterial3: true,
 );
 
@@ -43,14 +43,10 @@ class MyApp extends StatelessWidget {
       providers: [ChangeNotifierProvider(create: (context) => ApiProvider())],
       child: MaterialApp(
         theme: theme,
-        // theme: ThemeData(
-        //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo.shade700),
-        //   useMaterial3: true,
-        // ),
         initialRoute: '/',
         routes: {
-          '/': (context) => const HomePage(title: 'MDA'),
-          '/list': (context) => ListPage(title: 'Example'),
+          '/': (context) => const HomePage(title: 'Andrejeвићи'),
+          '/list': (context) => ListPage(title: 'List Page'),
         },
         // home: const HomePage(title: 'MDA'),
       ),

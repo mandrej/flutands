@@ -68,8 +68,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    - assets/camera.svg
+  # assets:
+    # - assets/camera.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -82,12 +82,12 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  fonts:
-    - family: PTSans
-      fonts:
-        - asset: assets/fonts/ptasans-regular.ttf
-        - asset: assets/fonts/ptasans-bold.ttf
-          weight: 700
+  # fonts:
+    # - family: PTSans
+    #   fonts:
+    #     - asset: assets/fonts/ptasans-regular.ttf
+    #     - asset: assets/fonts/ptasans-bold.ttf
+    #       weight: 700
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
