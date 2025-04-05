@@ -28,8 +28,7 @@ Future<void> main() async {
 }
 
 ThemeData theme = ThemeData(
-  primaryColor: Colors.amber,
-  scaffoldBackgroundColor: Colors.white10,
+  colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
   // fontFamily: 'PTSans',
   useMaterial3: true,
 );

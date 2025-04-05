@@ -42,7 +42,6 @@ dependencies:
   simple_grid: ^0.1.0
   foundation: ^0.0.5
   url_strategy: ^0.3.0
-  flutter_admin_scaffold: ^1.4.0
   photo_view: ^0.15.0
 
 dev_dependencies:

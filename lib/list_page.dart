@@ -3,8 +3,9 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_grid/simple_grid.dart';
-import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'api_provider.dart';
+import 'parts/search_form.dart';
+import 'parts/navigation_menu.dart';
 
 class Item {
   Item({required this.id, required this.record});
@@ -88,50 +89,46 @@ class _ListPageState extends State<ListPage> {
           return Item(id: record['filename'], record: record);
         }).toList();
 
-    return AdminScaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        foregroundColor: Colors.white,
-        backgroundColor: Theme.of(context).colorScheme.secondary,
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
         elevation: 5,
         shadowColor: Colors.grey,
       ),
-      sideBar: SideBar(
-        backgroundColor: Colors.white,
-        items: const [
-          AdminMenuItem(title: 'Home', route: '/', icon: Icons.home),
-          AdminMenuItem(title: 'Add', route: '/add', icon: Icons.add),
-          AdminMenuItem(title: 'Admin', route: '/admin', icon: Icons.settings),
-        ],
-        selectedRoute: '/',
-        onSelected: (item) {
-          if (item.route != null) {
-            Navigator.of(context).pushNamed(item.route!);
-          }
-        },
-        footer: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            children: [
-              Text('Search'),
-              TextField(
-                decoration: InputDecoration(labelText: 'search by text'),
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: 'search by tags'),
-              ),
-            ],
+      drawer: Drawer(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(0),
+            bottomRight: Radius.circular(0),
           ),
         ),
-        // footer: Container(
-        //   height: 50,
-        //   width: double.infinity,
-        //   color: const Color(0xff444444),
-        //   child: const Center(
-        //     child: Text('footer', style: TextStyle(color: Colors.white)),
-        //   ),
-        // ),
+        child: Column(
+          children: [
+            Container(
+              height: 100,
+              color: Theme.of(context).colorScheme.secondary,
+              child: const Center(
+                child: Text(
+                  'Filters',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ),
+            ),
+            SearchForm(),
+            Spacer(flex: 1),
+            NavigationMenu(),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: SpGrid(
@@ -193,6 +190,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   final dynamic maxScale;
   final int initialIndex;
   final PageController pageController;
+
   final List<Item> galleryItems;
   final Axis scrollDirection;
 
@@ -243,34 +241,6 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
         ),
       ],
     );
-    // return Scaffold(
-    //   body: Container(
-    //     decoration: widget.backgroundDecoration,
-    //     constraints: BoxConstraints.expand(
-    //       height: MediaQuery.of(context).size.height,
-    //     ),
-    //     child: Stack(
-    //       alignment: Alignment.topCenter,
-    //       children: <Widget>[
-    //         PhotoViewGallery.builder(
-    //         ),
-    //         Container(
-    //           padding: const EdgeInsets.all(5.0),
-    //           color: Colors.amber,
-    //           child: Row(
-    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //             children: [
-    //               IconButton(icon: const Icon(Icons.delete), onPressed: () {}),
-    //               Text(
-    //               ),
-    //               IconButton(icon: const Icon(Icons.edit), onPressed: () {}),
-    //             ],
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
