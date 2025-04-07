@@ -9,7 +9,7 @@ class ApiProvider extends ChangeNotifier {
   Map<String, dynamic>? lastRecord;
   Map<String, dynamic>? firstRecord;
   Map<String, Map<String, int>>? values;
-  Map<String, dynamic>? find = {'year': 2024};
+  Map<String, dynamic>? find = {'year': 2023};
   List<Map<String, dynamic>> records = [];
 
   ApiProvider() {
@@ -21,6 +21,12 @@ class ApiProvider extends ChangeNotifier {
     firstRecord = await getRecord('Photo', false);
     values = await getValues('Counter');
     notifyListeners();
+  }
+
+  void changeFind(String field, dynamic value) {
+    find![field] = value;
+    notifyListeners();
+    fetchRecords();
   }
 
   Future<Map<String, dynamic>?> getRecord(String kind, bool descending) async {
@@ -72,6 +78,7 @@ class ApiProvider extends ChangeNotifier {
               .orderBy('date', descending: true)
               .get();
       if (querySnapshot.docs.isNotEmpty) {
+        records.clear();
         for (var doc in querySnapshot.docs) {
           records.add(doc.data());
         }

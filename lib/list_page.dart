@@ -4,8 +4,8 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_grid/simple_grid.dart';
 import 'api_provider.dart';
+import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'parts/search_form.dart';
-import 'parts/navigation_menu.dart';
 
 class Item {
   Item({required this.id, required this.record});
@@ -37,11 +37,17 @@ class ItemThumbnail extends StatelessWidget {
           shadowColor: Colors.transparent,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(3.0),
+            borderRadius: BorderRadius.circular(5.0),
           ),
           child: Column(
             children: [
-              Image.network(galleryItem.record['thumb']),
+              AspectRatio(
+                aspectRatio: 1,
+                child: Image.network(
+                  galleryItem.record['thumb'],
+                  fit: BoxFit.cover,
+                ),
+              ),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 child: Text(
@@ -89,7 +95,7 @@ class _ListPageState extends State<ListPage> {
           return Item(id: record['filename'], record: record);
         }).toList();
 
-    return Scaffold(
+    return AdminScaffold(
       appBar: AppBar(
         title: Text(widget.title),
         leading: Builder(
@@ -105,30 +111,32 @@ class _ListPageState extends State<ListPage> {
         elevation: 5,
         shadowColor: Colors.grey,
       ),
-      drawer: Drawer(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(0),
-            bottomRight: Radius.circular(0),
+      sideBar: SideBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        activeBackgroundColor: Theme.of(context).colorScheme.primary,
+        textStyle: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontSize: 16,
+        ),
+        items: const [
+          AdminMenuItem(title: 'Home', route: '/', icon: Icons.home),
+          AdminMenuItem(title: 'Add', route: '/add', icon: Icons.add),
+        ],
+        selectedRoute: '/list',
+        onSelected: (item) {
+          if (item.route != null) {
+            Navigator.of(context).pushNamed(item.route!);
+          }
+        },
+        header: Container(
+          height: 50,
+          width: double.infinity,
+          color: const Color(0xff444444),
+          child: const Center(
+            child: Text('header', style: TextStyle(color: Colors.white)),
           ),
         ),
-        child: Column(
-          children: [
-            Container(
-              height: 100,
-              color: Theme.of(context).colorScheme.secondary,
-              child: const Center(
-                child: Text(
-                  'Filters',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-              ),
-            ),
-            SearchForm(),
-            Spacer(flex: 1),
-            NavigationMenu(),
-          ],
-        ),
+        footer: SearchForm(),
       ),
       body: SingleChildScrollView(
         child: SpGrid(

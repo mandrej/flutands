@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
         onPressed: () {},
         child: Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       body:
           lastRecord != null && firstRecord != null
               ? SpGrid(
