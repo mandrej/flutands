@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'dart:collection';
 
@@ -9,7 +10,7 @@ class ApiProvider extends ChangeNotifier {
   Map<String, dynamic>? lastRecord;
   Map<String, dynamic>? firstRecord;
   Map<String, Map<String, int>>? values;
-  Map<String, dynamic>? find = {'year': 2023};
+  Map<String, dynamic>? find = {};
   List<Map<String, dynamic>> records = [];
 
   ApiProvider() {
@@ -21,6 +22,7 @@ class ApiProvider extends ChangeNotifier {
     firstRecord = await getRecord('Photo', false);
     values = await getValues('Counter');
     notifyListeners();
+    // print(values!['tags']);
   }
 
   void changeFind(String field, dynamic value) {
@@ -68,13 +70,34 @@ class ApiProvider extends ChangeNotifier {
     return result.isNotEmpty ? result : null;
   }
 
+  void fixFind() {
+    find!.forEach((String key, dynamic value) {
+      if (value == null) {
+        find?.remove(key);
+      } else if (value is String && value.isEmpty) {
+        find?.remove(key);
+      } else if (value is int && value == 0) {
+        find?.remove(key);
+      } else if (value is List<String> && value.isEmpty) {
+        find?.remove(key);
+      }
+    });
+  }
+
   fetchRecords() async {
+    fixFind();
+
     try {
       final querySnapshot =
           await db
               .collection('Photo')
               .where('year', isEqualTo: find!['year'])
-              // .where('month', isEqualTo: find!['month'])
+              .where('month', isEqualTo: find!['month'])
+              // .where('day', isEqualTo: find!['day'])
+              // .where('tags', arrayContainsAny: find!['tags'])
+              // .where('model', isEqualTo: find!['model'])
+              // .where('lens', isEqualTo: find!['lens'])
+              // .where('email', isEqualTo: find!['email'])
               .orderBy('date', descending: true)
               .get();
       if (querySnapshot.docs.isNotEmpty) {

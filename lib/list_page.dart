@@ -128,15 +128,15 @@ class _ListPageState extends State<ListPage> {
             Navigator.of(context).pushNamed(item.route!);
           }
         },
-        header: Container(
-          height: 50,
-          width: double.infinity,
-          color: const Color(0xff444444),
-          child: const Center(
-            child: Text('header', style: TextStyle(color: Colors.white)),
-          ),
-        ),
-        footer: SearchForm(),
+        // header: Container(
+        //   height: 50,
+        //   width: double.infinity,
+        //   color: const Color(0xff444444),
+        //   child: const Center(
+        //     child: Text('header', style: TextStyle(color: Colors.white)),
+        //   ),
+        // ),
+        header: SearchForm(),
       ),
       body: SingleChildScrollView(
         child: SpGrid(
