@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../api_provider.dart';
-import 'multi_auto_suggest_dropdown.dart';
+import '../widgets/auto_suggest_field.dart';
+import '../widgets/auto_suggest_multi_select.dart';
 
 class SearchForm extends StatefulWidget {
   SearchForm({super.key});
@@ -30,11 +31,25 @@ class _SearchFormState extends State<SearchForm> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MultiAutoSuggestDropdown(
-              hintText: 'Select tags',
-              selected: api.find?['tags'] ?? [],
-              suggestions: api.values!['tags']!.keys.toList(),
-              onSelectionChanged: (value) => api.changeFind('tags', value),
+            AutoSuggestField(
+              hintText: 'filter by year',
+              initialValue: api.find?['year']?.toString() ?? '',
+              options:
+                  api.values!['year']!.keys.map((e) => e.toString()).toList(),
+              onChanged:
+                  (value) => api.changeFind('year', int.tryParse(value ?? '')),
+            ),
+            AutoSuggestMultiSelect(
+              hintText: 'filter by tags',
+              initialValues: api.find?['tags'] ?? [],
+              options: api.values!['tags']!.keys.toList(),
+              onChanged: (value) => api.changeFind('tags', value),
+            ),
+            AutoSuggestField(
+              hintText: 'filter by model',
+              initialValue: api.find?['model'],
+              options: api.values!['model']!.keys.toList(),
+              onChanged: (value) => api.changeFind('model', value),
             ),
             SizedBox(height: 50),
           ],
