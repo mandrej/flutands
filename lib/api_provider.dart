@@ -74,6 +74,8 @@ class ApiProvider extends ChangeNotifier {
     find!.forEach((String key, dynamic value) {
       if (value == null) {
         find?.remove(key);
+      } else if (value is List<String> && value.isEmpty) {
+        find?.remove(key);
       } else if (value is String && value.isEmpty) {
         find?.remove(key);
       } else if (value is int && value == 0) {
@@ -86,6 +88,7 @@ class ApiProvider extends ChangeNotifier {
 
   fetchRecords() async {
     fixFind();
+    print(find);
 
     try {
       final querySnapshot =
@@ -94,7 +97,8 @@ class ApiProvider extends ChangeNotifier {
               .where('year', isEqualTo: find!['year'])
               .where('month', isEqualTo: find!['month'])
               // .where('day', isEqualTo: find!['day'])
-              // .where('tags', arrayContainsAny: find!['tags'])
+              .where('tags', arrayContainsAny: find!['tags'])
+              // .where('tags', isEqualTo: find!['tags'])
               // .where('model', isEqualTo: find!['model'])
               // .where('lens', isEqualTo: find!['lens'])
               // .where('email', isEqualTo: find!['email'])
