@@ -27,6 +27,7 @@ class ApiProvider extends ChangeNotifier {
 
   void changeFind(String field, dynamic value) {
     find![field] = value;
+    fixFind();
     notifyListeners();
     fetchRecords();
   }
@@ -70,26 +71,19 @@ class ApiProvider extends ChangeNotifier {
     return result.isNotEmpty ? result : null;
   }
 
-  void fixFind() {
-    find!.forEach((String key, dynamic value) {
-      if (value == null) {
-        find?.remove(key);
-      } else if (value is List<String> && value.isEmpty) {
-        find?.remove(key);
-      } else if (value is String && value.isEmpty) {
-        find?.remove(key);
-      } else if (value is int && value == 0) {
-        find?.remove(key);
-      } else if (value is List<String> && value.isEmpty) {
-        find?.remove(key);
-      }
-    });
+  Map<String, dynamic>? fixFind() {
+    find?.removeWhere(
+      (key, value) =>
+          value == null ||
+          (value is List && value.isEmpty) ||
+          (value is String && value.isEmpty) ||
+          (value is int && value == 0),
+    );
+    return find;
   }
 
   fetchRecords() async {
-    fixFind();
-    print(find);
-
+    debugPrint('FIND $find.toString()');
     try {
       final querySnapshot =
           await db

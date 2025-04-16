@@ -64,6 +64,12 @@ class _AutoSuggestMultiSelectState extends State<AutoSuggestMultiSelect> {
       _filteredOptions =
           widget.options.where((opt) => !_selected.contains(opt)).toList();
       widget.onChanged(_selected);
+
+      if (_selected.isEmpty) {
+        _textController.clear(); // Reset the text field
+        _filteredOptions = widget.options;
+        _focusNode.unfocus(); // Reset the options
+      }
     });
   }
 

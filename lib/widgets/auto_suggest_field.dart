@@ -60,7 +60,26 @@ class _AutoSuggestFieldState extends State<AutoSuggestField> {
         TextField(
           controller: _controller,
           focusNode: _focusNode,
-          decoration: InputDecoration(hintText: widget.hintText),
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            suffixIcon:
+                _controller
+                        .text
+                        .isNotEmpty // Show clear button only if input exists
+                    ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        setState(() {
+                          _controller.clear();
+                          _filteredOptions = widget.options;
+                          _selectedValue = null;
+                          _focusNode.unfocus();
+                          widget.onChanged(null);
+                        });
+                      },
+                    )
+                    : null,
+          ),
         ),
         if (_focusNode.hasFocus && _filteredOptions.isNotEmpty)
           Material(
