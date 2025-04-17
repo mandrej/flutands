@@ -6,7 +6,6 @@ import 'package:simple_grid/simple_grid.dart';
 class SimpleGridView extends StatelessWidget {
   SimpleGridView({super.key, required this.records});
   final List<Map<String, dynamic>> records;
-  late final List<Item> galleryItems;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +46,10 @@ class SimpleGridView extends StatelessWidget {
       MaterialPageRoute(
         builder:
             (context) => GalleryPhotoViewWrapper(
-              galleryItems: galleryItems,
+              galleryItems:
+                  records.map((record) {
+                    return Item(id: record['filename'], record: record);
+                  }).toList(),
               backgroundDecoration: const BoxDecoration(color: Colors.black),
               initialIndex: index,
               scrollDirection: Axis.horizontal,
