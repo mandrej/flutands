@@ -15,18 +15,10 @@ class ListPage extends StatefulWidget {
 
 class _ListPageState extends State<ListPage> {
   late List<Item> galleryItems = [];
-  var buttonText = 'VIEW MODE';
 
   @override
   void initState() {
     super.initState();
-    FlagProvider flags = Provider.of<FlagProvider>(context, listen: false);
-    flags.addListener(() {
-      setState(() {
-        buttonText =
-            flags.buttonText; // Ensure state is updated and widget rebuilds
-      });
-    });
     // Initialize the API provider after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
@@ -37,6 +29,8 @@ class _ListPageState extends State<ListPage> {
   @override
   Widget build(BuildContext context) {
     ApiProvider api = Provider.of<ApiProvider>(context);
+    FlagProvider flags = Provider.of<FlagProvider>(context, listen: false);
+    var buttonText = context.watch<FlagProvider>().buttonText;
 
     return AdminScaffold(
       appBar: AppBar(
@@ -52,26 +46,15 @@ class _ListPageState extends State<ListPage> {
           },
         ),
         actions: [
-          Consumer<FlagProvider>(
-            builder: (context, model, child) {
-              return TextButton(
-                onPressed: () {
-                  Provider.of<FlagProvider>(
-                    context,
-                    listen: false,
-                  ).toggleEditMode();
-                },
-                child: Text(
-                  buttonText,
-                  style: const TextStyle(color: Colors.black),
-                ),
-              );
+          TextButton(
+            onPressed: () {
+              flags.toggleEditMode();
             },
+            child: Text(
+              buttonText,
+              style: const TextStyle(color: Colors.black),
+            ),
           ),
-
-          // TextButton(
-          //
-          // ),
         ],
         elevation: 5,
         shadowColor: Colors.grey,

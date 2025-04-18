@@ -68,7 +68,7 @@ class Item {
   final Map<String, dynamic> record;
 }
 
-class ItemThumbnail extends StatefulWidget {
+class ItemThumbnail extends StatelessWidget {
   const ItemThumbnail({
     super.key,
     required this.galleryItem,
@@ -79,31 +79,14 @@ class ItemThumbnail extends StatefulWidget {
   final GestureTapCallback onTap;
 
   @override
-  State<ItemThumbnail> createState() => _ItemThumbnailState();
-}
-
-class _ItemThumbnailState extends State<ItemThumbnail> {
-  var editMode = false;
-
-  @override
-  void initState() {
-    super.initState();
-    FlagProvider flags = Provider.of<FlagProvider>(context, listen: false);
-    flags.addListener(() {
-      setState(() {
-        editMode = flags.editModeValue; // Ensure state is updated properly
-      });
-    });
-    // editMode = false;
-  }
-
-  @override
   Widget build(BuildContext context) {
+    var editMode = context.watch<FlagProvider>().editModeValue;
     final TextTheme textTheme = Theme.of(context).textTheme;
+
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Hero(
-        tag: widget.galleryItem.id,
+        tag: galleryItem.id,
         child: Card(
           semanticContainer: true,
           color: Colors.grey.shade200,
@@ -120,44 +103,38 @@ class _ItemThumbnailState extends State<ItemThumbnail> {
                   alignment: Alignment.centerRight,
                   children: [
                     Image.network(
-                      widget.galleryItem.record['thumb'],
+                      galleryItem.record['thumb'],
                       fit: BoxFit.cover,
                     ),
-                    Consumer<FlagProvider>(
-                      builder: (context, model, child) {
-                        if (editMode) {
-                          return Container(
-                            width: 42,
-                            // height: ,
-                            color: Colors.grey.shade700,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  color: Theme.of(context).colorScheme.surface,
-                                  onPressed: () {},
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  color: Theme.of(context).colorScheme.surface,
-                                  onPressed: () {},
-                                ),
-                              ],
+                    // if (editMode) {
+                    if (editMode)
+                      Container(
+                        width: 42,
+                        color: Color.fromARGB(64, 0, 0, 0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              color: Theme.of(context).colorScheme.surface,
+                              onPressed: () {},
                             ),
-                          );
-                        }
-                        return const SizedBox.shrink(); // Return an empty widget if not in edit mode
-                      },
-                    ),
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              color: Theme.of(context).colorScheme.surface,
+                              onPressed: () {},
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 child: Text(
-                  widget.galleryItem.record['headline'] ?? '',
+                  galleryItem.record['headline'] ?? '',
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
