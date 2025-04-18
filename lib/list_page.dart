@@ -6,7 +6,7 @@ import 'parts/search_form.dart';
 import 'parts/simple_grid_view.dart';
 
 class ListPage extends StatefulWidget {
-  const ListPage({super.key, required this.title});
+  ListPage({super.key, required this.title});
   final String title;
 
   @override
@@ -15,13 +15,23 @@ class ListPage extends StatefulWidget {
 
 class _ListPageState extends State<ListPage> {
   late List<Item> galleryItems = [];
+  var buttonText = 'VIEW MODE';
 
   @override
   void initState() {
     super.initState();
-    // Initialize the API provider
-    ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
-    api.fetchRecords();
+    FlagProvider flags = Provider.of<FlagProvider>(context, listen: false);
+    flags.addListener(() {
+      setState(() {
+        buttonText =
+            flags.buttonText; // Ensure state is updated and widget rebuilds
+      });
+    });
+    // Initialize the API provider after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
+      api.fetchRecords();
+    });
   }
 
   @override
@@ -41,6 +51,28 @@ class _ListPageState extends State<ListPage> {
             );
           },
         ),
+        actions: [
+          Consumer<FlagProvider>(
+            builder: (context, model, child) {
+              return TextButton(
+                onPressed: () {
+                  Provider.of<FlagProvider>(
+                    context,
+                    listen: false,
+                  ).toggleEditMode();
+                },
+                child: Text(
+                  buttonText,
+                  style: const TextStyle(color: Colors.black),
+                ),
+              );
+            },
+          ),
+
+          // TextButton(
+          //
+          // ),
+        ],
         elevation: 5,
         shadowColor: Colors.grey,
       ),
@@ -48,7 +80,7 @@ class _ListPageState extends State<ListPage> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         activeBackgroundColor: Theme.of(context).colorScheme.primary,
         textStyle: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.onPrimary,
           fontSize: 16,
         ),
         items: const [

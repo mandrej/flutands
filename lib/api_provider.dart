@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 // import 'package:firebase_auth/firebase_auth.dart';
-// import 'dart:collection';
+
+class FlagProvider extends ChangeNotifier {
+  bool editMode = false;
+
+  FlagProvider();
+
+  void toggleEditMode() {
+    editMode = !editMode;
+    notifyListeners();
+  }
+
+  String get buttonText => editMode ? 'EDIT MODE' : 'VIEW MODE';
+  bool get editModeValue => editMode;
+}
 
 class ApiProvider extends ChangeNotifier {
   final db = FirebaseFirestore.instance;
@@ -28,8 +40,8 @@ class ApiProvider extends ChangeNotifier {
   void changeFind(String field, dynamic value) {
     find![field] = value;
     fixFind();
-    notifyListeners();
     fetchRecords();
+    notifyListeners();
   }
 
   Future<Map<String, dynamic>?> getRecord(String kind, bool descending) async {

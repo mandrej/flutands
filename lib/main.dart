@@ -28,8 +28,20 @@ Future<void> main() async {
 }
 
 ThemeData theme = ThemeData(
-  colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
-  // fontFamily: 'PTSans',
+  colorScheme: const ColorScheme.light(
+    primary: Colors.amber,
+    primaryContainer: Colors.amberAccent,
+    secondary: Colors.orange,
+    secondaryContainer: Colors.orangeAccent,
+    surface: Colors.white,
+    // background: Colors.amber.shade50,
+    error: Colors.red,
+    onPrimary: Colors.black,
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    // onBackground: Colors.black,
+    onError: Colors.white,
+  ),
   useMaterial3: true,
 );
 
@@ -39,7 +51,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => ApiProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (context) => ApiProvider()),
+        ChangeNotifierProvider(create: (context) => FlagProvider()),
+      ],
       child: MaterialApp(
         theme: theme,
         initialRoute: '/',

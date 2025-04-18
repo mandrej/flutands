@@ -5,7 +5,7 @@ import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 
 class SearchForm extends StatefulWidget {
-  SearchForm({super.key});
+  const SearchForm({super.key});
 
   @override
   State<SearchForm> createState() => _SearchFormState();
@@ -51,7 +51,7 @@ class _SearchFormState extends State<SearchForm> {
               options: api.values!['model']!.keys.toList(),
               onChanged: (value) => api.changeFind('model', value),
             ),
-            SizedBox(height: 50),
+            // SizedBox(height: 50),
           ],
         ),
       ),

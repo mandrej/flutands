@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:simple_grid/simple_grid.dart';
+import 'package:provider/provider.dart';
+import '../api_provider.dart';
 
 class SimpleGridView extends StatelessWidget {
   SimpleGridView({super.key, required this.records});
@@ -66,7 +68,7 @@ class Item {
   final Map<String, dynamic> record;
 }
 
-class ItemThumbnail extends StatelessWidget {
+class ItemThumbnail extends StatefulWidget {
   const ItemThumbnail({
     super.key,
     required this.galleryItem,
@@ -77,12 +79,31 @@ class ItemThumbnail extends StatelessWidget {
   final GestureTapCallback onTap;
 
   @override
+  State<ItemThumbnail> createState() => _ItemThumbnailState();
+}
+
+class _ItemThumbnailState extends State<ItemThumbnail> {
+  var editMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    FlagProvider flags = Provider.of<FlagProvider>(context, listen: false);
+    flags.addListener(() {
+      setState(() {
+        editMode = flags.editModeValue; // Ensure state is updated properly
+      });
+    });
+    // editMode = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Hero(
-        tag: galleryItem.id,
+        tag: widget.galleryItem.id,
         child: Card(
           semanticContainer: true,
           color: Colors.grey.shade200,
@@ -95,15 +116,48 @@ class ItemThumbnail extends StatelessWidget {
             children: [
               AspectRatio(
                 aspectRatio: 1,
-                child: Image.network(
-                  galleryItem.record['thumb'],
-                  fit: BoxFit.cover,
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    Image.network(
+                      widget.galleryItem.record['thumb'],
+                      fit: BoxFit.cover,
+                    ),
+                    Consumer<FlagProvider>(
+                      builder: (context, model, child) {
+                        if (editMode) {
+                          return Container(
+                            width: 42,
+                            // height: ,
+                            color: Colors.grey.shade700,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  color: Theme.of(context).colorScheme.surface,
+                                  onPressed: () {},
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  color: Theme.of(context).colorScheme.surface,
+                                  onPressed: () {},
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink(); // Return an empty widget if not in edit mode
+                      },
+                    ),
+                  ],
                 ),
               ),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 child: Text(
-                  galleryItem.record['headline'] ?? '',
+                  widget.galleryItem.record['headline'] ?? '',
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
