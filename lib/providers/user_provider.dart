@@ -9,6 +9,27 @@ class UserProvider with ChangeNotifier {
   Map<String, dynamic>? _user;
   Map<String, dynamic>? get user => _user;
 
+  UserProvider() {
+    _auth.authStateChanges().listen((User? googleUser) {
+      if (googleUser == null) {
+        _isAuthenticated = false;
+        _user = null;
+        notifyListeners();
+        // print('User is currently signed out!');
+      } else {
+        _isAuthenticated = true;
+        _user = {
+          'displayName': googleUser?.displayName,
+          'email': googleUser?.email,
+          'photoURL': googleUser?.photoURL,
+          'uid': googleUser?.uid,
+        };
+        notifyListeners();
+        print('User is signed in!');
+      }
+    });
+  }
+
   Future<void> signInWithGoogle() async {
     try {
       GoogleAuthProvider authProvider = GoogleAuthProvider();
