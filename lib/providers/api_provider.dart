@@ -3,17 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 
 class FlagProvider extends ChangeNotifier {
-  bool editMode = false;
+  bool _editMode = false;
 
   FlagProvider();
 
   void toggleEditMode() {
-    editMode = !editMode;
+    _editMode = !_editMode;
     notifyListeners();
   }
 
-  String get buttonText => editMode ? 'EDIT MODE' : 'VIEW MODE';
-  bool get editModeValue => editMode;
+  bool get editMode => _editMode;
 }
 
 class ApiProvider extends ChangeNotifier {

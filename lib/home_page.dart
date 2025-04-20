@@ -2,14 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'api_provider.dart';
-import 'user_provider.dart';
+import 'providers/api_provider.dart';
+import 'providers/user_provider.dart';
 import 'package:simple_grid/simple_grid.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key, required this.title});
   final String title;
-  // final GoogleAuthService _authService = GoogleAuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -82,34 +81,36 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              await auth.signInWithGoogle();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              elevation: 4,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
+                          if (auth.isAuthenticated == false)
+                            ElevatedButton(
+                              onPressed: () async {
+                                await auth.signInWithGoogle();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 4,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                              ),
+                              child: Text(
+                                "Sign in with your Google Account",
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                            )
+                          else
+                            ElevatedButton(
+                              onPressed: () async {
+                                await auth.signOut();
+                              },
+                              // style: ElevatedButton.styleFrom(
+                              //   elevation: 4,
+                              //   backgroundColor:
+                              //       Theme.of(context).colorScheme.primary,
+                              // ),
+                              child: Text(
+                                'Sign out ${auth.user!['displayName']}',
+                                style: const TextStyle(color: Colors.black),
+                              ),
                             ),
-                            child: Text(
-                              "Sign in in with your Google Account",
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              await auth.signOut();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              elevation: 4,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                            ),
-                            child: Text(
-                              "Sign out",
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ),
                           Text(
                             title,
                             style: TextStyle(fontSize: 40),

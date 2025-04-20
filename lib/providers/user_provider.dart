@@ -24,9 +24,7 @@ class UserProvider with ChangeNotifier {
       print(_user);
       notifyListeners();
     } catch (e) {
-      _isAuthenticated = true;
-      _user = null;
-      notifyListeners();
+      print(e);
     }
   }
 

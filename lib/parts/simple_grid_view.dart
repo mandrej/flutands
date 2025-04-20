@@ -3,7 +3,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:simple_grid/simple_grid.dart';
 import 'package:provider/provider.dart';
-import '../api_provider.dart';
+import '../providers/api_provider.dart';
 
 class SimpleGridView extends StatelessWidget {
   SimpleGridView({super.key, required this.records});
@@ -81,7 +81,7 @@ class ItemThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
-    var editMode = context.watch<FlagProvider>().editModeValue;
+    var editMode = context.watch<FlagProvider>().editMode;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return GestureDetector(
@@ -108,10 +108,10 @@ class ItemThumbnail extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                     // if (editMode) {
-                    if (editMode)
+                    if (editMode == true)
                       Container(
                         width: 42,
-                        color: Color.fromARGB(64, 0, 0, 0),
+                        color: Color.fromARGB(92, 0, 0, 0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,

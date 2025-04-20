@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'api_provider.dart';
+import 'providers/api_provider.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'parts/search_form.dart';
 import 'parts/simple_grid_view.dart';
@@ -28,9 +28,7 @@ class _ListPageState extends State<ListPage> {
 
   @override
   Widget build(BuildContext context) {
-    FlagProvider flags = Provider.of<FlagProvider>(context, listen: false);
     var recordList = context.watch<ApiProvider>().recordList;
-    var buttonText = context.watch<FlagProvider>().buttonText;
 
     return AdminScaffold(
       appBar: AppBar(
@@ -46,14 +44,18 @@ class _ListPageState extends State<ListPage> {
           },
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              flags.toggleEditMode();
+          Consumer<FlagProvider>(
+            builder: (context, flags, child) {
+              return TextButton(
+                onPressed: () {
+                  flags.toggleEditMode();
+                },
+                child: Text(
+                  flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
+                  style: const TextStyle(color: Colors.black),
+                ),
+              );
             },
-            child: Text(
-              buttonText,
-              style: const TextStyle(color: Colors.black),
-            ),
           ),
         ],
         elevation: 5,
