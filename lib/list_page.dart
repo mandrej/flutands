@@ -28,8 +28,8 @@ class _ListPageState extends State<ListPage> {
 
   @override
   Widget build(BuildContext context) {
-    ApiProvider api = Provider.of<ApiProvider>(context);
     FlagProvider flags = Provider.of<FlagProvider>(context, listen: false);
+    var recordList = context.watch<ApiProvider>().recordList;
     var buttonText = context.watch<FlagProvider>().buttonText;
 
     return AdminScaffold(
@@ -79,7 +79,7 @@ class _ListPageState extends State<ListPage> {
         },
         header: SearchForm(),
       ),
-      body: SimpleGridView(records: api.records),
+      body: SimpleGridView(records: recordList),
     );
   }
 }

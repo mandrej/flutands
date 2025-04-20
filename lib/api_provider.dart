@@ -29,6 +29,8 @@ class ApiProvider extends ChangeNotifier {
     initializeRecords();
   }
 
+  List<Map<String, dynamic>> get recordList => records;
+
   void initializeRecords() async {
     lastRecord = await getRecord('Photo', true);
     firstRecord = await getRecord('Photo', false);
@@ -56,7 +58,7 @@ class ApiProvider extends ChangeNotifier {
         return querySnapshot.docs.first.data() as Map<String, dynamic>?;
       }
     } catch (e) {
-      print("Error completing: $e");
+      print('Error completing: $e');
     }
     return null;
   }
@@ -78,7 +80,7 @@ class ApiProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("Error completing: $e");
+      print('Error completing: $e');
     }
     return result.isNotEmpty ? result : null;
   }
@@ -94,21 +96,28 @@ class ApiProvider extends ChangeNotifier {
     return find;
   }
 
-  fetchRecords() async {
-    debugPrint('FIND $find.toString()');
+  Future<void> fetchRecords() async {
+    debugPrint('FIND ${find.toString()}');
     try {
-      final querySnapshot =
-          await db
-              .collection('Photo')
-              .where('year', isEqualTo: find!['year'])
-              .where('month', isEqualTo: find!['month'])
-              // .where('day', isEqualTo: find!['day'])
-              .where('tags', arrayContainsAny: find!['tags'])
-              .where('model', isEqualTo: find!['model'])
-              // .where('lens', isEqualTo: find!['lens'])
-              // .where('email', isEqualTo: find!['email'])
-              .orderBy('date', descending: true)
-              .get();
+      Query<Map<String, dynamic>> query = db.collection('Photo');
+
+      if (find!['year'] != null) {
+        query = query.where('year', isEqualTo: find!['year']);
+      }
+      if (find!['month'] != null) {
+        query = query.where('month', isEqualTo: find!['month']);
+      }
+      if (find!['tags'] != null &&
+          find!['tags'] is List &&
+          find!['tags'].isNotEmpty) {
+        query = query.where('tags', arrayContainsAny: find!['tags']);
+      }
+      if (find!['model'] != null) {
+        query = query.where('model', isEqualTo: find!['model']);
+      }
+
+      final querySnapshot = await query.orderBy('date', descending: true).get();
+
       if (querySnapshot.docs.isNotEmpty) {
         records.clear();
         for (var doc in querySnapshot.docs) {
@@ -117,7 +126,17 @@ class ApiProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print("Error completing: $e");
+      print('Error completing: $e');
+    }
+  }
+
+  Future<void> deleteRecord(Map<String, dynamic> rec) async {
+    try {
+      await db.collection('Photo').doc(rec['filename']).delete();
+      records.removeWhere((item) => item['filename'] == rec['filename']);
+      notifyListeners();
+    } catch (e) {
+      print('Error deleting document: $e');
     }
   }
 }

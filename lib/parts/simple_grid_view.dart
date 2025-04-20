@@ -80,6 +80,7 @@ class ItemThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
     var editMode = context.watch<FlagProvider>().editModeValue;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
@@ -118,7 +119,12 @@ class ItemThumbnail extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.delete),
                               color: Theme.of(context).colorScheme.surface,
-                              onPressed: () {},
+                              onPressed: () {
+                                Provider.of<ApiProvider>(
+                                  context,
+                                  listen: false,
+                                ).deleteRecord(galleryItem.record);
+                              },
                             ),
                             IconButton(
                               icon: const Icon(Icons.edit),

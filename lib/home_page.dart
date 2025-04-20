@@ -1,14 +1,30 @@
+// ignore_for_file: prefer_single_quotes
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'api_provider.dart';
+// import 'user_provider.dart';
 import 'package:simple_grid/simple_grid.dart';
+import 'parts/google_auth_service.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.title});
+  HomePage({super.key, required this.title});
   final String title;
+  final GoogleAuthService _authService = GoogleAuthService();
 
   @override
   Widget build(BuildContext context) {
+    // UserProvider auth = Provider.of<UserProvider>(context);
+
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user == null) {
+        print('User is currently signed out!');
+      } else {
+        print('User is signed in!');
+      }
+    });
+
     ApiProvider api = Provider.of<ApiProvider>(context);
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
@@ -77,6 +93,34 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              await _authService.signInWithGoogle();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 4,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                            ),
+                            child: Text(
+                              "Sign in in with your Google Account",
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              await _authService.signOut();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 4,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                            ),
+                            child: Text(
+                              "Sign out",
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ),
                           Text(
                             title,
                             style: TextStyle(fontSize: 40),

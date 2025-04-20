@@ -62,4 +62,9 @@ class DefaultFirebaseOptions {
     storageBucket: 'andrejevici.appspot.com',
     measurementId: 'G-4HF1XHQ8Y6',
   );
+
+  // Client ID for Web application
+  // https://console.cloud.google.com/auth/clients/183441678976-a5j3fnkp9vv0pbaul26k8sv8viob36d8.apps.googleusercontent.com?project=andrejevici
+  static const clientId =
+      '183441678976-a5j3fnkp9vv0pbaul26k8sv8viob36d8.apps.googleusercontent.com';
 }
