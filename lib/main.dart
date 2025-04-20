@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'api_provider.dart';
-// import 'user_provider.dart';
+import 'user_provider.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 
@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => ApiProvider()),
         ChangeNotifierProvider(create: (context) => FlagProvider()),
-        // ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp(
         theme: theme,
