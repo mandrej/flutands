@@ -4,6 +4,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:simple_grid/simple_grid.dart';
 import 'package:provider/provider.dart';
 import '../providers/api_provider.dart';
+import 'confirm_delete.dart';
 
 class SimpleGridView extends StatelessWidget {
   SimpleGridView({super.key, required this.records});
@@ -80,7 +81,6 @@ class ItemThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
     var editMode = context.watch<FlagProvider>().editMode;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
@@ -101,7 +101,8 @@ class ItemThumbnail extends StatelessWidget {
               AspectRatio(
                 aspectRatio: 1,
                 child: Stack(
-                  alignment: Alignment.centerRight,
+                  alignment: Alignment.center,
+                  fit: StackFit.expand,
                   children: [
                     Image.network(
                       galleryItem.record['thumb'],
@@ -116,16 +117,7 @@ class ItemThumbnail extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              color: Theme.of(context).colorScheme.surface,
-                              onPressed: () {
-                                Provider.of<ApiProvider>(
-                                  context,
-                                  listen: false,
-                                ).deleteRecord(galleryItem.record);
-                              },
-                            ),
+                            ConfirmDelete(record: galleryItem.record),
                             IconButton(
                               icon: const Icon(Icons.edit),
                               color: Theme.of(context).colorScheme.surface,

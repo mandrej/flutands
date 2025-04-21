@@ -20,26 +20,28 @@ class ApiProvider extends ChangeNotifier {
 
   Map<String, dynamic>? lastRecord;
   Map<String, dynamic>? firstRecord;
-  Map<String, Map<String, int>>? values;
-  Map<String, dynamic>? find = {};
-  List<Map<String, dynamic>> records = [];
+  Map<String, Map<String, int>>? _values;
+  Map<String, dynamic>? _find = {};
+  List<Map<String, dynamic>> _records = [];
 
   ApiProvider() {
     initializeRecords();
   }
 
-  List<Map<String, dynamic>> get recordList => records;
+  List<Map<String, dynamic>> get records => _records;
+  Map<String, Map<String, int>>? get values => _values;
+  Map<String, dynamic>? get find => _find;
 
   void initializeRecords() async {
     lastRecord = await getRecord('Photo', true);
     firstRecord = await getRecord('Photo', false);
-    values = await getValues('Counter');
+    _values = await getValues('Counter');
     notifyListeners();
     // print(values!['tags']);
   }
 
   void changeFind(String field, dynamic value) {
-    find![field] = value;
+    _find![field] = value;
     fixFind();
     fetchRecords();
     notifyListeners();
@@ -85,42 +87,42 @@ class ApiProvider extends ChangeNotifier {
   }
 
   Map<String, dynamic>? fixFind() {
-    find?.removeWhere(
+    _find?.removeWhere(
       (key, value) =>
           value == null ||
           (value is List && value.isEmpty) ||
           (value is String && value.isEmpty) ||
           (value is int && value == 0),
     );
-    return find;
+    return _find;
   }
 
   Future<void> fetchRecords() async {
-    debugPrint('FIND ${find.toString()}');
+    debugPrint('FIND ${_find.toString()}');
     try {
       Query<Map<String, dynamic>> query = db.collection('Photo');
 
-      if (find!['year'] != null) {
-        query = query.where('year', isEqualTo: find!['year']);
+      if (_find!['year'] != null) {
+        query = query.where('year', isEqualTo: _find!['year']);
       }
-      if (find!['month'] != null) {
-        query = query.where('month', isEqualTo: find!['month']);
+      if (_find!['month'] != null) {
+        query = query.where('month', isEqualTo: _find!['month']);
       }
-      if (find!['tags'] != null &&
-          find!['tags'] is List &&
-          find!['tags'].isNotEmpty) {
-        query = query.where('tags', arrayContainsAny: find!['tags']);
+      if (_find!['tags'] != null &&
+          _find!['tags'] is List &&
+          _find!['tags'].isNotEmpty) {
+        query = query.where('tags', arrayContainsAny: _find!['tags']);
       }
-      if (find!['model'] != null) {
-        query = query.where('model', isEqualTo: find!['model']);
+      if (_find!['model'] != null) {
+        query = query.where('model', isEqualTo: _find!['model']);
       }
 
       final querySnapshot = await query.orderBy('date', descending: true).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        records.clear();
+        _records.clear();
         for (var doc in querySnapshot.docs) {
-          records.add(doc.data());
+          _records.add(doc.data());
         }
         notifyListeners();
       }
@@ -132,7 +134,7 @@ class ApiProvider extends ChangeNotifier {
   Future<void> deleteRecord(Map<String, dynamic> rec) async {
     try {
       await db.collection('Photo').doc(rec['filename']).delete();
-      records.removeWhere((item) => item['filename'] == rec['filename']);
+      _records.removeWhere((item) => item['filename'] == rec['filename']);
       notifyListeners();
     } catch (e) {
       print('Error deleting document: $e');
