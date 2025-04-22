@@ -18,7 +18,7 @@ class ConfirmDelete extends StatelessWidget {
                 (BuildContext builder) => AlertDialog(
                   contentPadding: EdgeInsets.all(10),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   title: const Text('Delete'),

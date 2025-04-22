@@ -101,7 +101,7 @@ class ItemThumbnail extends StatelessWidget {
               AspectRatio(
                 aspectRatio: 1,
                 child: Stack(
-                  alignment: Alignment.center,
+                  // alignment: Alignment.center,
                   fit: StackFit.expand,
                   children: [
                     Image.network(
@@ -109,25 +109,26 @@ class ItemThumbnail extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                     if (editMode == true)
-                      Container(
-                        width: 42,
-                        alignment: Alignment.topRight,
-                        constraints: BoxConstraints(
-                          maxHeight: 42,
-                          maxWidth: 42,
-                        ),
-                        color: Color.fromARGB(92, 0, 0, 0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          // crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ConfirmDelete(record: galleryItem.record),
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              color: Theme.of(context).colorScheme.surface,
-                              onPressed: () {},
-                            ),
-                          ],
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          width: 42,
+                          alignment: Alignment.topRight,
+                          // color: Colors.amber,
+                          color: Color.fromARGB(92, 0, 0, 0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            // crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ConfirmDelete(record: galleryItem.record),
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                color: Theme.of(context).colorScheme.surface,
+                                onPressed: () {},
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                   ],
