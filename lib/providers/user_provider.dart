@@ -3,11 +3,30 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class UserProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final List<String> admins = [
+    'milan.andrejevic@gmail.com',
+    'mihailo.genije@gmail.com',
+  ];
+  final List<String> family = [
+    'milan.andrejevic@gmail.com',
+    'mihailo.genije@gmail.com',
+    'ana.devic@gmail.com',
+    'dannytaboo@gmail.com',
+    'svetlana.andrejevic@gmail.com',
+    '011.nina@gmail.com',
+    'bogdan.andrejevic16@gmail.com',
+    'zile.zikson@gmail.com',
+  ];
 
   bool _isAuthenticated = false;
-  bool get isAuthenticated => _isAuthenticated;
   Map<String, dynamic>? _user;
+
   Map<String, dynamic>? get user => _user;
+  bool get isAuthenticated => _isAuthenticated;
+  bool get isAdmin =>
+      _isAuthenticated ? admins.contains(_user['email']) : false;
+  bool get isFamily =>
+      _isAuthenticated ? family.contains(_user['email']) : false;
 
   UserProvider() {
     _auth.authStateChanges().listen((User? googleUser) {

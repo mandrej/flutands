@@ -18,6 +18,7 @@ class HomePage extends StatelessWidget {
     final lastRecord = context.watch<ApiProvider>().lastRecord;
     final firstRecord = context.watch<ApiProvider>().firstRecord;
     final values = context.watch<ApiProvider>().values;
+    final isAuthenticated = context.watch<UserProvider>().isAuthenticated;
 
     return Scaffold(
       // appBar: AppBar(
@@ -80,7 +81,7 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (auth.isAuthenticated == false)
+                          if (isAuthenticated == false)
                             ElevatedButton(
                               onPressed: () async {
                                 await auth.signInWithGoogle();
