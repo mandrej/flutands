@@ -128,6 +128,9 @@ class ApiProvider extends ChangeNotifier {
       if (_find!['model'] != null) {
         query = query.where('model', isEqualTo: _find!['model']);
       }
+      if (_find!['lens'] != null) {
+        query = query.where('lens', isEqualTo: _find!['lens']);
+      }
 
       final querySnapshot = await query.orderBy('date', descending: true).get();
 

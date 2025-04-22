@@ -61,11 +61,12 @@ class _ListPageState extends State<ListPage> {
         shadowColor: Colors.grey,
       ),
       sideBar: SideBar(
+        width: 240,
         backgroundColor: Theme.of(context).colorScheme.surface,
         activeBackgroundColor: Theme.of(context).colorScheme.primary,
         textStyle: TextStyle(
           color: Theme.of(context).colorScheme.onPrimary,
-          fontSize: 16,
+          // fontSize: 16,
         ),
         items: const [
           AdminMenuItem(title: 'Home', route: '/', icon: Icons.home),
