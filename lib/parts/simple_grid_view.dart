@@ -121,7 +121,15 @@ class ItemThumbnail extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             // crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              ConfirmDelete(record: galleryItem.record),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                color: Theme.of(context).colorScheme.surface,
+                                onPressed:
+                                    () => showDeleteDialog(
+                                      context,
+                                      galleryItem.record,
+                                    ),
+                              ),
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 color: Theme.of(context).colorScheme.surface,
@@ -195,8 +203,14 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ConfirmDelete(record: widget.galleryItems[currentIndex].record),
-            // IconButton(icon: const Icon(Icons.delete), onPressed: () {}),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed:
+                  () => showDeleteDialog(
+                    context,
+                    widget.galleryItems[currentIndex].record,
+                  ),
+            ),
             Text(
               widget.galleryItems[currentIndex].record['headline'] ?? '',
               overflow: TextOverflow.ellipsis,
