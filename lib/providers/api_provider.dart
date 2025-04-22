@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 
 class FlagProvider extends ChangeNotifier {
   bool _editMode = false;
+  late final SharedPreferences prefs;
 
-  FlagProvider();
+  FlagProvider() {
+    _initializePrefs().then((_) {
+      _editMode = prefs.getBool('_editMode') ?? false;
+      notifyListeners();
+    });
+  }
 
-  void toggleEditMode() {
+  Future<void> _initializePrefs() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  Future<void> toggleEditMode() async {
     _editMode = !_editMode;
+    await prefs.setBool('_editMode', _editMode);
     notifyListeners();
   }
 
-  bool get editMode => _editMode;
+  bool get editMode => prefs.getBool('_editMode') ?? _editMode;
 }
 
 class ApiProvider extends ChangeNotifier {

@@ -24,9 +24,9 @@ class UserProvider with ChangeNotifier {
   Map<String, dynamic>? get user => _user;
   bool get isAuthenticated => _isAuthenticated;
   bool get isAdmin =>
-      _isAuthenticated ? admins.contains(_user['email']) : false;
+      _isAuthenticated ? admins.contains(_user!['email']) : false;
   bool get isFamily =>
-      _isAuthenticated ? family.contains(_user['email']) : false;
+      _isAuthenticated ? family.contains(_user!['email']) : false;
 
   UserProvider() {
     _auth.authStateChanges().listen((User? googleUser) {
