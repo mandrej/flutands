@@ -13,12 +13,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserProvider auth = Provider.of<UserProvider>(context);
-    ApiProvider api = Provider.of<ApiProvider>(context);
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
-    final lastRecord = api.lastRecord;
-    final firstRecord = api.firstRecord;
-    final values = api.values;
+    final lastRecord = context.watch<ApiProvider>().lastRecord;
+    final firstRecord = context.watch<ApiProvider>().firstRecord;
+    final values = context.watch<ApiProvider>().values;
 
     return Scaffold(
       // appBar: AppBar(

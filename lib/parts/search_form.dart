@@ -21,8 +21,8 @@ class _SearchFormState extends State<SearchForm> {
   Widget build(BuildContext context) {
     ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    var values = api.values;
-    var find = context.watch<ApiProvider>().find;
+    final values = context.watch<ApiProvider>().values;
+    final find = context.watch<ApiProvider>().find;
 
     return Container(
       color: Theme.of(context).colorScheme.surface,

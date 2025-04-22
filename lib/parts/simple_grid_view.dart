@@ -94,7 +94,7 @@ class ItemThumbnail extends StatelessWidget {
           shadowColor: Colors.transparent,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5.0),
+            borderRadius: BorderRadius.circular(8.0),
           ),
           child: Column(
             children: [
@@ -108,14 +108,18 @@ class ItemThumbnail extends StatelessWidget {
                       galleryItem.record['thumb'],
                       fit: BoxFit.cover,
                     ),
-                    // if (editMode) {
                     if (editMode == true)
                       Container(
                         width: 42,
+                        alignment: Alignment.topRight,
+                        constraints: BoxConstraints(
+                          maxHeight: 42,
+                          maxWidth: 42,
+                        ),
                         color: Color.fromARGB(92, 0, 0, 0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          // crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             ConfirmDelete(record: galleryItem.record),
                             IconButton(
@@ -190,7 +194,8 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(icon: const Icon(Icons.delete), onPressed: () {}),
+            ConfirmDelete(record: widget.galleryItems[currentIndex].record),
+            // IconButton(icon: const Icon(Icons.delete), onPressed: () {}),
             Text(
               widget.galleryItems[currentIndex].record['headline'] ?? '',
               overflow: TextOverflow.ellipsis,

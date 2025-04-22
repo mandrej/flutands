@@ -19,7 +19,6 @@ class _ListPageState extends State<ListPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize the API provider after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
       api.fetchRecords();
@@ -28,8 +27,7 @@ class _ListPageState extends State<ListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final api = Provider.of<ApiProvider>(context);
-    var records = api.records;
+    var records = context.watch<ApiProvider>().records;
 
     return AdminScaffold(
       appBar: AppBar(
