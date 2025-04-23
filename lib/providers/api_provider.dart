@@ -113,24 +113,11 @@ class ApiProvider extends ChangeNotifier {
     debugPrint('FIND ${_find.toString()}');
     try {
       Query<Map<String, dynamic>> query = db.collection('Photo');
-
-      if (_find!['year'] != null) {
-        query = query.where('year', isEqualTo: _find!['year']);
-      }
-      if (_find!['month'] != null) {
-        query = query.where('month', isEqualTo: _find!['month']);
-      }
-      if (_find!['tags'] != null &&
-          _find!['tags'] is List &&
-          _find!['tags'].isNotEmpty) {
-        query = query.where('tags', arrayContainsAny: _find!['tags']);
-      }
-      if (_find!['model'] != null) {
-        query = query.where('model', isEqualTo: _find!['model']);
-      }
-      if (_find!['lens'] != null) {
-        query = query.where('lens', isEqualTo: _find!['lens']);
-      }
+      query = query.where('year', isEqualTo: _find!['year']);
+      query = query.where('month', isEqualTo: _find!['month']);
+      query = query.where('tags', arrayContainsAny: _find!['tags']);
+      query = query.where('model', isEqualTo: _find!['model']);
+      query = query.where('lens', isEqualTo: _find!['lens']);
 
       final querySnapshot = await query.orderBy('date', descending: true).get();
 
@@ -146,10 +133,10 @@ class ApiProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteRecord(Map<String, dynamic> rec) async {
+  Future<void> deleteRecord(Map<String, dynamic> record) async {
     try {
-      await db.collection('Photo').doc(rec['filename']).delete();
-      _records.removeWhere((item) => item['filename'] == rec['filename']);
+      await db.collection('Photo').doc(record['filename']).delete();
+      _records.removeWhere((item) => item['filename'] == record['filename']);
       notifyListeners();
     } catch (e) {
       print('Error deleting document: $e');
