@@ -57,7 +57,7 @@ class _ListPageState extends State<ListPage> {
             },
           ),
         ],
-        elevation: 5,
+        elevation: 4,
         shadowColor: Colors.grey,
       ),
       sideBar: SideBar(

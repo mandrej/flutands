@@ -38,13 +38,12 @@ class UserProvider with ChangeNotifier {
       } else {
         _isAuthenticated = true;
         _user = {
-          'displayName': googleUser?.displayName,
-          'email': googleUser?.email,
-          'photoURL': googleUser?.photoURL,
-          'uid': googleUser?.uid,
+          'displayName': googleUser.displayName,
+          'email': googleUser.email,
+          'photoURL': googleUser.photoURL,
+          'uid': googleUser.uid,
         };
         notifyListeners();
-        print('User is signed in!');
       }
     });
   }

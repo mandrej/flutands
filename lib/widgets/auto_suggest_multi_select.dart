@@ -92,6 +92,12 @@ class _AutoSuggestMultiSelectState extends State<AutoSuggestMultiSelect> {
                 _selected
                     .map(
                       (e) => Chip(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                        side: BorderSide(style: BorderStyle.none),
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                         label: Text(e),
                         onDeleted: () => _removeOption(e),
                       ),

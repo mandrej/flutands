@@ -43,19 +43,19 @@ class _SearchFormState extends State<SearchForm> {
             AutoSuggestMultiSelect(
               hintText: 'by tags',
               initialValues: find?['tags'] ?? [],
-              options: values!['tags']!.keys.toList(),
+              options: values['tags']!.keys.toList(),
               onChanged: (value) => api.changeFind('tags', value),
             ),
             AutoSuggestField(
               hintText: 'by make',
               initialValue: find?['model'],
-              options: values!['model']!.keys.toList(),
+              options: values['model']!.keys.toList(),
               onChanged: (value) => api.changeFind('model', value),
             ),
             AutoSuggestField(
               hintText: 'by lens',
               initialValue: find?['lens'],
-              options: values!['lens']!.keys.toList(),
+              options: values['lens']!.keys.toList(),
               onChanged: (value) => api.changeFind('lens', value),
             ),
             // Container(color: Colors.yellow, height: 180),

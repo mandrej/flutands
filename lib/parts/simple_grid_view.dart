@@ -5,6 +5,7 @@ import 'package:simple_grid/simple_grid.dart';
 import 'package:provider/provider.dart';
 import '../providers/api_provider.dart';
 import 'confirm_delete.dart';
+import 'edit_dialog.dart';
 
 class SimpleGridView extends StatelessWidget {
   SimpleGridView({super.key, required this.records});
@@ -115,8 +116,7 @@ class ItemThumbnail extends StatelessWidget {
                         child: Container(
                           width: 42,
                           alignment: Alignment.topRight,
-                          // color: Colors.amber,
-                          color: Color.fromARGB(92, 0, 0, 0),
+                          // color: Color.fromARGB(92, 0, 0, 0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             // crossAxisAlignment: CrossAxisAlignment.center,
@@ -133,7 +133,17 @@ class ItemThumbnail extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 color: Theme.of(context).colorScheme.surface,
-                                onPressed: () {},
+                                onPressed: () async {
+                                  await showDialog(
+                                    builder:
+                                        (context) => EditDialog(
+                                          editRecord: galleryItem.record,
+                                          // onSave: onSave,
+                                        ),
+                                    context: context,
+                                    barrierDismissible: false,
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -218,7 +228,20 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
-            IconButton(icon: const Icon(Icons.edit), onPressed: () {}),
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () async {
+                await showDialog(
+                  builder:
+                      (context) => EditDialog(
+                        editRecord: widget.galleryItems[currentIndex].record,
+                        // onSave: onSave,
+                      ),
+                  context: context,
+                  barrierDismissible: false,
+                );
+              },
+            ),
           ],
         ),
         Expanded(
