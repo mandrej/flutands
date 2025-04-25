@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'providers/api_provider.dart';
 import 'providers/user_provider.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 
@@ -28,24 +29,6 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-ThemeData theme = ThemeData(
-  colorScheme: const ColorScheme.light(
-    primary: Colors.amber,
-    primaryContainer: Colors.amberAccent,
-    secondary: Colors.orange,
-    secondaryContainer: Colors.orangeAccent,
-    surface: Colors.white,
-    // background: Colors.amber.shade50,
-    error: Colors.red,
-    onPrimary: Colors.black,
-    onSecondary: Colors.black,
-    onSurface: Colors.black,
-    // onBackground: Colors.black,
-    onError: Colors.white,
-  ),
-  useMaterial3: true,
-);
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -58,7 +41,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp(
-        theme: theme,
+        theme: FlexThemeData.light(scheme: FlexScheme.mandyRed),
+        darkTheme: FlexThemeData.dark(scheme: FlexScheme.mandyRed),
+        themeMode: ThemeMode.system,
         initialRoute: '/',
         routes: {
           '/': (context) => HomePage(title: 'Andrejeвићи'),

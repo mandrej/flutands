@@ -37,7 +37,6 @@ class SimpleGridView extends StatelessWidget {
                     open(context, galleryItems.indexOf(item));
                   },
                 ),
-                // decoration: BoxDecoration(color: Colors.grey[300]),
               );
             }).toList(),
       ),
@@ -54,7 +53,7 @@ class SimpleGridView extends StatelessWidget {
                   records.map((record) {
                     return Item(id: record['filename'], record: record);
                   }).toList(),
-              backgroundDecoration: const BoxDecoration(color: Colors.black),
+              // backgroundDecoration: const BoxDecoration(color: Colors.black),
               initialIndex: index,
               scrollDirection: Axis.horizontal,
             ),
@@ -91,7 +90,7 @@ class ItemThumbnail extends StatelessWidget {
         tag: galleryItem.id,
         child: Card(
           semanticContainer: true,
-          color: Colors.grey.shade200,
+          // color: Colors.grey.shade200,
           shadowColor: Colors.transparent,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           shape: RoundedRectangleBorder(

@@ -1,3 +1,4 @@
+import 'package:flutands/parts/alert_box.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/api_provider.dart';
@@ -49,10 +50,7 @@ class _ListPageState extends State<ListPage> {
                 onPressed: () {
                   flags.toggleEditMode();
                 },
-                child: Text(
-                  flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
-                  style: const TextStyle(color: Colors.black),
-                ),
+                child: Text(flags.editMode ? 'EDIT MODE' : 'VIEW MODE'),
               );
             },
           ),
@@ -63,10 +61,10 @@ class _ListPageState extends State<ListPage> {
       sideBar: SideBar(
         width: 240,
         backgroundColor: Theme.of(context).colorScheme.surface,
-        activeBackgroundColor: Theme.of(context).colorScheme.primary,
+        // activeBackgroundColor: Theme.of(context).colorScheme.onPrimary,
         textStyle: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimary,
-          // fontSize: 16,
+          color: Theme.of(context).colorScheme.primary,
+          fontSize: 16,
         ),
         items: const [
           AdminMenuItem(title: 'Home', route: '/', icon: Icons.home),
@@ -81,7 +79,13 @@ class _ListPageState extends State<ListPage> {
         },
         header: SearchForm(),
       ),
-      body: SimpleGridView(records: records),
+      body:
+          (records.isNotEmpty)
+              ? SimpleGridView(records: records)
+              : AlertBox(
+                title: 'No Records',
+                content: 'No records found. Please try again later.',
+              ),
     );
   }
 }

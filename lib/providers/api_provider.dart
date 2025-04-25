@@ -127,6 +127,9 @@ class ApiProvider extends ChangeNotifier {
           _records.add(doc.data());
         }
         notifyListeners();
+      } else {
+        _records.clear();
+        notifyListeners();
       }
     } catch (e) {
       print('Error completing: $e');

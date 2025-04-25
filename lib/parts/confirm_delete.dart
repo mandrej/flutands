@@ -7,30 +7,27 @@ void showDeleteDialog(BuildContext context, Map<String, dynamic> record) {
     context: context,
     builder:
         (BuildContext builder) => AlertDialog(
-          contentPadding: EdgeInsets.all(10),
+          contentPadding: EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          // backgroundColor: Theme.of(context).colorScheme.surface,
           title: const Text('Delete'),
           content: Text(
             'Are you sure you want to delete ${record['headline']}?',
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.black),
-              ),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
-              ),
+              // style: ElevatedButton.styleFrom(
+              //   backgroundColor: Theme.of(context).colorScheme.error,
+              //   foregroundColor: Theme.of(context).colorScheme.onError,
+              // ),
               child: const Text('Delete'),
               onPressed: () {
                 // Call the delete function here

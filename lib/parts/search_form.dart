@@ -25,7 +25,6 @@ class _SearchFormState extends State<SearchForm> {
     final find = context.watch<ApiProvider>().find;
 
     return Container(
-      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.all(16),
       child: Form(
         key: formKey,

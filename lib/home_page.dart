@@ -86,29 +86,16 @@ class HomePage extends StatelessWidget {
                               onPressed: () async {
                                 await auth.signInWithGoogle();
                               },
-                              style: ElevatedButton.styleFrom(
-                                elevation: 4,
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                              ),
-                              child: Text(
-                                "Sign in with your Google Account",
-                                style: const TextStyle(color: Colors.black),
-                              ),
+                              style: ElevatedButton.styleFrom(elevation: 4),
+                              child: Text("Sign in with your Google Account"),
                             )
                           else
                             ElevatedButton(
                               onPressed: () async {
                                 await auth.signOut();
                               },
-                              // style: ElevatedButton.styleFrom(
-                              //   elevation: 4,
-                              //   backgroundColor:
-                              //       Theme.of(context).colorScheme.primary,
-                              // ),
                               child: Text(
                                 'Sign out ${auth.user!['displayName']}',
-                                style: const TextStyle(color: Colors.black),
                               ),
                             ),
                           Text(
