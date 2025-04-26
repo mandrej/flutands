@@ -145,4 +145,32 @@ class ApiProvider extends ChangeNotifier {
       print('Error deleting document: $e');
     }
   }
+
+  Future<void> updateRecord(
+    Map<String, dynamic> record,
+    Map<String, dynamic> newValues,
+  ) async {
+    try {
+      await db.collection('Photo').doc(record['filename']).update(newValues);
+      int index = _records.indexWhere(
+        (item) => item['filename'] == record['filename'],
+      );
+      if (index != -1) {
+        _records[index].addAll(newValues);
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error updating document: $e');
+    }
+  }
+
+  // Future<void> addRecord(Map<String, dynamic> record) async {
+  //   try {
+  //     await db.collection('Photo').add(record);
+  //     _records.add(record);
+  //     notifyListeners();
+  //   } catch (e) {
+  //     print('Error adding document: $e');
+  //   }
+  // }
 }

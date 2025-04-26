@@ -26,6 +26,7 @@ class _SearchFormState extends State<SearchForm> {
 
     return Container(
       padding: const EdgeInsets.all(16),
+      color: Theme.of(context).colorScheme.surface,
       child: Form(
         key: formKey,
         child: Column(

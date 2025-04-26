@@ -28,8 +28,12 @@ class EditDialog extends StatelessWidget {
         appBar: AppBar(
           title: Text('Edit'),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.save),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              ),
+              child: Text('Save'),
               onPressed: () {
                 // onSave(controller.text);
                 Navigator.of(context).pop();
@@ -41,9 +45,9 @@ class EditDialog extends StatelessWidget {
         ),
         body: SpGrid(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(top: 10, bottom: 10),
-          spacing: 10,
-          runSpacing: 10,
+          padding: const EdgeInsets.only(top: 16, bottom: 16),
+          spacing: 16,
+          runSpacing: 16,
           children: [
             SpGridItem(
               xs: 12,

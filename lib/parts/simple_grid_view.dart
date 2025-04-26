@@ -91,7 +91,7 @@ class ItemThumbnail extends StatelessWidget {
         child: Card(
           semanticContainer: true,
           // color: Colors.grey.shade200,
-          shadowColor: Colors.transparent,
+          // shadowColor: Colors.transparent,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
@@ -123,11 +123,17 @@ class ItemThumbnail extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 color: Theme.of(context).colorScheme.surface,
-                                onPressed:
-                                    () => showDeleteDialog(
-                                      context,
-                                      galleryItem.record,
-                                    ),
+                                onPressed: () async {
+                                  await showDialog(
+                                    builder:
+                                        (context) => DeleteDialog(
+                                          record: galleryItem.record,
+                                          // onSave: onSave,
+                                        ),
+                                    context: context,
+                                    barrierDismissible: false,
+                                  );
+                                },
                               ),
                               IconButton(
                                 icon: const Icon(Icons.edit),
@@ -157,7 +163,7 @@ class ItemThumbnail extends StatelessWidget {
                   galleryItem.record['headline'] ?? '',
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
               ),
@@ -214,18 +220,24 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
           children: [
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed:
-                  () => showDeleteDialog(
-                    context,
-                    widget.galleryItems[currentIndex].record,
-                  ),
+              onPressed: () async {
+                await showDialog(
+                  builder:
+                      (context) => DeleteDialog(
+                        record: widget.galleryItems[currentIndex].record,
+                        // onSave: onSave,
+                      ),
+                  context: context,
+                  barrierDismissible: false,
+                );
+              },
             ),
             Text(
               widget.galleryItems[currentIndex].record['headline'] ?? '',
               overflow: TextOverflow.ellipsis,
               style: Theme.of(
                 context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             IconButton(
               icon: const Icon(Icons.edit),

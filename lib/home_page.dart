@@ -21,35 +21,27 @@ class HomePage extends StatelessWidget {
     final isAuthenticated = context.watch<UserProvider>().isAuthenticated;
 
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
-      //   title: Text(title),
-      //   actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
-      // ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.add),
-      ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       body:
           lastRecord != null && firstRecord != null
               ? SpGrid(
                 width: width,
-                // spacing: 10,
-                runSpacing: 10,
                 children: [
                   SpGridItem(
                     xs: 12,
                     md: 6,
-                    // order: SpOrder(sm: 0, xs: 0),
-                    child: GestureDetector(
-                      onTap:
-                          values != null
-                              ? () {
-                                Navigator.pushNamed(context, '/list');
-                              }
-                              : null,
+                    child: ElevatedButton(
+                      onPressed:
+                          () =>
+                              values != null
+                                  ? Navigator.pushNamed(context, '/list')
+                                  : null,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 4,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
+                      ),
                       child: Container(
                         height: width < 960 ? height / 2 : height,
                         decoration: BoxDecoration(
@@ -57,17 +49,6 @@ class HomePage extends StatelessWidget {
                             image: NetworkImage(lastRecord['url']),
                             fit: BoxFit.cover,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.5),
-                              spreadRadius: 3,
-                              blurRadius: 7,
-                              offset: Offset(
-                                0,
-                                3,
-                              ), // changes position of shadow
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -75,22 +56,39 @@ class HomePage extends StatelessWidget {
                   SpGridItem(
                     xs: 12,
                     md: 6,
-                    // order: SpOrder(sm: 1, xs: 1),
                     child: SizedBox(
                       height: width < 960 ? height / 2 : height,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(Icons.add),
+                            style: IconButton.styleFrom(
+                              iconSize: 40.0,
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                          SizedBox(height: 30),
                           if (isAuthenticated == false)
                             ElevatedButton(
                               onPressed: () async {
                                 await auth.signInWithGoogle();
                               },
-                              style: ElevatedButton.styleFrom(elevation: 4),
+                              style: ElevatedButton.styleFrom(
+                                elevation: 4,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.onPrimary,
+                              ),
+                              // foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                              // backgroundColor: Theme.of(context).colorScheme.primary,
                               child: Text("Sign in with your Google Account"),
                             )
                           else
-                            ElevatedButton(
+                            TextButton(
                               onPressed: () async {
                                 await auth.signOut();
                               },
