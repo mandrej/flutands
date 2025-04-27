@@ -33,6 +33,7 @@ class _ListPageState extends State<ListPage> {
     return AdminScaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
         leading: Builder(
           builder: (context) {
             return IconButton(

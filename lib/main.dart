@@ -35,16 +35,21 @@ abstract final class AppTheme {
   static ThemeData light = FlexThemeData.light(
     // Using FlexColorScheme built-in FlexScheme enum based colors
     scheme: FlexScheme.mandyRed,
+    // Convenience direct styling properties.
+    appBarElevation: 4.0,
     // Component theme configurations for light mode.
     subThemesData: const FlexSubThemesData(
-      inputDecoratorIsFilled: false,
-      fabUseShape: true,
+      defaultRadius: 8.0,
       alignedDropdown: true,
       tooltipRadius: 4,
       tooltipSchemeColor: SchemeColor.inverseSurface,
       tooltipOpacity: 0.9,
+      dialogBackgroundSchemeColor: SchemeColor.tertiaryContainer,
       snackBarElevation: 6,
       snackBarBackgroundSchemeColor: SchemeColor.inverseSurface,
+      appBarBackgroundSchemeColor: SchemeColor.primary,
+      appBarForegroundSchemeColor: SchemeColor.onPrimary,
+      appBarActionsIconSchemeColor: SchemeColor.onPrimary,
       navigationRailUseIndicator: true,
     ),
     // ColorScheme seed generation configuration for light mode.
@@ -52,7 +57,6 @@ abstract final class AppTheme {
     // Direct ThemeData properties.
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
-    useMaterial3: false,
   );
 
   // The FlexColorScheme defined dark mode ThemeData.
@@ -62,8 +66,7 @@ abstract final class AppTheme {
     // Component theme configurations for dark mode.
     subThemesData: const FlexSubThemesData(
       blendOnColors: true,
-      inputDecoratorIsFilled: false,
-      fabUseShape: true,
+      defaultRadius: 8.0,
       alignedDropdown: true,
       tooltipRadius: 4,
       tooltipSchemeColor: SchemeColor.inverseSurface,
@@ -77,7 +80,6 @@ abstract final class AppTheme {
     // Direct ThemeData properties.
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
-    useMaterial3: false,
   );
 }
 
@@ -99,7 +101,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => HomePage(title: 'Andrejeвићи'),
-          '/list': (context) => ListPage(title: 'List Page'),
+          '/list': (context) => ListPage(title: 'Andrejeвићи'),
         },
         // home: const HomePage(title: 'MDA'),
       ),
