@@ -36,7 +36,7 @@ class HomePage extends StatelessWidget {
                                   ? Navigator.pushNamed(context, '/list')
                                   : null,
                       style: ElevatedButton.styleFrom(
-                        elevation: 4,
+                        // elevation: 4,
                         padding: EdgeInsets.zero,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero,
@@ -77,14 +77,6 @@ class HomePage extends StatelessWidget {
                               onPressed: () async {
                                 await auth.signInWithGoogle();
                               },
-                              style: ElevatedButton.styleFrom(
-                                elevation: 4,
-                                backgroundColor: Theme.of(context).primaryColor,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.onPrimary,
-                              ),
-                              // foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                              // backgroundColor: Theme.of(context).colorScheme.primary,
                               child: Text("Sign in with your Google Account"),
                             )
                           else

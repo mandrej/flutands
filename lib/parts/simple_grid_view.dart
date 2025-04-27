@@ -93,9 +93,9 @@ class ItemThumbnail extends StatelessWidget {
           // color: Colors.grey.shade200,
           // shadowColor: Colors.transparent,
           clipBehavior: Clip.antiAliasWithSaveLayer,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(8.0),
+          // ),
           child: Column(
             children: [
               AspectRatio(
@@ -122,7 +122,8 @@ class ItemThumbnail extends StatelessWidget {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.delete),
-                                color: Theme.of(context).colorScheme.surface,
+                                color:
+                                    Theme.of(context).colorScheme.tertiaryFixed,
                                 onPressed: () async {
                                   await showDialog(
                                     builder:
@@ -137,7 +138,8 @@ class ItemThumbnail extends StatelessWidget {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.edit),
-                                color: Theme.of(context).colorScheme.surface,
+                                color:
+                                    Theme.of(context).colorScheme.tertiaryFixed,
                                 onPressed: () async {
                                   await showDialog(
                                     builder:
@@ -158,7 +160,7 @@ class ItemThumbnail extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                padding: EdgeInsets.all(8),
                 child: Text(
                   galleryItem.record['headline'] ?? '',
                   overflow: TextOverflow.ellipsis,
@@ -213,61 +215,63 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () async {
-                await showDialog(
-                  builder:
-                      (context) => DeleteDialog(
-                        record: widget.galleryItems[currentIndex].record,
-                        // onSave: onSave,
-                      ),
-                  context: context,
-                  barrierDismissible: false,
-                );
-              },
-            ),
-            Text(
-              widget.galleryItems[currentIndex].record['headline'] ?? '',
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () async {
-                await showDialog(
-                  builder:
-                      (context) => EditDialog(
-                        editRecord: widget.galleryItems[currentIndex].record,
-                        // onSave: onSave,
-                      ),
-                  context: context,
-                  barrierDismissible: false,
-                );
-              },
-            ),
-          ],
-        ),
-        Expanded(
-          child: PhotoViewGallery.builder(
-            scrollPhysics: const BouncingScrollPhysics(),
-            builder: _buildItem,
-            itemCount: widget.galleryItems.length,
-            loadingBuilder: widget.loadingBuilder,
-            backgroundDecoration: widget.backgroundDecoration,
-            pageController: widget.pageController,
-            onPageChanged: onPageChanged,
-            scrollDirection: widget.scrollDirection,
+    return Material(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () async {
+                  await showDialog(
+                    builder:
+                        (context) => DeleteDialog(
+                          record: widget.galleryItems[currentIndex].record,
+                          // onSave: onSave,
+                        ),
+                    context: context,
+                    barrierDismissible: false,
+                  );
+                },
+              ),
+              Text(
+                widget.galleryItems[currentIndex].record['headline'] ?? '',
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  await showDialog(
+                    builder:
+                        (context) => EditDialog(
+                          editRecord: widget.galleryItems[currentIndex].record,
+                          // onSave: onSave,
+                        ),
+                    context: context,
+                    barrierDismissible: false,
+                  );
+                },
+              ),
+            ],
           ),
-        ),
-      ],
+          Expanded(
+            child: PhotoViewGallery.builder(
+              scrollPhysics: const BouncingScrollPhysics(),
+              builder: _buildItem,
+              itemCount: widget.galleryItems.length,
+              loadingBuilder: widget.loadingBuilder,
+              backgroundDecoration: widget.backgroundDecoration,
+              pageController: widget.pageController,
+              onPageChanged: onPageChanged,
+              scrollDirection: widget.scrollDirection,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

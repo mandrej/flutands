@@ -23,10 +23,6 @@ class DeleteDialog extends StatelessWidget {
           },
         ),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          ),
           child: const Text('Delete'),
           onPressed: () {
             // Call the delete function here

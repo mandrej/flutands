@@ -50,13 +50,18 @@ class _ListPageState extends State<ListPage> {
                 onPressed: () {
                   flags.toggleEditMode();
                 },
-                child: Text(flags.editMode ? 'EDIT MODE' : 'VIEW MODE'),
+                child: Text(
+                  flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.tertiaryFixed,
+                  ),
+                ),
               );
             },
           ),
         ],
-        elevation: 4,
-        shadowColor: Colors.grey,
+        // elevation: 4,
+        // shadowColor: Colors.grey,
       ),
       sideBar: SideBar(
         width: 240,

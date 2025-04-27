@@ -9,6 +9,7 @@ import 'package:url_strategy/url_strategy.dart';
 import 'providers/api_provider.dart';
 import 'providers/user_provider.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/cupertino.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 
@@ -29,6 +30,57 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
+abstract final class AppTheme {
+  // The FlexColorScheme defined light mode ThemeData.
+  static ThemeData light = FlexThemeData.light(
+    // Using FlexColorScheme built-in FlexScheme enum based colors
+    scheme: FlexScheme.mandyRed,
+    // Component theme configurations for light mode.
+    subThemesData: const FlexSubThemesData(
+      inputDecoratorIsFilled: false,
+      fabUseShape: true,
+      alignedDropdown: true,
+      tooltipRadius: 4,
+      tooltipSchemeColor: SchemeColor.inverseSurface,
+      tooltipOpacity: 0.9,
+      snackBarElevation: 6,
+      snackBarBackgroundSchemeColor: SchemeColor.inverseSurface,
+      navigationRailUseIndicator: true,
+    ),
+    // ColorScheme seed generation configuration for light mode.
+    keyColors: const FlexKeyColors(),
+    // Direct ThemeData properties.
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
+    useMaterial3: false,
+  );
+
+  // The FlexColorScheme defined dark mode ThemeData.
+  static ThemeData dark = FlexThemeData.dark(
+    // Using FlexColorScheme built-in FlexScheme enum based colors.
+    scheme: FlexScheme.mandyRed,
+    // Component theme configurations for dark mode.
+    subThemesData: const FlexSubThemesData(
+      blendOnColors: true,
+      inputDecoratorIsFilled: false,
+      fabUseShape: true,
+      alignedDropdown: true,
+      tooltipRadius: 4,
+      tooltipSchemeColor: SchemeColor.inverseSurface,
+      tooltipOpacity: 0.9,
+      snackBarElevation: 6,
+      snackBarBackgroundSchemeColor: SchemeColor.inverseSurface,
+      navigationRailUseIndicator: true,
+    ),
+    // ColorScheme seed configuration setup for dark mode.
+    keyColors: const FlexKeyColors(),
+    // Direct ThemeData properties.
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
+    useMaterial3: false,
+  );
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -41,8 +93,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp(
-        theme: FlexThemeData.light(scheme: FlexScheme.mandyRed),
-        darkTheme: FlexThemeData.dark(scheme: FlexScheme.mandyRed),
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
         initialRoute: '/',
         routes: {
