@@ -34,26 +34,19 @@ abstract final class AppTheme {
   // The FlexColorScheme defined light mode ThemeData.
   static ThemeData light = FlexThemeData.light(
     // Using FlexColorScheme built-in FlexScheme enum based colors
-    scheme: FlexScheme.mandyRed,
-    // Convenience direct styling properties.
-    appBarElevation: 4.0,
+    scheme: FlexScheme.amber,
+    // Input color modifiers.
+    useMaterial3ErrorColors: true,
     // Component theme configurations for light mode.
     subThemesData: const FlexSubThemesData(
+      interactionEffects: true,
+      tintedDisabledControls: true,
+      useM2StyleDividerInM3: true,
       defaultRadius: 8.0,
       alignedDropdown: true,
-      tooltipRadius: 4,
-      tooltipSchemeColor: SchemeColor.inverseSurface,
-      tooltipOpacity: 0.9,
-      dialogBackgroundSchemeColor: SchemeColor.tertiaryContainer,
-      snackBarElevation: 6,
-      snackBarBackgroundSchemeColor: SchemeColor.inverseSurface,
-      appBarBackgroundSchemeColor: SchemeColor.primary,
-      appBarForegroundSchemeColor: SchemeColor.onPrimary,
-      appBarActionsIconSchemeColor: SchemeColor.onPrimary,
+      useInputDecoratorThemeInDialogs: true,
       navigationRailUseIndicator: true,
     ),
-    // ColorScheme seed generation configuration for light mode.
-    keyColors: const FlexKeyColors(),
     // Direct ThemeData properties.
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
@@ -62,21 +55,20 @@ abstract final class AppTheme {
   // The FlexColorScheme defined dark mode ThemeData.
   static ThemeData dark = FlexThemeData.dark(
     // Using FlexColorScheme built-in FlexScheme enum based colors.
-    scheme: FlexScheme.mandyRed,
+    scheme: FlexScheme.amber,
+    // Input color modifiers.
+    useMaterial3ErrorColors: true,
     // Component theme configurations for dark mode.
     subThemesData: const FlexSubThemesData(
+      interactionEffects: true,
+      tintedDisabledControls: true,
       blendOnColors: true,
+      useM2StyleDividerInM3: true,
       defaultRadius: 8.0,
       alignedDropdown: true,
-      tooltipRadius: 4,
-      tooltipSchemeColor: SchemeColor.inverseSurface,
-      tooltipOpacity: 0.9,
-      snackBarElevation: 6,
-      snackBarBackgroundSchemeColor: SchemeColor.inverseSurface,
+      useInputDecoratorThemeInDialogs: true,
       navigationRailUseIndicator: true,
     ),
-    // ColorScheme seed configuration setup for dark mode.
-    keyColors: const FlexKeyColors(),
     // Direct ThemeData properties.
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),

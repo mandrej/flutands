@@ -11,8 +11,6 @@ class DeleteDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       contentPadding: EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-      // backgroundColor: Theme.of(context).colorScheme.surface,
       title: const Text('Delete'),
       content: Text('Are you sure you want to delete ${record['headline']}?'),
       actions: <Widget>[

@@ -115,7 +115,7 @@ class ItemThumbnail extends StatelessWidget {
                         child: Container(
                           width: 42,
                           alignment: Alignment.topRight,
-                          // color: Color.fromARGB(92, 0, 0, 0),
+                          // color: Theme.of(context).colorScheme.secondary,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             // crossAxisAlignment: CrossAxisAlignment.center,
@@ -123,7 +123,9 @@ class ItemThumbnail extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 color:
-                                    Theme.of(context).colorScheme.tertiaryFixed,
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.primaryFixedDim,
                                 onPressed: () async {
                                   await showDialog(
                                     builder:
@@ -139,7 +141,9 @@ class ItemThumbnail extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 color:
-                                    Theme.of(context).colorScheme.tertiaryFixed,
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.primaryFixedDim,
                                 onPressed: () async {
                                   await showDialog(
                                     builder:

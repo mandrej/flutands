@@ -54,7 +54,8 @@ class _ListPageState extends State<ListPage> {
                 child: Text(
                   flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.tertiaryFixed,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 16,
                   ),
                 ),
               );

@@ -33,8 +33,6 @@ class EditDialog extends StatelessWidget {
               },
             ),
           ],
-          // elevation: 4,
-          // shadowColor: Colors.grey,
         ),
         body: SizedBox(
           width: double.infinity,
