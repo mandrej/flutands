@@ -53,7 +53,6 @@ class _EditDialogState extends State<EditDialog> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
                   controller: _controllerHeadline,
@@ -85,8 +84,56 @@ class _EditDialogState extends State<EditDialog> {
                       },
                 ),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Date'),
                   controller: TextEditingController(text: _record['date']),
+                  decoration: InputDecoration(
+                    labelText: 'Date',
+                    suffixIcon: Row(
+                      mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween, // added line
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.calendar_month),
+                          onPressed: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.parse(_record['date']),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                _record['date'] = pickedDate.toIso8601String();
+                              });
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.schedule),
+                          onPressed: () async {
+                            TimeOfDay? pickedTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                              builder: (BuildContext context, Widget? child) {
+                                return MediaQuery(
+                                  data: MediaQuery.of(
+                                    context,
+                                  ).copyWith(alwaysUse24HourFormat: true),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            if (pickedTime != null) {
+                              setState(() {
+                                _record['date'] =
+                                    '${_record['date']}T${pickedTime.hour}:${pickedTime.minute}';
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                   onSaved:
                       (value) => {
                         setState(() {
