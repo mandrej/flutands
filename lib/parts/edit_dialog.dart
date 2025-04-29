@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_grid/simple_grid.dart';
+// import 'package:simple_grid/simple_grid.dart';
+// import 'package:intl/intl.dart';
 import '../providers/api_provider.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 
-class EditDialog extends StatelessWidget {
+class EditDialog extends StatefulWidget {
   final Map<String, dynamic> editRecord;
-  // final void Function(String) onSave;
 
-  const EditDialog({
-    super.key,
-    required this.editRecord,
-    // required this.onSave,
-  });
+  const EditDialog({super.key, required this.editRecord});
+
+  @override
+  State<EditDialog> createState() => _EditDialogState();
+}
+
+class _EditDialogState extends State<EditDialog> {
+  final _formKey = GlobalKey<FormState>();
+  Map<String, dynamic> _record = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _record = {...widget.editRecord};
+  }
 
   @override
   Widget build(BuildContext context) {
     final values = context.watch<ApiProvider>().values;
-    final width = MediaQuery.of(context).size.width;
+    // final width = MediaQuery.of(context).size.width;
+    final _controllerHeadline = TextEditingController(
+      text: _record['headline'],
+    );
 
     return Dialog.fullscreen(
       child: Scaffold(
@@ -28,87 +41,158 @@ class EditDialog extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.save),
               onPressed: () {
-                // onSave(controller.text);
-                Navigator.of(context).pop();
+                _formKey.currentState!.save();
+                print('Saved: $_record');
+                // Navigator.of(context).pop();
               },
             ),
           ],
         ),
-        body: SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16.0, bottom: 16),
-            child: SpGrid(
-              spacing: 16,
-              runSpacing: 16,
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                width > 600
-                    ? SpGridItem(
-                      xs: 12,
-                      sm: 4,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            // width: 200,
-                            child: Image.network(
-                              editRecord['thumb'],
-                              fit: BoxFit.cover,
+                TextFormField(
+                  controller: _controllerHeadline,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter Headline.';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Headline',
+                    suffixIcon:
+                        _controllerHeadline.text.isEmpty
+                            ? null
+                            : IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  _record['headline'] = '';
+                                });
+                              },
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                    : SpGridItem(child: Container()),
-                SpGridItem(
-                  xs: 12,
-                  sm: 8,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextField(
-                        controller: TextEditingController(
-                          text: editRecord['headline'],
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: 'Headline',
-                        ),
-                      ),
-                      TextField(
-                        decoration: const InputDecoration(labelText: 'Date'),
-                        controller: TextEditingController(
-                          text: editRecord['date']?.toString() ?? '',
-                        ),
-                        onChanged: (value) => editRecord['date'] = value,
-                      ),
-                      AutoSuggestMultiSelect(
-                        hintText: 'tags',
-                        initialValues: List<String>.from(editRecord['tags']),
-                        options: values!['tags']!.keys.toList(),
-                        onChanged: (value) => editRecord['tags'] = value,
-                      ),
-                    ],
                   ),
+                  onSaved:
+                      (value) => {
+                        setState(() {
+                          _record['headline'] = value!;
+                        }),
+                      },
                 ),
-                SpGridItem(
-                  xs: 12,
-                  sm: 6,
-                  child: AutoSuggestField(
-                    hintText: 'by make',
-                    initialValue: editRecord['model'],
-                    options: values['model']!.keys.toList(),
-                    onChanged: (value) => editRecord['model'] = value,
-                  ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Date'),
+                  controller: TextEditingController(text: _record['date']),
+                  onSaved:
+                      (value) => {
+                        setState(() {
+                          _record['date'] = value!;
+                        }),
+                      },
                 ),
-                SpGridItem(
-                  xs: 12,
-                  sm: 6,
-                  child: AutoSuggestField(
-                    hintText: 'lens',
-                    initialValue: editRecord['lens'],
-                    options: values['lens']!.keys.toList(),
-                    onChanged: (value) => editRecord['lens'] = value,
+                AutoSuggestField(
+                  hintText: 'email',
+                  initialValue: _record['email'],
+                  options: values!['email']!.keys.toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _record['email'] = value!;
+                    });
+                  },
+                ),
+                AutoSuggestMultiSelect(
+                  hintText: 'tags',
+                  initialValues: _record['tags'],
+                  options: values['tags']!.keys.toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _record['tags'] = value;
+                    });
+                  },
+                ),
+                AutoSuggestField(
+                  hintText: 'by make',
+                  initialValue: _record['model'],
+                  options: values['model']!.keys.toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _record['model'] = value;
+                    });
+                  },
+                ),
+                AutoSuggestField(
+                  hintText: 'lens',
+                  initialValue: _record['lens'],
+                  options: values['lens']!.keys.toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _record['lens'] = value;
+                    });
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Focal length'),
+                  controller: TextEditingController(
+                    text: _record['focal_length'].toString(),
                   ),
+                  textAlign: TextAlign.right,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      _record['focal_length'] =
+                          value.isEmpty ? null : int.tryParse(value);
+                    });
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'ISO'),
+                  controller: TextEditingController(
+                    text: _record['iso'].toString(),
+                  ),
+                  textAlign: TextAlign.right,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      _record['iso'] =
+                          value.isEmpty ? null : int.tryParse(value);
+                    });
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Shutter'),
+                  controller: TextEditingController(text: _record['shutter']),
+                  onChanged: (value) {
+                    setState(() {
+                      _record['shutter'] = value;
+                    });
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Aperture'),
+                  controller: TextEditingController(
+                    text: _record['aperture'].toString(),
+                  ),
+                  textAlign: TextAlign.right,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      _record['aperture'] =
+                          value.isEmpty ? null : num.tryParse(value);
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: Text('Flash'),
+                  value: _record['flash'],
+                  onChanged: (value) {
+                    setState(() {
+                      _record['flash'] = value;
+                    });
+                  },
                 ),
               ],
             ),

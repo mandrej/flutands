@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:simple_grid/simple_grid.dart';
 import 'package:provider/provider.dart';
 import '../providers/api_provider.dart';
 import 'confirm_delete.dart';
@@ -19,24 +18,22 @@ class SimpleGridView extends StatelessWidget {
         }).toList();
 
     return SingleChildScrollView(
-      child: SpGrid(
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.only(top: 10, bottom: 10),
-        spacing: 10,
-        runSpacing: 10,
+      child: GridView(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: MediaQuery.of(context).size.width ~/ 250,
+          // mainAxisExtent: 280,
+          mainAxisSpacing: 8.0,
+          crossAxisSpacing: 8.0,
+          childAspectRatio: 1,
+        ),
+        shrinkWrap: true,
         children:
             galleryItems.map((item) {
-              return SpGridItem(
-                xs: 12,
-                sm: 4,
-                md: 3,
-                lg: 2,
-                child: ItemThumbnail(
-                  galleryItem: item,
-                  onTap: () {
-                    open(context, galleryItems.indexOf(item));
-                  },
-                ),
+              return ItemThumbnail(
+                galleryItem: item,
+                onTap: () {
+                  open(context, galleryItems.indexOf(item));
+                },
               );
             }).toList(),
       ),
@@ -98,80 +95,83 @@ class ItemThumbnail extends StatelessWidget {
           // ),
           child: Column(
             children: [
-              AspectRatio(
-                aspectRatio: 1,
-                child: Stack(
-                  // alignment: Alignment.center,
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(
-                      galleryItem.record['thumb'],
-                      fit: BoxFit.cover,
-                    ),
-                    if (editMode == true)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Container(
-                          width: 42,
-                          alignment: Alignment.topRight,
-                          // color: Theme.of(context).colorScheme.secondary,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            // crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.primaryFixedDim,
-                                onPressed: () async {
-                                  await showDialog(
-                                    builder:
-                                        (context) => DeleteDialog(
-                                          record: galleryItem.record,
-                                          // onSave: onSave,
-                                        ),
-                                    context: context,
-                                    barrierDismissible: false,
-                                  );
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.primaryFixedDim,
-                                onPressed: () async {
-                                  await showDialog(
-                                    builder:
-                                        (context) => EditDialog(
-                                          editRecord: galleryItem.record,
-                                          // onSave: onSave,
-                                        ),
-                                    context: context,
-                                    barrierDismissible: false,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+              Stack(
+                children: [
+                  Image.network(galleryItem.record['thumb'], fit: BoxFit.cover),
+                  if (editMode == true)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        width: 42,
+                        // color: Colors.black,
+                        alignment: Alignment.topRight,
+                        // color: Theme.of(context).colorScheme.secondary,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          // crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
+                              onPressed: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder:
+                                      (context) => DeleteDialog(
+                                        record: galleryItem.record,
+                                        // onSave: onSave,
+                                      ),
+                                  barrierDismissible: false,
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
+                              onPressed: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder:
+                                      (context) => EditDialog(
+                                        editRecord: galleryItem.record,
+                                        // onSave: onSave,
+                                      ),
+                                  barrierDismissible: false,
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(8),
-                child: Text(
-                  galleryItem.record['headline'] ?? '',
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.normal,
+                    ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black45,
+                        // borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        galleryItem.record['headline'] ?? '',
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.normal,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -229,12 +229,12 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                 icon: const Icon(Icons.delete),
                 onPressed: () async {
                   await showDialog(
+                    context: context,
                     builder:
                         (context) => DeleteDialog(
                           record: widget.galleryItems[currentIndex].record,
                           // onSave: onSave,
                         ),
-                    context: context,
                     barrierDismissible: false,
                   );
                 },
@@ -250,12 +250,12 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                 icon: const Icon(Icons.edit),
                 onPressed: () async {
                   await showDialog(
+                    context: context,
                     builder:
                         (context) => EditDialog(
                           editRecord: widget.galleryItems[currentIndex].record,
                           // onSave: onSave,
                         ),
-                    context: context,
                     barrierDismissible: false,
                   );
                 },
