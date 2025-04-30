@@ -97,7 +97,13 @@ class ItemThumbnail extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  Image.network(galleryItem.record['thumb'], fit: BoxFit.cover),
+                  AspectRatio(
+                    aspectRatio: 1,
+                    child: Image.network(
+                      galleryItem.record['thumb'],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                   if (editMode == true)
                     Positioned(
                       top: 0,
@@ -113,10 +119,7 @@ class ItemThumbnail extends StatelessWidget {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.delete),
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.primaryContainer,
+                              color: Colors.white70,
                               onPressed: () async {
                                 await showDialog(
                                   context: context,
@@ -131,10 +134,7 @@ class ItemThumbnail extends StatelessWidget {
                             ),
                             IconButton(
                               icon: const Icon(Icons.edit),
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.primaryContainer,
+                              color: Colors.white70,
                               onPressed: () async {
                                 await showDialog(
                                   context: context,
@@ -156,11 +156,8 @@ class ItemThumbnail extends StatelessWidget {
                     left: 0,
                     child: Container(
                       width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        // borderRadius: BorderRadius.circular(8),
-                      ),
+                      decoration: BoxDecoration(color: Colors.black45),
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
                         galleryItem.record['headline'] ?? '',
                         overflow: TextOverflow.ellipsis,
