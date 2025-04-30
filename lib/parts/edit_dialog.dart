@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 // import 'package:simple_grid/simple_grid.dart';
 // import 'package:intl/intl.dart';
@@ -17,12 +18,17 @@ class EditDialog extends StatefulWidget {
 
 class _EditDialogState extends State<EditDialog> {
   final _formKey = GlobalKey<FormState>();
+  // final re = '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}';
   Map<String, dynamic> _record = {};
+  DateTime? _pickedDate;
+  TimeOfDay? _pickedTime;
 
   @override
   void initState() {
     super.initState();
     _record = {...widget.editRecord};
+    _pickedDate = DateTime.parse(_record['date']);
+    _pickedTime = TimeOfDay.fromDateTime(DateTime.parse(_record['date']));
   }
 
   @override
@@ -31,6 +37,9 @@ class _EditDialogState extends State<EditDialog> {
     // final width = MediaQuery.of(context).size.width;
     final _controllerHeadline = TextEditingController(
       text: _record['headline'],
+    );
+    var _controllerDate = TextEditingController(
+      text: DateFormat('yyyy-MM-dd HH:mm').format(_pickedDate!),
     );
 
     return Dialog.fullscreen(
@@ -42,7 +51,7 @@ class _EditDialogState extends State<EditDialog> {
               icon: const Icon(Icons.save),
               onPressed: () {
                 _formKey.currentState!.save();
-                print('Saved: $_record');
+                print('Saved: $_record[date]');
                 // Navigator.of(context).pop();
               },
             ),
@@ -84,7 +93,7 @@ class _EditDialogState extends State<EditDialog> {
                       },
                 ),
                 TextFormField(
-                  controller: TextEditingController(text: _record['date']),
+                  controller: _controllerDate,
                   decoration: InputDecoration(
                     labelText: 'Date',
                     suffixIcon: Row(
@@ -97,13 +106,21 @@ class _EditDialogState extends State<EditDialog> {
                           onPressed: () async {
                             DateTime? pickedDate = await showDatePicker(
                               context: context,
-                              initialDate: DateTime.parse(_record['date']),
+                              initialDate: _pickedDate,
                               firstDate: DateTime(2000),
                               lastDate: DateTime(2100),
                             );
                             if (pickedDate != null) {
                               setState(() {
-                                _record['date'] = pickedDate.toIso8601String();
+                                _pickedDate = DateTime(
+                                  pickedDate.year,
+                                  pickedDate.month,
+                                  pickedDate.day,
+                                  _pickedTime!.hour,
+                                  _pickedTime!.minute,
+                                );
+                                print(_pickedDate.toString());
+                                _record['date'] = _pickedDate.toString();
                               });
                             }
                           },
@@ -113,7 +130,7 @@ class _EditDialogState extends State<EditDialog> {
                           onPressed: () async {
                             TimeOfDay? pickedTime = await showTimePicker(
                               context: context,
-                              initialTime: TimeOfDay.now(),
+                              initialTime: _pickedTime!,
                               builder: (BuildContext context, Widget? child) {
                                 return MediaQuery(
                                   data: MediaQuery.of(
@@ -125,8 +142,16 @@ class _EditDialogState extends State<EditDialog> {
                             );
                             if (pickedTime != null) {
                               setState(() {
-                                _record['date'] =
-                                    '${_record['date']}T${pickedTime.hour}:${pickedTime.minute}';
+                                _pickedTime = pickedTime;
+                                _pickedDate = DateTime(
+                                  _pickedDate!.year,
+                                  _pickedDate!.month,
+                                  _pickedDate!.day,
+                                  pickedTime.hour,
+                                  pickedTime.minute,
+                                );
+                                print(_pickedDate.toString());
+                                _record['date'] = _pickedDate.toString();
                               });
                             }
                           },
