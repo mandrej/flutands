@@ -91,34 +91,40 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
-        initialRoute: '/edit',
+        initialRoute: '/',
         routes: {
           '/': (context) => HomePage(title: 'Andrejeвићи'),
           '/list': (context) => ListPage(title: 'Andrejeвићи'),
-          '/edit':
-              (context) => EditDialog(
-                editRecord: {
-                  'date': '2025-02-17 17:07',
-                  'focal_length': 70,
-                  'iso': 720,
-                  'thumb':
-                      'http://127.0.0.1:9199/v0/b/andrejevici.appspot.com/o/thumbnails%2F20250217-DSC_5441_400x400.jpeg?alt=media&token=d5637570-33e2-425f-ad58-27eb11141555',
-                  'shutter': '1/100',
-                  'lens': 'NIKKOR Z 24-70mm f4 S',
-                  'url':
-                      'http://127.0.0.1:9199/v0/b/andrejevici.appspot.com/o/20250217-DSC_5441.jpg?alt=media&token=d5637570-33e2-425f-ad58-27eb11141555',
-                  'tags': ['beograd', 'srbija'],
-                  'aperture': 4,
-                  'filename': '20250217-DSC_5441.jpg',
-                  'size': 1100025,
-                  'model': 'NIKON Z 6_2',
-                  'headline': 'Двор',
-                  'email': 'milan.andrejevic@gmail.com',
-                  'flash': false,
-                },
-              ),
+          // '/edit':
+          //     (context) => EditDialog(
+          //       editRecord: {
+          //         'date': '2025-04-20 13:49',
+          //         'loc': '44.814173, 20.460722',
+          //         'focal_length': 25,
+          //         'iso': 720,
+          //         'thumb':
+          //             'http://127.0.0.1:9199/v0/b/andrejevici.appspot.com/o/thumbnails%2F20250420-DSC_8542_400x400.jpeg?alt=media&token=31aee9b4-ad92-4e2b-a328-f5773104eefe',
+          //         'year': 2025,
+          //         'shutter': '1/200',
+          //         'dim': [2560, 3200],
+          //         'lens': 'NIKKOR Z 24-70mm f4 S',
+          //         'url':
+          //             'http://127.0.0.1:9199/v0/b/andrejevici.appspot.com/o/20250420-DSC_8542.jpg?alt=media&token=31aee9b4-ad92-4e2b-a328-f5773104eefe',
+          //         'tags': ['flash'],
+          //         'nick': 'milan',
+          //         'aperture': 4,
+          //         'filename': '20250420-DSC_8542.jpg',
+          //         'month': 4,
+          //         'size': 2444611,
+          //         'model': 'NIKON Z 6_2',
+          //         'text': ['nam', 'name'],
+          //         'day': 20,
+          //         'headline': 'No name',
+          //         'email': 'milan.andrejevic@gmail.com',
+          //         'flash': true,
+          //       },
+          //     ),
         },
-        // home: const HomePage(title: 'MDA'),
       ),
     );
   }

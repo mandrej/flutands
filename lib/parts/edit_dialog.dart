@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 // import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 // import 'package:simple_grid/simple_grid.dart';
@@ -30,7 +30,7 @@ class _EditDialogState extends State<EditDialog> {
   @override
   Widget build(BuildContext context) {
     final values = context.watch<ApiProvider>().values;
-    // final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
     final _controllerHeadline = TextEditingController(
       text: _record['headline'],
     );
@@ -54,157 +54,160 @@ class _EditDialogState extends State<EditDialog> {
           key: _formKey,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
+            child: Row(
               children: [
-                TextFormField(
-                  controller: _controllerHeadline,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter Headline.';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Headline',
-                    suffixIcon:
-                        _controllerHeadline.text.isEmpty
-                            ? null
-                            : IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                setState(() {
-                                  _record['headline'] = '';
-                                });
-                              },
-                            ),
+                if (width > 600)
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Image.network(
+                          _record['thumb'],
+                          width: 400,
+                          height: 400,
+                          fit: BoxFit.cover,
+                        ),
+                        TextFormField(
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Aperture',
+                          ),
+                          controller: TextEditingController(
+                            text: _record['aperture'].toString(),
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                        TextFormField(
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Shutter',
+                          ),
+                          controller: TextEditingController(
+                            text: _record['shutter'],
+                          ),
+                        ),
+                        TextFormField(
+                          decoration: const InputDecoration(labelText: 'ISO'),
+                          controller: TextEditingController(
+                            text: _record['iso'].toString(),
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                      ],
+                    ),
                   ),
-                  onSaved:
-                      (value) => {
-                        setState(() {
-                          _record['headline'] = value!;
-                        }),
-                      },
-                ),
-                DatetimeWidget(
-                  dateAndTime: _record['date'],
-                  format: 'yyyy-MM-dd HH:mm',
-                  labelText: 'Date',
-                  onDone: (value) {
-                    setState(() {
-                      _record['date'] = value;
-                    });
-                  },
-                ),
-                AutoSuggestField(
-                  hintText: 'email',
-                  initialValue: _record['email'],
-                  options: values!['email']!.keys.toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _record['email'] = value!;
-                    });
-                  },
-                ),
-                AutoSuggestMultiSelect(
-                  hintText: 'tags',
-                  initialValues: _record['tags'] != null ? _record['tags'] : [],
-                  options: values['tags']!.keys.toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _record['tags'] = value;
-                    });
-                  },
-                ),
-                AutoSuggestField(
-                  hintText: 'by make',
-                  initialValue: _record['model'],
-                  options: values['model']!.keys.toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _record['model'] = value;
-                    });
-                  },
-                ),
-                AutoSuggestField(
-                  hintText: 'lens',
-                  initialValue: _record['lens'],
-                  options: values['lens']!.keys.toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _record['lens'] = value;
-                    });
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Focal length'),
-                  controller: TextEditingController(
-                    text: _record['focal_length'].toString(),
+                if (width > 600) SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _controllerHeadline,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please enter Headline.';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Headline',
+                          suffixIcon:
+                              _controllerHeadline.text.isEmpty
+                                  ? null
+                                  : IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _record['headline'] = '';
+                                      });
+                                    },
+                                  ),
+                        ),
+                        onSaved:
+                            (value) => {
+                              setState(() {
+                                _record['headline'] = value!;
+                              }),
+                            },
+                      ),
+                      DatetimeWidget(
+                        dateAndTime: _record['date'],
+                        format: 'yyyy-MM-dd HH:mm',
+                        labelText: 'Date',
+                        onDone: (value) {
+                          setState(() {
+                            _record['date'] = value;
+                          });
+                        },
+                      ),
+                      AutoSuggestField(
+                        hintText: 'email',
+                        initialValue: _record['email'],
+                        options: values!['email']!.keys.toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _record['email'] = value!;
+                          });
+                        },
+                      ),
+                      AutoSuggestMultiSelect(
+                        hintText: 'tags',
+                        initialValues: _record['tags'],
+                        options: values['tags']!.keys.toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _record['tags'] = value;
+                          });
+                        },
+                      ),
+                      AutoSuggestField(
+                        hintText: 'by make',
+                        initialValue: _record['model'],
+                        options: values['model']!.keys.toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _record['model'] = value;
+                          });
+                        },
+                      ),
+                      AutoSuggestField(
+                        hintText: 'lens',
+                        initialValue: _record['lens'],
+                        options: values['lens']!.keys.toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _record['lens'] = value;
+                          });
+                        },
+                      ),
+                      TextFormField(
+                        controller: TextEditingController(text: _record['loc']),
+                        decoration: InputDecoration(
+                          labelText: 'location',
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                _record['loc'] = '';
+                              });
+                            },
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _record['loc'] = value;
+                          });
+                        },
+                      ),
+                      CheckboxListTile(
+                        title: Text('Flash'),
+                        value: _record['flash'],
+                        onChanged: (value) {
+                          setState(() {
+                            _record['flash'] = value;
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(3),
-                  ],
-                  textAlign: TextAlign.right,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      _record['focal_length'] =
-                          value.isEmpty ? null : int.tryParse(value);
-                    });
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'ISO'),
-                  controller: TextEditingController(
-                    text: _record['iso'].toString(),
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(5),
-                  ],
-                  textAlign: TextAlign.right,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      _record['iso'] =
-                          value.isEmpty ? null : int.tryParse(value);
-                    });
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Shutter'),
-                  controller: TextEditingController(text: _record['shutter']),
-                  onChanged: (value) {
-                    setState(() {
-                      _record['shutter'] = value;
-                    });
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Aperture'),
-                  controller: TextEditingController(
-                    text: _record['aperture'].toString(),
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[\d\.]')),
-                  ],
-                  textAlign: TextAlign.right,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      _record['aperture'] =
-                          value.isEmpty ? null : num.tryParse(value);
-                    });
-                  },
-                ),
-                CheckboxListTile(
-                  title: Text('Flash'),
-                  value: _record['flash'],
-                  onChanged: (value) {
-                    setState(() {
-                      _record['flash'] = value;
-                    });
-                  },
                 ),
               ],
             ),

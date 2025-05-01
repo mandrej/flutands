@@ -32,6 +32,7 @@ class SimpleGridView extends StatelessWidget {
               return ItemThumbnail(
                 galleryItem: item,
                 onTap: () {
+                  // print('Tapped on ${item.record}');
                   open(context, galleryItems.indexOf(item));
                 },
               );
