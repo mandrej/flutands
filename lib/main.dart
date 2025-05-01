@@ -12,6 +12,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'home_page.dart';
 import 'list_page.dart';
+import 'parts/edit_dialog.dart';
 
 Future<void> main() async {
   setPathUrlStrategy();
@@ -90,10 +91,32 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
-        initialRoute: '/',
+        initialRoute: '/edit',
         routes: {
           '/': (context) => HomePage(title: 'Andrejeвићи'),
           '/list': (context) => ListPage(title: 'Andrejeвићи'),
+          '/edit':
+              (context) => EditDialog(
+                editRecord: {
+                  'date': '2025-02-17 17:07',
+                  'focal_length': 70,
+                  'iso': 720,
+                  'thumb':
+                      'http://127.0.0.1:9199/v0/b/andrejevici.appspot.com/o/thumbnails%2F20250217-DSC_5441_400x400.jpeg?alt=media&token=d5637570-33e2-425f-ad58-27eb11141555',
+                  'shutter': '1/100',
+                  'lens': 'NIKKOR Z 24-70mm f4 S',
+                  'url':
+                      'http://127.0.0.1:9199/v0/b/andrejevici.appspot.com/o/20250217-DSC_5441.jpg?alt=media&token=d5637570-33e2-425f-ad58-27eb11141555',
+                  'tags': ['beograd', 'srbija'],
+                  'aperture': 4,
+                  'filename': '20250217-DSC_5441.jpg',
+                  'size': 1100025,
+                  'model': 'NIKON Z 6_2',
+                  'headline': 'Двор',
+                  'email': 'milan.andrejevic@gmail.com',
+                  'flash': false,
+                },
+              ),
         },
         // home: const HomePage(title: 'MDA'),
       ),

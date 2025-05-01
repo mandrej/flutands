@@ -124,6 +124,7 @@ class ApiProvider extends ChangeNotifier {
       if (querySnapshot.docs.isNotEmpty) {
         _records.clear();
         for (var doc in querySnapshot.docs) {
+          print(doc.data());
           _records.add(doc.data());
         }
         notifyListeners();

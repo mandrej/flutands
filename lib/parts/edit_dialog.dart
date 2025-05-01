@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+// import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 // import 'package:simple_grid/simple_grid.dart';
-// import 'package:intl/intl.dart';
 import '../providers/api_provider.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
+import '../widgets/datetime_widget.dart';
 
 class EditDialog extends StatefulWidget {
   final Map<String, dynamic> editRecord;
@@ -18,17 +19,12 @@ class EditDialog extends StatefulWidget {
 
 class _EditDialogState extends State<EditDialog> {
   final _formKey = GlobalKey<FormState>();
-  // final re = '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}';
   Map<String, dynamic> _record = {};
-  DateTime? _pickedDate;
-  TimeOfDay? _pickedTime;
 
   @override
   void initState() {
     super.initState();
     _record = {...widget.editRecord};
-    _pickedDate = DateTime.parse(_record['date']);
-    _pickedTime = TimeOfDay.fromDateTime(DateTime.parse(_record['date']));
   }
 
   @override
@@ -37,9 +33,6 @@ class _EditDialogState extends State<EditDialog> {
     // final width = MediaQuery.of(context).size.width;
     final _controllerHeadline = TextEditingController(
       text: _record['headline'],
-    );
-    var _controllerDate = TextEditingController(
-      text: DateFormat('yyyy-MM-dd HH:mm').format(_pickedDate!),
     );
 
     return Dialog.fullscreen(
@@ -92,79 +85,15 @@ class _EditDialogState extends State<EditDialog> {
                         }),
                       },
                 ),
-                TextFormField(
-                  controller: _controllerDate,
-                  decoration: InputDecoration(
-                    labelText: 'Date',
-                    suffixIcon: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween, // added line
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.calendar_month),
-                          onPressed: () async {
-                            DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: _pickedDate,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            if (pickedDate != null) {
-                              setState(() {
-                                _pickedDate = DateTime(
-                                  pickedDate.year,
-                                  pickedDate.month,
-                                  pickedDate.day,
-                                  _pickedTime!.hour,
-                                  _pickedTime!.minute,
-                                );
-                                print(_pickedDate.toString());
-                                _record['date'] = _pickedDate.toString();
-                              });
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.schedule),
-                          onPressed: () async {
-                            TimeOfDay? pickedTime = await showTimePicker(
-                              context: context,
-                              initialTime: _pickedTime!,
-                              builder: (BuildContext context, Widget? child) {
-                                return MediaQuery(
-                                  data: MediaQuery.of(
-                                    context,
-                                  ).copyWith(alwaysUse24HourFormat: true),
-                                  child: child!,
-                                );
-                              },
-                            );
-                            if (pickedTime != null) {
-                              setState(() {
-                                _pickedTime = pickedTime;
-                                _pickedDate = DateTime(
-                                  _pickedDate!.year,
-                                  _pickedDate!.month,
-                                  _pickedDate!.day,
-                                  pickedTime.hour,
-                                  pickedTime.minute,
-                                );
-                                print(_pickedDate.toString());
-                                _record['date'] = _pickedDate.toString();
-                              });
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  onSaved:
-                      (value) => {
-                        setState(() {
-                          _record['date'] = value!;
-                        }),
-                      },
+                DatetimeWidget(
+                  dateAndTime: _record['date'],
+                  format: 'yyyy-MM-dd HH:mm',
+                  labelText: 'Date',
+                  onDone: (value) {
+                    setState(() {
+                      _record['date'] = value;
+                    });
+                  },
                 ),
                 AutoSuggestField(
                   hintText: 'email',
@@ -178,7 +107,7 @@ class _EditDialogState extends State<EditDialog> {
                 ),
                 AutoSuggestMultiSelect(
                   hintText: 'tags',
-                  initialValues: _record['tags'],
+                  initialValues: _record['tags'] != null ? _record['tags'] : [],
                   options: values['tags']!.keys.toList(),
                   onChanged: (value) {
                     setState(() {
@@ -211,6 +140,10 @@ class _EditDialogState extends State<EditDialog> {
                   controller: TextEditingController(
                     text: _record['focal_length'].toString(),
                   ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(3),
+                  ],
                   textAlign: TextAlign.right,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
@@ -225,6 +158,10 @@ class _EditDialogState extends State<EditDialog> {
                   controller: TextEditingController(
                     text: _record['iso'].toString(),
                   ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(5),
+                  ],
                   textAlign: TextAlign.right,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
@@ -248,6 +185,9 @@ class _EditDialogState extends State<EditDialog> {
                   controller: TextEditingController(
                     text: _record['aperture'].toString(),
                   ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[\d\.]')),
+                  ],
                   textAlign: TextAlign.right,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
