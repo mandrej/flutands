@@ -7,11 +7,11 @@ class AutoSuggestMultiSelect extends StatefulWidget {
   final ValueChanged<List<String>> onChanged;
 
   const AutoSuggestMultiSelect({
-    required this.options,
-    required this.initialValues,
-    required this.hintText,
-    required this.onChanged,
     super.key,
+    this.initialValues = const [],
+    required this.options,
+    this.hintText = '',
+    required this.onChanged,
   });
 
   @override
@@ -27,7 +27,7 @@ class _AutoSuggestMultiSelectState extends State<AutoSuggestMultiSelect> {
   @override
   void initState() {
     super.initState();
-    _selected = List.from(widget.initialValues);
+    _selected = widget.initialValues;
     _filteredOptions = widget.options;
     _textController.addListener(_onTextChanged);
   }

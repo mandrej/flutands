@@ -12,7 +12,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'home_page.dart';
 import 'list_page.dart';
-import 'parts/edit_dialog.dart';
+// import 'parts/edit_dialog.dart';
 
 Future<void> main() async {
   setPathUrlStrategy();

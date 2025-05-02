@@ -40,12 +40,19 @@ class _EditDialogState extends State<EditDialog> {
         appBar: AppBar(
           title: Text('Edit'),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.save),
+            ElevatedButton(
+              child: const Text('Read Exif'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            SizedBox(width: 16),
+            ElevatedButton(
+              child: const Text('Save'),
               onPressed: () {
                 _formKey.currentState!.save();
                 print('Saved: $_record[date]');
-                // Navigator.of(context).pop();
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -55,6 +62,7 @@ class _EditDialogState extends State<EditDialog> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (width > 600)
                   Expanded(
@@ -63,11 +71,11 @@ class _EditDialogState extends State<EditDialog> {
                         Image.network(
                           _record['thumb'],
                           width: 400,
-                          height: 400,
+                          // height: 400,
                           fit: BoxFit.cover,
                         ),
                         TextFormField(
-                          readOnly: true,
+                          enabled: false,
                           decoration: const InputDecoration(
                             labelText: 'Aperture',
                           ),
@@ -77,7 +85,7 @@ class _EditDialogState extends State<EditDialog> {
                           textAlign: TextAlign.right,
                         ),
                         TextFormField(
-                          readOnly: true,
+                          enabled: false,
                           decoration: const InputDecoration(
                             labelText: 'Shutter',
                           ),
@@ -86,6 +94,7 @@ class _EditDialogState extends State<EditDialog> {
                           ),
                         ),
                         TextFormField(
+                          enabled: false,
                           decoration: const InputDecoration(labelText: 'ISO'),
                           controller: TextEditingController(
                             text: _record['iso'].toString(),
@@ -97,6 +106,7 @@ class _EditDialogState extends State<EditDialog> {
                   ),
                 if (width > 600) SizedBox(width: 16),
                 Expanded(
+                  flex: 2,
                   child: Column(
                     children: [
                       TextFormField(
@@ -150,7 +160,9 @@ class _EditDialogState extends State<EditDialog> {
                       ),
                       AutoSuggestMultiSelect(
                         hintText: 'tags',
-                        initialValues: _record['tags'],
+                        initialValues: List<String>.from(
+                          _record['tags'] as List,
+                        ),
                         options: values['tags']!.keys.toList(),
                         onChanged: (value) {
                           setState(() {
