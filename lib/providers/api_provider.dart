@@ -37,14 +37,14 @@ class ApiProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _records = [];
 
   ApiProvider() {
-    initializeRecords();
+    initializeStartup();
   }
 
   List<Map<String, dynamic>> get records => _records;
   Map<String, Map<String, int>>? get values => _values;
   Map<String, dynamic>? get find => _find;
 
-  void initializeRecords() async {
+  void initializeStartup() async {
     lastRecord = await getRecord('Photo', true);
     firstRecord = await getRecord('Photo', false);
     _values = await getValues('Counter');

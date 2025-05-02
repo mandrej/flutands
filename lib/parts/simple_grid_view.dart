@@ -12,28 +12,21 @@ class SimpleGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final galleryItems =
-        records.map((record) {
-          return Item(id: record['filename'], record: record);
-        }).toList();
-
     return SingleChildScrollView(
       child: GridView(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: MediaQuery.of(context).size.width ~/ 250,
-          // mainAxisExtent: 280,
           mainAxisSpacing: 8.0,
           crossAxisSpacing: 8.0,
           childAspectRatio: 1,
         ),
         shrinkWrap: true,
         children:
-            galleryItems.map((item) {
+            records.map((record) {
               return ItemThumbnail(
-                galleryItem: item,
+                record: record,
                 onTap: () {
-                  // print('Tapped on ${item.record}');
-                  open(context, galleryItems.indexOf(item));
+                  open(context, records.indexOf(record));
                 },
               );
             }).toList(),
@@ -47,11 +40,7 @@ class SimpleGridView extends StatelessWidget {
       MaterialPageRoute(
         builder:
             (context) => GalleryPhotoViewWrapper(
-              galleryItems:
-                  records.map((record) {
-                    return Item(id: record['filename'], record: record);
-                  }).toList(),
-              // backgroundDecoration: const BoxDecoration(color: Colors.black),
+              records: records,
               initialIndex: index,
               scrollDirection: Axis.horizontal,
             ),
@@ -60,21 +49,10 @@ class SimpleGridView extends StatelessWidget {
   }
 }
 
-class Item {
-  Item({required this.id, required this.record});
-
-  final String id;
-  final Map<String, dynamic> record;
-}
-
 class ItemThumbnail extends StatelessWidget {
-  const ItemThumbnail({
-    super.key,
-    required this.galleryItem,
-    required this.onTap,
-  });
+  const ItemThumbnail({super.key, required this.record, required this.onTap});
 
-  final Item galleryItem;
+  final Map<String, dynamic> record;
   final GestureTapCallback onTap;
 
   @override
@@ -85,25 +63,16 @@ class ItemThumbnail extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Hero(
-        tag: galleryItem.id,
+        tag: record['filename'],
         child: Card(
-          semanticContainer: true,
-          // color: Colors.grey.shade200,
-          // shadowColor: Colors.transparent,
           clipBehavior: Clip.antiAliasWithSaveLayer,
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: BorderRadius.circular(8.0),
-          // ),
           child: Column(
             children: [
               Stack(
                 children: [
                   AspectRatio(
                     aspectRatio: 1,
-                    child: Image.network(
-                      galleryItem.record['thumb'],
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.network(record['thumb'], fit: BoxFit.cover),
                   ),
                   if (editMode == true)
                     Positioned(
@@ -111,12 +80,8 @@ class ItemThumbnail extends StatelessWidget {
                       right: 0,
                       child: Container(
                         width: 42,
-                        // color: Colors.black,
                         alignment: Alignment.topRight,
-                        // color: Theme.of(context).colorScheme.secondary,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          // crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             IconButton(
                               icon: const Icon(Icons.delete),
@@ -125,10 +90,7 @@ class ItemThumbnail extends StatelessWidget {
                                 await showDialog(
                                   context: context,
                                   builder:
-                                      (context) => DeleteDialog(
-                                        record: galleryItem.record,
-                                        // onSave: onSave,
-                                      ),
+                                      (context) => DeleteDialog(record: record),
                                   barrierDismissible: false,
                                 );
                               },
@@ -140,10 +102,8 @@ class ItemThumbnail extends StatelessWidget {
                                 await showDialog(
                                   context: context,
                                   builder:
-                                      (context) => EditDialog(
-                                        editRecord: galleryItem.record,
-                                        // onSave: onSave,
-                                      ),
+                                      (context) =>
+                                          EditDialog(editRecord: record),
                                   barrierDismissible: false,
                                 );
                               },
@@ -160,7 +120,7 @@ class ItemThumbnail extends StatelessWidget {
                       decoration: BoxDecoration(color: Colors.black45),
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        galleryItem.record['headline'] ?? '',
+                        record['headline'] ?? '',
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.normal,
@@ -186,7 +146,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
     this.minScale,
     this.maxScale,
     this.initialIndex = 0,
-    required this.galleryItems,
+    required this.records,
     this.scrollDirection = Axis.horizontal,
   }) : pageController = PageController(initialPage: initialIndex);
 
@@ -197,7 +157,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   final int initialIndex;
   final PageController pageController;
 
-  final List<Item> galleryItems;
+  final List<Map<String, dynamic>> records;
   final Axis scrollDirection;
 
   @override
@@ -229,16 +189,14 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                   await showDialog(
                     context: context,
                     builder:
-                        (context) => DeleteDialog(
-                          record: widget.galleryItems[currentIndex].record,
-                          // onSave: onSave,
-                        ),
+                        (context) =>
+                            DeleteDialog(record: widget.records[currentIndex]),
                     barrierDismissible: false,
                   );
                 },
               ),
               Text(
-                widget.galleryItems[currentIndex].record['headline'] ?? '',
+                widget.records[currentIndex]['headline'] ?? '',
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(
                   context,
@@ -251,8 +209,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                     context: context,
                     builder:
                         (context) => EditDialog(
-                          editRecord: widget.galleryItems[currentIndex].record,
-                          // onSave: onSave,
+                          editRecord: widget.records[currentIndex],
                         ),
                     barrierDismissible: false,
                   );
@@ -264,7 +221,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
             child: PhotoViewGallery.builder(
               scrollPhysics: const BouncingScrollPhysics(),
               builder: _buildItem,
-              itemCount: widget.galleryItems.length,
+              itemCount: widget.records.length,
               loadingBuilder: widget.loadingBuilder,
               backgroundDecoration: widget.backgroundDecoration,
               pageController: widget.pageController,
@@ -278,13 +235,13 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
   }
 
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
-    final Item item = widget.galleryItems[index];
+    final record = widget.records[index];
     return PhotoViewGalleryPageOptions(
-      imageProvider: NetworkImage(item.record['url'] as String),
+      imageProvider: NetworkImage(record['url'] as String),
       initialScale: PhotoViewComputedScale.contained,
       minScale: PhotoViewComputedScale.contained,
-      maxScale: 1, //PhotoViewComputedScale.covered * 4.1,
-      heroAttributes: PhotoViewHeroAttributes(tag: item.id),
+      maxScale: 1,
+      heroAttributes: PhotoViewHeroAttributes(tag: record['filename']),
     );
   }
 }

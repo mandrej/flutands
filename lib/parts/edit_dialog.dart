@@ -193,7 +193,8 @@ class _EditDialogState extends State<EditDialog> {
                       TextFormField(
                         controller: TextEditingController(text: _record['loc']),
                         decoration: InputDecoration(
-                          labelText: 'location',
+                          labelText: 'GPS location',
+                          hintText: 'latitude, longitude',
                           suffixIcon: IconButton(
                             icon: Icon(Icons.clear),
                             onPressed: () {
@@ -210,7 +211,8 @@ class _EditDialogState extends State<EditDialog> {
                         },
                       ),
                       CheckboxListTile(
-                        title: Text('Flash'),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text('Flash fired'),
                         value: _record['flash'],
                         onChanged: (value) {
                           setState(() {

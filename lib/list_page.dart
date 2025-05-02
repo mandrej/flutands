@@ -15,13 +15,11 @@ class ListPage extends StatefulWidget {
 }
 
 class _ListPageState extends State<ListPage> {
-  late List<Item> galleryItems = [];
-
   @override
   void initState() {
     super.initState();
+    ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
       api.fetchRecords();
     });
   }
