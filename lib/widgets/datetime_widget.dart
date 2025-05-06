@@ -36,14 +36,17 @@ class _DatetimeWidgetState extends State<DatetimeWidget> {
     _dateAndTime = widget.dateAndTime;
     _pickedDate = DateTime.parse(_dateAndTime);
     _pickedTime = TimeOfDay.fromDateTime(DateTime.parse(_dateAndTime));
+    _controller = TextEditingController(
+      text: DateFormat(widget.format).format(_pickedDate!),
+    );
   }
 
   // The _controller is already initialized in initState
   @override
   Widget build(BuildContext context) {
-    TextEditingController _controller = TextEditingController(
-      text: DateFormat(widget.format).format(_pickedDate!),
-    );
+    // TextEditingController _controller = TextEditingController(
+    //   text: DateFormat(widget.format).format(_pickedDate!),
+    // );
     return TextFormField(
       controller: _controller,
       decoration: InputDecoration(

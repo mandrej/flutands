@@ -4,18 +4,8 @@ import '../providers/api_provider.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 
-class SearchForm extends StatefulWidget {
+class SearchForm extends StatelessWidget {
   const SearchForm({super.key});
-
-  @override
-  State<SearchForm> createState() => _SearchFormState();
-}
-
-class _SearchFormState extends State<SearchForm> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {

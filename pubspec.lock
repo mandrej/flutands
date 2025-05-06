@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.54"
+  args:
+    dependency: transitive
+    description:
+      name: args
+      sha256: d0481093c50b1da8910eb0bb301626d4d8eb7284aa739614d2b394ee09e3ea04
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.7.0"
   async:
     dependency: transitive
     description:
@@ -73,6 +81,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  convert:
+    dependency: transitive
+    description:
+      name: convert
+      sha256: b30acd5944035672bc15c6b7a8b47d773e41e2f17de064350988c5d02adb1c68
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
+  exif:
+    dependency: "direct main"
+    description:
+      name: exif
+      sha256: a7980fdb3b7ffcd0b035e5b8a5e1eef7cadfe90ea6a4e85ebb62f87b96c7a172
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.0"
   fake_async:
     dependency: transitive
     description:
@@ -145,6 +169,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.22.0"
+  firebase_storage:
+    dependency: "direct main"
+    description:
+      name: firebase_storage
+      sha256: b66435730252985c49aabe83e0490bcfab2e7b3f2192bf421ca596fa490de14a
+      url: "https://pub.dev"
+    source: hosted
+    version: "12.4.5"
+  firebase_storage_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_storage_platform_interface
+      sha256: "08d32cae58200c34f504098d106952213f2e4c32db111ae7757a86887428ab81"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.5"
+  firebase_storage_web:
+    dependency: transitive
+    description:
+      name: firebase_storage_web
+      sha256: d6aee6867f8c369a88484367a8b1f0f6d0f022b4ff2622b51e32dfeef839f9d4
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.10.12"
   flex_color_scheme:
     dependency: "direct main"
     description:
@@ -200,6 +248,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.5"
+  http:
+    dependency: transitive
+    description:
+      name: http
+      sha256: fe7ab022b76f3034adc518fb6ea04a82387620e19977665ea18d30a1cf43442f
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   http_parser:
     dependency: transitive
     description:
@@ -216,6 +272,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.2"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.9.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -421,6 +485,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.1"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -461,14 +533,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.4"
-  transparent_image:
-    dependency: "direct main"
-    description:
-      name: transparent_image
-      sha256: e8991d955a2094e197ca24c645efec2faf4285772a4746126ca12875e54ca02f
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
   typed_data:
     dependency: transitive
     description:

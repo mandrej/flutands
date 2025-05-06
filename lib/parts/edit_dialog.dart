@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 // import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-// import 'package:simple_grid/simple_grid.dart';
 import '../providers/api_provider.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 import '../widgets/datetime_widget.dart';
+import '../providers/read_exif.dart';
 
 class EditDialog extends StatefulWidget {
   final Map<String, dynamic> editRecord;
@@ -43,6 +43,7 @@ class _EditDialogState extends State<EditDialog> {
             ElevatedButton(
               child: const Text('Read Exif'),
               onPressed: () {
+                readExif(_record['filename']);
                 Navigator.of(context).pop();
               },
             ),

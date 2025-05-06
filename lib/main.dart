@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -14,6 +17,26 @@ import 'home_page.dart';
 import 'list_page.dart';
 // import 'parts/edit_dialog.dart';
 
+class MyErrorsHandler {
+  Future<void> initialize() async {
+    debugPrint('initialize');
+    // do some initialization
+  }
+
+  void onErrorDetails(FlutterErrorDetails details) {
+    debugPrint('onErrorDetails');
+    debugPrint(details.toString());
+  }
+
+  void onError(Object error, StackTrace stack) {
+    debugPrint('onError');
+    debugPrint(error.toString());
+    debugPrint(stack.toString());
+  }
+}
+
+final MyErrorsHandler myErrorsHandler = MyErrorsHandler();
+
 Future<void> main() async {
   setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,12 +45,22 @@ Future<void> main() async {
   if (kDebugMode) {
     try {
       FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      await FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
       await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
     } catch (e) {
       // ignore: avoid_print
       print(e);
     }
   }
+  await myErrorsHandler.initialize();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    myErrorsHandler.onErrorDetails(details);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    myErrorsHandler.onError(error, stack);
+    return true;
+  };
   runApp(const MyApp());
 }
 

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class FlagProvider extends ChangeNotifier {
   bool _editMode = false;
-  late final SharedPreferences prefs;
+  late SharedPreferences prefs;
 
   FlagProvider() {
     _initializePrefs().then((_) {
@@ -24,7 +24,7 @@ class FlagProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get editMode => prefs.getBool('_editMode') ?? _editMode;
+  bool get editMode => (_editMode || (prefs.getBool('_editMode') ?? false));
 }
 
 class ApiProvider extends ChangeNotifier {
