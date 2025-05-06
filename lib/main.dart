@@ -53,14 +53,6 @@ Future<void> main() async {
     }
   }
   await myErrorsHandler.initialize();
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    myErrorsHandler.onErrorDetails(details);
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    myErrorsHandler.onError(error, stack);
-    return true;
-  };
   runApp(const MyApp());
 }
 
