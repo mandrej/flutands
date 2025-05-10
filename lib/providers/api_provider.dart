@@ -110,7 +110,7 @@ class ApiProvider extends ChangeNotifier {
   }
 
   Future<void> fetchRecords() async {
-    debugPrint('FIND ${_find.toString()}');
+    debugPrint('FIND ------------------------------- ${_find.toString()}');
     try {
       Query<Map<String, dynamic>> query = db.collection('Photo');
       query = query.where('year', isEqualTo: _find!['year']);

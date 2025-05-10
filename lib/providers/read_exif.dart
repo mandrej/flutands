@@ -1,11 +1,24 @@
-// import 'package:firebase_core/firebase_core.dart';
-// ignore_for_file: prefer_single_quotes
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:exif/exif.dart';
-// import '../firebase_options.dart';
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
+
+double handleRatio(IfdValues val) {
+  final r = val.toList().first;
+  return r.toDouble();
+}
+
+double decimalCoords(IfdValues val, String ref) {
+  List<dynamic> coords = val.toList();
+  double decimalDegrees =
+      coords[0].toDouble() +
+      coords[1].toDouble() / 60 +
+      coords[2].toDouble() / 3600;
+  if (ref == 'S' || ref == 'W') {
+    decimalDegrees = -decimalDegrees;
+  }
+  return decimalDegrees;
+}
 
 Future readExif(filename) async {
   Map<String, dynamic> result = {};
@@ -49,17 +62,30 @@ Future readExif(filename) async {
     result['month'] = date.month;
     result['day'] = date.day;
 
-    var r = exif['EXIF FNumber']!.values.toList().first;
-    result['aperture'] = r.numerator / r.denominator;
-
-    r = exif['EXIF FocalLength']!.values.toList().first;
-    result['focal_length'] = r.numerator / r.denominator;
+    result['aperture'] = handleRatio(exif['EXIF FNumber']!.values);
+    result['focal_length'] = handleRatio(exif['EXIF FocalLength']!.values);
 
     result['shutter'] = exif['EXIF ExposureTime'].toString();
     result['iso'] = int.tryParse(exif['EXIF ISOSpeedRatings'].toString());
 
     result['flash'] =
         !exif['EXIF Flash'].toString().startsWith('Flash did not');
+
+    if (exif.containsKey('GPS GPSLatitude') &&
+        exif.containsKey('GPS GPSLongitudeRef') &&
+        exif.containsKey('GPS GPSLongitude') &&
+        exif.containsKey('GPS GPSLongitudeRef')) {
+      result['loc'] = [
+        decimalCoords(
+          exif['GPS GPSLatitude']!.values,
+          exif['GPS GPSLatitudeRef'].toString(),
+        ),
+        decimalCoords(
+          exif['GPS GPSLongitude']!.values,
+          exif['GPS GPSLongitudeRef'].toString(),
+        ),
+      ].join(',');
+    }
 
     /*
     Image Make: NIKON CORPORATION
