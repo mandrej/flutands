@@ -1,4 +1,4 @@
-import 'dart:io';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,26 +17,6 @@ import 'home_page.dart';
 import 'list_page.dart';
 // import 'parts/edit_dialog.dart';
 
-class MyErrorsHandler {
-  Future<void> initialize() async {
-    debugPrint('initialize');
-    // do some initialization
-  }
-
-  void onErrorDetails(FlutterErrorDetails details) {
-    debugPrint('onErrorDetails');
-    debugPrint(details.toString());
-  }
-
-  void onError(Object error, StackTrace stack) {
-    debugPrint('onError');
-    debugPrint(error.toString());
-    debugPrint(stack.toString());
-  }
-}
-
-final MyErrorsHandler myErrorsHandler = MyErrorsHandler();
-
 Future<void> main() async {
   setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +32,16 @@ Future<void> main() async {
       print(e);
     }
   }
-  await myErrorsHandler.initialize();
+  FlutterError.onError = (details) {
+    debugPrint('************************* onErrorDetails');
+    debugPrint(details.toString());
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('************************* onError');
+    debugPrint(error.toString());
+    debugPrint(stack.toString());
+    return true;
+  };
   runApp(const MyApp());
 }
 
