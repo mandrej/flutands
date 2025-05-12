@@ -159,6 +159,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.records[currentIndex]['headline'] ?? ''),
+
         actions:
             (editMode == true)
                 ? [
