@@ -23,25 +23,29 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   if (kDebugMode) {
+    final emulatorHost =
+        (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+            ? '10.0.2.2'
+            : 'localhost';
     try {
-      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-      await FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
-      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator(emulatorHost, 8080);
+      await FirebaseStorage.instance.useStorageEmulator(emulatorHost, 9199);
+      await FirebaseAuth.instance.useAuthEmulator(emulatorHost, 9099);
     } catch (e) {
       // ignore: avoid_print
       print(e);
     }
+    FlutterError.onError = (details) {
+      debugPrint('************************* onErrorDetails');
+      debugPrint(details.toString());
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      debugPrint('************************* onError');
+      debugPrint(error.toString());
+      debugPrint(stack.toString());
+      return true;
+    };
   }
-  FlutterError.onError = (details) {
-    debugPrint('************************* onErrorDetails');
-    debugPrint(details.toString());
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    debugPrint('************************* onError');
-    debugPrint(error.toString());
-    debugPrint(stack.toString());
-    return true;
-  };
   runApp(const MyApp());
 }
 
@@ -105,6 +109,8 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
+        // Disable the banner to make the "+" button more visible.
+        debugShowCheckedModeBanner: false,
         initialRoute: '/',
         routes: {
           '/': (context) => HomePage(title: 'Andrejeвићи'),

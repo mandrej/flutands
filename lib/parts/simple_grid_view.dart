@@ -83,31 +83,8 @@ class ItemThumbnail extends StatelessWidget {
                         alignment: Alignment.topRight,
                         child: Column(
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              color: Colors.white70,
-                              onPressed: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder:
-                                      (context) => DeleteDialog(record: record),
-                                  barrierDismissible: false,
-                                );
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              color: Colors.white70,
-                              onPressed: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder:
-                                      (context) =>
-                                          EditDialog(editRecord: record),
-                                  barrierDismissible: false,
-                                );
-                              },
-                            ),
+                            DeleteButton(record: record),
+                            EditButton(record: record),
                           ],
                         ),
                       ),
@@ -177,59 +154,28 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () async {
-                  await showDialog(
-                    context: context,
-                    builder:
-                        (context) =>
-                            DeleteDialog(record: widget.records[currentIndex]),
-                    barrierDismissible: false,
-                  );
-                },
-              ),
-              Text(
-                widget.records[currentIndex]['headline'] ?? '',
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () async {
-                  await showDialog(
-                    context: context,
-                    builder:
-                        (context) => EditDialog(
-                          editRecord: widget.records[currentIndex],
-                        ),
-                    barrierDismissible: false,
-                  );
-                },
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.records[currentIndex]['headline'] ?? ''),
+        actions: [
+          DeleteButton(
+            record: widget.records[currentIndex],
+            color: Colors.black,
           ),
-          Expanded(
-            child: PhotoViewGallery.builder(
-              scrollPhysics: const BouncingScrollPhysics(),
-              builder: _buildItem,
-              itemCount: widget.records.length,
-              loadingBuilder: widget.loadingBuilder,
-              backgroundDecoration: widget.backgroundDecoration,
-              pageController: widget.pageController,
-              onPageChanged: onPageChanged,
-              scrollDirection: widget.scrollDirection,
-            ),
-          ),
+          EditButton(record: widget.records[currentIndex], color: Colors.black),
         ],
+      ),
+      body: Expanded(
+        child: PhotoViewGallery.builder(
+          scrollPhysics: const BouncingScrollPhysics(),
+          builder: _buildItem,
+          itemCount: widget.records.length,
+          loadingBuilder: widget.loadingBuilder,
+          backgroundDecoration: widget.backgroundDecoration,
+          pageController: widget.pageController,
+          onPageChanged: onPageChanged,
+          scrollDirection: widget.scrollDirection,
+        ),
       ),
     );
   }
@@ -242,6 +188,56 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
       minScale: PhotoViewComputedScale.contained,
       maxScale: 1,
       heroAttributes: PhotoViewHeroAttributes(tag: record['filename']),
+    );
+  }
+}
+
+class DeleteButton extends StatelessWidget {
+  const DeleteButton({
+    super.key,
+    required this.record,
+    this.color = Colors.white,
+  });
+  final Map<String, dynamic> record;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.delete),
+      color: color,
+      onPressed: () async {
+        await showDialog(
+          context: context,
+          builder: (context) => DeleteDialog(record: record),
+          barrierDismissible: false,
+        );
+      },
+    );
+  }
+}
+
+class EditButton extends StatelessWidget {
+  const EditButton({
+    super.key,
+    required this.record,
+    this.color = Colors.white,
+  });
+  final Map<String, dynamic> record;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.edit),
+      color: color,
+      onPressed: () async {
+        await showDialog(
+          context: context,
+          builder: (context) => EditDialog(editRecord: record),
+          barrierDismissible: false,
+        );
+      },
     );
   }
 }

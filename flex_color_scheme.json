@@ -1,0 +1,30 @@
+{
+    "playground_data": "Themes Playground data exported 12.05.2025 09:40:30",
+    "playground_version": "8.2.0",
+    "defaultRadius": 8,
+    "floatingActionButtonAlwaysCircular": false,
+    "floatingActionButtonUseShape": false,
+    "inputDecoratorBorderType": {
+        "dart_type": "enum_flex_input_border_type",
+        "value": "underline"
+    },
+    "inputDecoratorIsFilled": false,
+    "interactionEffects": true,
+    "schemeIndex": 23,
+    "showSchemeInputColors": true,
+    "simulatorAppIndex": 0,
+    "simulatorComponentsIndex": 0,
+    "themeMode": {
+        "dart_type": "enum_theme_mode",
+        "value": "light"
+    },
+    "tintedDisabledControls": true,
+    "topicIndexEndSide": 2,
+    "topicIndexStartSide": 4,
+    "useInputDecoratorThemeInDialogs": true,
+    "useKeyColors": false,
+    "useM2StyleDividerInM3": true,
+    "useM3ErrorColors": true,
+    "useMaterial3": true,
+    "useSubThemes": true
+}
