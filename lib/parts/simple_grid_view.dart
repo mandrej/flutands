@@ -154,16 +154,25 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    var editMode = context.watch<FlagProvider>().editMode;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.records[currentIndex]['headline'] ?? ''),
-        actions: [
-          DeleteButton(
-            record: widget.records[currentIndex],
-            color: Colors.black,
-          ),
-          EditButton(record: widget.records[currentIndex], color: Colors.black),
-        ],
+        actions:
+            (editMode == true)
+                ? [
+                  DeleteButton(
+                    record: widget.records[currentIndex],
+                    color: Colors.black,
+                  ),
+
+                  EditButton(
+                    record: widget.records[currentIndex],
+                    color: Colors.black,
+                  ),
+                ]
+                : null,
       ),
       body: Expanded(
         child: PhotoViewGallery.builder(
