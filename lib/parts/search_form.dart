@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/api_provider.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 
-class SearchForm extends StatelessWidget {
+class SearchForm extends ConsumerWidget {
   const SearchForm({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final api = ref.read(myApiProvider);
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final values = context.watch<ApiProvider>().values;
-    final find = context.watch<ApiProvider>().find;
+    final values = ref.watch(myApiProvider).values;
+    final find = ref.watch(myApiProvider).find;
 
     return Container(
       padding: const EdgeInsets.all(16),

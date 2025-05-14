@@ -1,24 +1,24 @@
 import 'package:flutands/parts/alert_box.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/api_provider.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'parts/search_form.dart';
 import 'parts/simple_grid_view.dart';
 
-class ListPage extends StatefulWidget {
+class ListPage extends ConsumerStatefulWidget {
   ListPage({super.key, required this.title});
   final String title;
 
   @override
-  State<ListPage> createState() => _ListPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ListPageState();
 }
 
-class _ListPageState extends State<ListPage> {
+class _ListPageState extends ConsumerState<ListPage> {
   @override
   void initState() {
     super.initState();
-    ApiProvider api = Provider.of<ApiProvider>(context, listen: false);
+    final api = ref.read(myApiProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       api.fetchRecords();
     });
@@ -26,7 +26,8 @@ class _ListPageState extends State<ListPage> {
 
   @override
   Widget build(BuildContext context) {
-    var records = context.watch<ApiProvider>().records;
+    var records = ref.watch(myApiProvider).records;
+    var flags = ref.watch(myFlagProvider);
 
     return AdminScaffold(
       appBar: AppBar(
@@ -43,20 +44,14 @@ class _ListPageState extends State<ListPage> {
           },
         ),
         actions: [
-          Consumer<FlagProvider>(
-            builder: (context, flags, child) {
-              return TextButton(
-                onPressed: () {
-                  flags.toggleEditMode();
-                },
-                child: Text(
-                  flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              );
+          TextButton(
+            onPressed: () {
+              flags.toggleEditMode();
             },
+            child: Text(
+              flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            ),
           ),
         ],
         // elevation: 4,

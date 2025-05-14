@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/api_provider.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 import '../widgets/datetime_widget.dart';
 import '../providers/read_exif.dart';
 
-class EditDialog extends StatefulWidget {
+class EditDialog extends ConsumerStatefulWidget {
   final Map<String, dynamic> editRecord;
 
   const EditDialog({super.key, required this.editRecord});
 
   @override
-  State<EditDialog> createState() => _EditDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _EditDialogState();
 }
 
-class _EditDialogState extends State<EditDialog> {
+class _EditDialogState extends ConsumerState<EditDialog> {
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> _record = {};
 
@@ -29,7 +27,7 @@ class _EditDialogState extends State<EditDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final values = context.watch<ApiProvider>().values;
+    final values = ref.watch(myApiProvider).values;
     final width = MediaQuery.of(context).size.width;
     final _controllerHeadline = TextEditingController(
       text: _record['headline'],

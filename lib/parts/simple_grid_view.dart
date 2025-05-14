@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:provider/provider.dart';
 import '../providers/api_provider.dart';
 import 'confirm_delete.dart';
 import 'edit_dialog.dart';
@@ -49,15 +49,15 @@ class SimpleGridView extends StatelessWidget {
   }
 }
 
-class ItemThumbnail extends StatelessWidget {
+class ItemThumbnail extends ConsumerWidget {
   const ItemThumbnail({super.key, required this.record, required this.onTap});
 
   final Map<String, dynamic> record;
   final GestureTapCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    var editMode = context.watch<FlagProvider>().editMode;
+  Widget build(BuildContext context, WidgetRef ref) {
+    var editMode = ref.watch(myFlagProvider).editMode;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return GestureDetector(
@@ -116,7 +116,7 @@ class ItemThumbnail extends StatelessWidget {
   }
 }
 
-class GalleryPhotoViewWrapper extends StatefulWidget {
+class GalleryPhotoViewWrapper extends ConsumerStatefulWidget {
   GalleryPhotoViewWrapper({
     this.loadingBuilder,
     this.backgroundDecoration,
@@ -138,12 +138,13 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   final Axis scrollDirection;
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState<ConsumerStatefulWidget> createState() {
     return _GalleryPhotoViewWrapperState();
   }
 }
 
-class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
+class _GalleryPhotoViewWrapperState
+    extends ConsumerState<GalleryPhotoViewWrapper> {
   late int currentIndex = widget.initialIndex;
 
   void onPageChanged(int index) {
@@ -154,7 +155,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    var editMode = context.watch<FlagProvider>().editMode;
+    var editMode = ref.watch(myFlagProvider).editMode;
 
     return Scaffold(
       appBar: AppBar(

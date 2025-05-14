@@ -1,7 +1,7 @@
 // import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,14 +9,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_strategy/url_strategy.dart';
-import 'providers/api_provider.dart';
-import 'providers/user_provider.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 import 'add_page.dart';
-// import 'parts/edit_dialog.dart';
 
 Future<void> main() async {
   setPathUrlStrategy();
@@ -47,7 +44,7 @@ Future<void> main() async {
       return true;
     };
   }
-  runApp(const MyApp());
+  runApp(ProviderScope(child: MyApp()));
 }
 
 abstract final class AppTheme {
@@ -204,54 +201,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => ApiProvider()),
-        ChangeNotifierProvider(create: (context) => FlagProvider()),
-        ChangeNotifierProvider(create: (context) => UserProvider()),
-      ],
-      child: MaterialApp(
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.system,
-        // Disable the banner to make the "+" button more visible.
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/',
-        routes: {
-          '/': (context) => HomePage(title: 'Andrejeвићи'),
-          '/list': (context) => ListPage(title: 'Andrejeвићи'),
-          '/add': (context) => TaskManager(),
-          // '/edit':
-          //     (context) => EditDialog(
-          //       editRecord: {
-          //         'date': '2025-04-20 13:49',
-          //         'loc': '44.814173, 20.460722',
-          //         'focal_length': 25,
-          //         'iso': 720,
-          //         'thumb':
-          //             'http://127.0.0.1:9199/v0/b/andrejevici.appspot.com/o/thumbnails%2F20250420-DSC_8542_400x400.jpeg?alt=media&token=31aee9b4-ad92-4e2b-a328-f5773104eefe',
-          //         'year': 2025,
-          //         'shutter': '1/200',
-          //         'dim': [2560, 3200],
-          //         'lens': 'NIKKOR Z 24-70mm f4 S',
-          //         'url':
-          //             'http://127.0.0.1:9199/v0/b/andrejevici.appspot.com/o/20250420-DSC_8542.jpg?alt=media&token=31aee9b4-ad92-4e2b-a328-f5773104eefe',
-          //         'tags': ['flash'],
-          //         'nick': 'milan',
-          //         'aperture': 4,
-          //         'filename': '20250420-DSC_8542.jpg',
-          //         'month': 4,
-          //         'size': 2444611,
-          //         'model': 'NIKON Z 6_2',
-          //         'text': ['nam', 'name'],
-          //         'day': 20,
-          //         'headline': 'No name',
-          //         'email': 'milan.andrejevic@gmail.com',
-          //         'flash': true,
-          //       },
-          //     ),
-        },
-      ),
+    return MaterialApp(
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
+      // Disable the banner to make the "+" button more visible.
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePage(title: 'Andrejeвићи'),
+        '/list': (context) => ListPage(title: 'Andrejeвићи'),
+        '/add': (context) => TaskManager(),
+      },
     );
   }
 }

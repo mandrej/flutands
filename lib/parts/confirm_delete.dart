@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:provider/provider.dart';
 import '../providers/api_provider.dart';
 
-class DeleteDialog extends StatelessWidget {
+class DeleteDialog extends ConsumerWidget {
   const DeleteDialog({super.key, required this.record});
   final Map<String, dynamic> record;
   // final void Function(String) onSave;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final api = ref.read(myApiProvider);
+
     return AlertDialog(
       contentPadding: EdgeInsets.all(16),
       title: const Text('Delete'),
@@ -24,10 +27,7 @@ class DeleteDialog extends StatelessWidget {
           child: const Text('Delete'),
           onPressed: () {
             // Call the delete function here
-            Provider.of<ApiProvider>(
-              context,
-              listen: false,
-            ).deleteRecord(record);
+            api.deleteRecord(record);
             Navigator.of(context).pop();
           },
         ),
