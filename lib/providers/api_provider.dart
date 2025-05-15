@@ -113,7 +113,8 @@ class ApiProvider extends ChangeNotifier {
       query = query.where('model', isEqualTo: _find!['model']);
       query = query.where('lens', isEqualTo: _find!['lens']);
 
-      final querySnapshot = await query.orderBy('date', descending: true).get();
+      final querySnapshot =
+          await query.orderBy('date', descending: true).limit(100).get();
 
       if (querySnapshot.docs.isNotEmpty) {
         _records.clear();
