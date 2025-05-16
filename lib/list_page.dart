@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/api_provider.dart';
 import 'providers/user_provider.dart';
-import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'parts/search_form.dart';
 import 'parts/simple_grid_view.dart';
 
@@ -12,7 +11,7 @@ class ListPage extends ConsumerStatefulWidget {
   final String title;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ListPageState();
+  ConsumerState<ListPage> createState() => _ListPageState();
 }
 
 class _ListPageState extends ConsumerState<ListPage> {
@@ -27,11 +26,11 @@ class _ListPageState extends ConsumerState<ListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 800;
     final records = ref.watch(myApiProvider).records;
-    final flags = ref.watch(myFlagProvider);
     final isAuthenticated = ref.watch(myUserProvider).isAuthenticated;
 
-    return FutureBuilder<void>(
+    return FutureBuilder(
       future: _fetchFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -41,71 +40,114 @@ class _ListPageState extends ConsumerState<ListPage> {
         if (snapshot.hasError) {
           return AlertBox(title: 'Error', content: 'Failed to load records.');
         }
-        return AdminScaffold(
+
+        return Scaffold(
           appBar: AppBar(
             title: Text(widget.title),
-            centerTitle: true,
-            leading: Builder(
-              builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                );
-              },
-            ),
             actions: [
               if (isAuthenticated)
-                TextButton(
-                  onPressed: () {
-                    flags.toggleEditMode();
+                Consumer(
+                  builder: (context, ref, child) {
+                    final flags = ref.read(myFlagProvider);
+                    final editMode = ref.watch(myFlagProvider).editMode;
+                    return TextButton(
+                      onPressed: () {
+                        flags.toggleEditMode();
+                      },
+                      child: Text(
+                        editMode ? 'EDIT MODE' : 'VIEW MODE',
+                        // style: TextStyle(
+                        //   color: Theme.of(context).colorScheme.onSurface,
+                        // ),
+                      ),
+                    );
                   },
-                  child: Text(
-                    flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
                 ),
             ],
-            // elevation: 4,
-            // shadowColor: Colors.grey,
           ),
-          sideBar: SideBar(
-            width: 240,
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            // activeBackgroundColor: Theme.of(context).colorScheme.onPrimary,
-            textStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: 16,
-            ),
-            items: const [
-              AdminMenuItem(title: 'Home', route: '/', icon: Icons.home),
-              AdminMenuItem(title: 'Add', route: '/add', icon: Icons.add),
-              AdminMenuItem(
-                title: 'Admin',
-                route: '/admin',
-                icon: Icons.settings,
+          drawer: isLargeScreen ? null : const _SidebarDrawer(),
+          body: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isLargeScreen) const _SidebarDrawer(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child:
+                      (records.isNotEmpty)
+                          ? SimpleGridView(records: records)
+                          : AlertBox(
+                            title: 'No Records',
+                            content:
+                                'No records found. Please try again later.',
+                          ),
+                ),
               ),
             ],
-            selectedRoute: '/list',
-            onSelected: (item) {
-              if (item.route != null) {
-                Navigator.of(context).pushNamed(item.route!);
-              }
-            },
-            header: SearchForm(),
           ),
-          body:
-              (records.isNotEmpty)
-                  ? SimpleGridView(records: records)
-                  : AlertBox(
-                    title: 'No Records',
-                    content: 'No records found. Please try again later.',
-                  ),
         );
       },
+    );
+  }
+}
+
+class _SidebarDrawer extends StatelessWidget {
+  const _SidebarDrawer();
+
+  @override
+  Widget build(BuildContext context) {
+    final width = 240.0;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: width,
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SearchForm(),
+          Spacer(),
+          _SidebarItem(
+            icon: Icons.home,
+            label: 'Home',
+            onTap: () => Navigator.pushNamed(context, '/'),
+          ),
+          _SidebarItem(
+            icon: Icons.add,
+            label: 'Add',
+            onTap: () => Navigator.pushNamed(context, '/add'),
+          ),
+          _SidebarItem(
+            icon: Icons.settings,
+            label: 'Admin',
+            onTap: () => Navigator.pushNamed(context, '/admin'),
+          ),
+          SizedBox(height: 16.0),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _SidebarItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      title: Text(
+        label,
+        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+      ),
+      onTap: onTap,
+      // dense: true,
     );
   }
 }

@@ -155,7 +155,7 @@ class _GalleryPhotoViewWrapperState
 
   @override
   Widget build(BuildContext context) {
-    var editMode = ref.watch(myFlagProvider).editMode;
+    final editMode = ref.watch(myFlagProvider).editMode;
 
     return Scaffold(
       appBar: AppBar(

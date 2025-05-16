@@ -14,6 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 import 'add_page.dart';
+import 'providers/logger.dart';
 
 Future<void> main() async {
   setPathUrlStrategy();
@@ -44,7 +45,7 @@ Future<void> main() async {
       return true;
     };
   }
-  runApp(ProviderScope(child: MyApp()));
+  runApp(ProviderScope(observers: [Logger()], child: MyApp()));
 }
 
 abstract final class AppTheme {
@@ -205,8 +206,6 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
-      // Disable the banner to make the "+" button more visible.
-      debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
         '/': (context) => HomePage(title: 'Andrejeвићи'),

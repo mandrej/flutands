@@ -38,21 +38,20 @@ dependencies:
   cloud_firestore: ^5.6.5
   firebase_storage: ^12.4.5
   firebase_auth: ^5.5.2
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
   # provider: ^6.1.2
   # transparent_image: ^2.0.1
   # simple_grid: ^0.1.0
   foundation: ^0.0.5
   url_strategy: ^0.3.0
   photo_view: ^0.15.0
-  flutter_admin_scaffold: ^1.4.0
   # shared_preferences: ^2.5.3
   flex_color_scheme: ^8.2.0
   intl: ^0.20.2
   exif: ^3.3.0
   flutter_svg: ^2.1.0
   image_picker: ^1.1.2
-  flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
 
 dev_dependencies:
   flutter_test:

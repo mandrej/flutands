@@ -15,7 +15,7 @@ class SearchForm extends ConsumerWidget {
     final find = ref.watch(myApiProvider).find;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16.0),
       color: Theme.of(context).colorScheme.surface,
       child: Form(
         key: formKey,
