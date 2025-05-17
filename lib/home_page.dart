@@ -1,10 +1,11 @@
 // import 'package:flutands/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:provider/provider.dart';
+import 'parts/alert_box.dart';
 import 'providers/api_provider.dart';
 import 'providers/user_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'helpers/common.dart';
 
 class HomePage extends ConsumerWidget {
   HomePage({super.key, required this.title});
@@ -37,42 +38,50 @@ class HomePage extends ConsumerWidget {
                     ],
                   )
               : Center(
-                child: Card(
-                  color: Theme.of(context).secondaryHeaderColor,
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SvgPicture.asset(
-                          width: 100,
-                          'assets/camera.svg',
-                          colorFilter: const ColorFilter.mode(
-                            Colors.red,
-                            BlendMode.srcIn,
-                          ),
-                          semanticsLabel: 'Dart Logo',
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'No images yet',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        if (isAuthenticated == false)
-                          TextButton(
-                            onPressed: () async {
-                              await auth.signInWithGoogle();
-                            },
-                            child: Text('Sign in with your Google Account'),
-                          ),
-                      ],
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(
+                      width: 100,
+                      'assets/camera.svg',
+                      // colorFilter: const ColorFilter.mode(
+                      //   Colors.amber,
+                      //   BlendMode.srcIn,
+                      // ),
+                      semanticsLabel: 'App Logo',
                     ),
-                  ),
+                    Text(
+                      title,
+                      style: TextStyle(fontSize: 40),
+                      textAlign: TextAlign.center,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'No images yet\n Sign in with Google\n to add some',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    if (isAuthenticated == false)
+                      FilledButton(
+                        onPressed: () async {
+                          await auth.signInWithGoogle();
+                        },
+                        child: Text('Sign in'),
+                      )
+                    else
+                      IconButton(
+                        onPressed: () => Navigator.pushNamed(context, '/add'),
+                        icon: Icon(Icons.add),
+                        style: IconButton.styleFrom(
+                          iconSize: 40.0,
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                  ],
                 ),
               ),
     );
@@ -123,9 +132,10 @@ class FronTitle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // UserProvider auth = Provider.of<UserProvider>(context);
-    final auth = ref.watch(myUserProvider);
+    final auth = ref.read(myUserProvider);
     final values = ref.watch(myApiProvider).values;
     final firstRecord = ref.watch(myApiProvider).firstRecord;
+    final isAuthenticated = ref.watch(myUserProvider).isAuthenticated;
 
     return Expanded(
       child: SizedBox(
@@ -136,10 +146,9 @@ class FronTitle extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: IconButton(
-                  onPressed: () {},
+              if (isAuthenticated == true)
+                IconButton(
+                  onPressed: () => Navigator.pushNamed(context, '/add'),
                   icon: Icon(Icons.add),
                   style: IconButton.styleFrom(
                     iconSize: 40.0,
@@ -147,20 +156,19 @@ class FronTitle extends ConsumerWidget {
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
-              ),
-              if (auth.isAuthenticated == false)
-                TextButton(
-                  onPressed: () async {
-                    await auth.signInWithGoogle();
-                  },
-                  child: Text('Sign in with your Google Account'),
-                )
-              else
+              if (isAuthenticated == true)
                 TextButton(
                   onPressed: () async {
                     await auth.signOut();
                   },
                   child: Text('Sign out ${auth.user!['displayName']}'),
+                )
+              else
+                FilledButton(
+                  onPressed: () async {
+                    await auth.signInWithGoogle();
+                  },
+                  child: Text('Sign in with Google'),
                 ),
               Text(
                 title,
@@ -172,11 +180,19 @@ class FronTitle extends ConsumerWidget {
                 style: TextStyle(fontSize: 14),
               ),
               if (values != null && values['email'] != null)
-                Column(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children:
                       (values['email'] as Map<String, dynamic>).keys
                           .map<Widget>((email) {
-                            return Text(email, style: TextStyle(fontSize: 14));
+                            return Padding(
+                              padding: EdgeInsets.all(4.0),
+                              child: Text(
+                                nickEmail(email),
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall,
+                              ),
+                            );
                           })
                           .toList(),
                 ),

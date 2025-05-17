@@ -48,6 +48,12 @@ class SearchForm extends ConsumerWidget {
               options: values['lens']!.keys.toList(),
               onChanged: (value) => api.changeFind('lens', value),
             ),
+            // AutoSuggestField(
+            //   hintText: 'by nick',
+            //   initialValue: find?['nick'],
+            //   options: values['nick']!.keys.toList(),
+            //   onChanged: (value) => api.changeFind('nick', value),
+            // ),
             // Container(color: Colors.yellow, height: 180),
           ],
         ),

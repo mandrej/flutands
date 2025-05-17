@@ -80,10 +80,13 @@ class ApiProvider extends ChangeNotifier {
         for (var doc in querySnapshot.docs) {
           var d = doc.data();
           if (!result.containsKey(d['field'])) {
+            // start filed
             result[d['field']] = {d['value']: d['count']};
           } else {
             result[d['field']]!.addAll({d['value']: d['count']});
           }
+          // TODO make nick
+          // result['email']
         }
       }
     } catch (e) {
@@ -112,15 +115,14 @@ class ApiProvider extends ChangeNotifier {
       query = query.where('tags', arrayContainsAny: _find!['tags']);
       query = query.where('model', isEqualTo: _find!['model']);
       query = query.where('lens', isEqualTo: _find!['lens']);
+      query = query.where('nick', isEqualTo: _find!['nick']);
 
       final querySnapshot =
           await query.orderBy('date', descending: true).limit(100).get();
 
       if (querySnapshot.docs.isNotEmpty) {
         _records.clear();
-        for (var doc in querySnapshot.docs) {
-          _records.add(doc.data());
-        }
+        _records = querySnapshot.docs.map((doc) => doc.data()).toList();
         notifyListeners();
       } else {
         _records.clear();

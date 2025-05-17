@@ -29,6 +29,8 @@ class _ListPageState extends ConsumerState<ListPage> {
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
     final records = ref.watch(myApiProvider).records;
     final isAuthenticated = ref.watch(myUserProvider).isAuthenticated;
+    final flags = ref.read(myFlagProvider);
+    final editMode = ref.watch(myFlagProvider).editMode;
 
     return FutureBuilder(
       future: _fetchFuture,
@@ -46,22 +48,16 @@ class _ListPageState extends ConsumerState<ListPage> {
             title: Text(widget.title),
             actions: [
               if (isAuthenticated)
-                Consumer(
-                  builder: (context, ref, child) {
-                    final flags = ref.read(myFlagProvider);
-                    final editMode = ref.watch(myFlagProvider).editMode;
-                    return TextButton(
-                      onPressed: () {
-                        flags.toggleEditMode();
-                      },
-                      child: Text(
-                        editMode ? 'EDIT MODE' : 'VIEW MODE',
-                        // style: TextStyle(
-                        //   color: Theme.of(context).colorScheme.onSurface,
-                        // ),
-                      ),
-                    );
+                TextButton(
+                  onPressed: () {
+                    flags.toggleEditMode();
                   },
+                  child: Text(
+                    editMode ? 'EDIT MODE' : 'VIEW MODE',
+                    // style: TextStyle(
+                    //   color: Theme.of(context).colorScheme.onSurface,
+                    // ),
+                  ),
                 ),
             ],
           ),

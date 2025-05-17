@@ -4,7 +4,7 @@ import '../providers/api_provider.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 import '../widgets/datetime_widget.dart';
-import '../providers/read_exif.dart';
+import '../helpers/read_exif.dart';
 
 class EditDialog extends ConsumerStatefulWidget {
   final Map<String, dynamic> editRecord;
