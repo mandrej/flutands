@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../helpers/common.dart';
 
 final myFlagProvider = ChangeNotifierProvider<FlagProvider>(
   (ref) => FlagProvider(),
@@ -85,8 +86,12 @@ class ApiProvider extends ChangeNotifier {
           } else {
             result[d['field']]!.addAll({d['value']: d['count']});
           }
-          // TODO make nick
-          // result['email']
+          if (result['email'] != null) {
+            result['nick'] = {};
+            result['email']?.forEach((key, value) {
+              result['nick']![nickEmail(key)] = value;
+            });
+          }
         }
       }
     } catch (e) {

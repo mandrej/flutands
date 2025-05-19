@@ -44,10 +44,10 @@ class HomePage extends ConsumerWidget {
                     SvgPicture.asset(
                       width: 100,
                       'assets/camera.svg',
-                      // colorFilter: const ColorFilter.mode(
-                      //   Colors.amber,
-                      //   BlendMode.srcIn,
-                      // ),
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).primaryColor,
+                        BlendMode.srcIn,
+                      ),
                       semanticsLabel: 'App Logo',
                     ),
                     Text(

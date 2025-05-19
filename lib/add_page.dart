@@ -13,24 +13,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 // import 'save_as/save_as.dart';
-
-/// Enum representing the upload task types the example app supports.
-enum UploadType {
-  /// Uploads a randomly generated string (as a file) to Storage.
-  // string,
-
-  /// Uploads a file from the device.
-  file,
-
-  /// Uploads a Uint8List to Storage.
-  // uint8List,
-
-  /// Clears any tasks from the list.
-  clear,
-}
-
 class TaskManager extends StatefulWidget {
   TaskManager({super.key});
 
@@ -49,21 +34,42 @@ class _TaskManager extends State<TaskManager> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('No file was selected')));
-
       return null;
     }
 
-    UploadTask uploadTask;
+    var uuid = Uuid();
+    final regex = RegExp(r'[^.]+');
 
-    // Create a Reference to the file
+    UploadTask uploadTask;
     Reference ref = FirebaseStorage.instance
         .ref()
-        .child('flutter-tests')
-        .child('/some-image.jpg');
+        .child('test')
+        .child('/${file.name}');
+
+    bool exists = false;
+    try {
+      await ref.getDownloadURL();
+      exists = true;
+    } catch (e) {
+      exists = false;
+    }
+
+    if (exists) {
+      var res = [];
+      var matches = regex.allMatches(file.name);
+      for (final m in matches) {
+        res.add(m[0]);
+      }
+      String gen = uuid.v4().split('-').last;
+      ref = FirebaseStorage.instance
+          .ref()
+          .child('test')
+          .child('/${res[0]}-$gen.${res[1]}');
+    }
 
     final metadata = SettableMetadata(
-      contentType: 'image/jpeg',
-      customMetadata: {'picked-file-path': file.path},
+      contentType: file.mimeType, //'image/jpeg',
+      // customMetadata: {'picked-file-path': file.path},
     );
 
     if (kIsWeb) {
@@ -75,69 +81,15 @@ class _TaskManager extends State<TaskManager> {
     return Future.value(uploadTask);
   }
 
-  /// A new string is uploaded to storage.
-  // UploadTask uploadString() {
-  //   const String putStringText =
-  //       'This upload has been generated using the putString method! Check the metadata too!';
-
-  //   // Create a Reference to the file
-  //   Reference ref = FirebaseStorage.instance
-  //       .ref()
-  //       .child('flutter-tests')
-  //       .child('/put-string-example.txt');
-
-  //   // Start upload of putString
-  //   return ref.putString(
-  //     putStringText,
-  //     metadata: SettableMetadata(
-  //       contentLanguage: 'en',
-  //       customMetadata: <String, String>{'example': 'putString'},
-  //     ),
-  //   );
-  // }
-
-  // Future<UploadTask> uploadUint8List() async {
-  //   UploadTask uploadTask;
-
-  //   // Create a Reference to the file
-  //   Reference ref = FirebaseStorage.instance
-  //       .ref()
-  //       .child('flutter-tests')
-  //       .child('/some-json.json');
-
-  //   const response = '{"key": "value", "number": 42}';
-  //   final data = jsonDecode(response);
-
-  //   uploadTask = ref.putData(Uint8List.fromList(utf8.encode(jsonEncode(data))));
-
-  //   return Future.value(uploadTask);
-  // }
-
   /// Handles the user pressing the PopupMenuItem item.
-  Future<void> handleUploadType(UploadType type) async {
-    switch (type) {
-      // case UploadType.string:
-      //   setState(() {
-      //     _uploadTasks = [..._uploadTasks, uploadString()];
-      //   });
-      case UploadType.file:
-        final file = await ImagePicker().pickImage(source: ImageSource.gallery);
-        UploadTask? task = await uploadFile(file);
+  Future<void> handleUpload() async {
+    final file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    UploadTask? task = await uploadFile(file);
 
-        if (task != null) {
-          setState(() {
-            _uploadTasks = [..._uploadTasks, task];
-          });
-        }
-      // case UploadType.uint8List:
-      //   final task = await uploadUint8List();
-      //   setState(() {
-      //     _uploadTasks = [..._uploadTasks, task];
-      //   });
-      case UploadType.clear:
-        setState(() {
-          _uploadTasks = [];
-        });
+    if (task != null) {
+      setState(() {
+        _uploadTasks = [..._uploadTasks, task];
+      });
     }
   }
 
@@ -165,26 +117,32 @@ class _TaskManager extends State<TaskManager> {
     );
   }
 
-  Future<void> _downloadFile(Reference ref) async {
-    final io.Directory systemTempDir = io.Directory.systemTemp;
-    final io.File tempFile = io.File('${systemTempDir.path}/temp-${ref.name}');
-    if (tempFile.existsSync()) await tempFile.delete();
+  // Future<void> _downloadFile(Reference ref) async {
+  //   final io.Directory systemTempDir = io.Directory.systemTemp;
+  //   final io.File tempFile = io.File('${systemTempDir.path}/temp-${ref.name}');
+  //   if (tempFile.existsSync()) await tempFile.delete();
 
-    await ref.writeToFile(tempFile);
+  //   await ref.writeToFile(tempFile);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Success!\n Downloaded ${ref.name} \n from bucket: ${ref.bucket}\n '
-          'at path: ${ref.fullPath} \n'
-          'Wrote "${ref.fullPath}" to tmp-${ref.name}',
-        ),
-      ),
-    );
-  }
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text(
+  //         'Success!\n Downloaded ${ref.name} \n from bucket: ${ref.bucket}\n '
+  //         'at path: ${ref.fullPath} \n'
+  //         'Wrote "${ref.fullPath}" to tmp-${ref.name}',
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Future<void> _delete(Reference ref) async {
     await ref.delete();
+
+    setState(() {
+      _uploadTasks.removeWhere(
+        (task) => task.snapshot.ref.fullPath == ref.fullPath,
+      );
+    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -200,36 +158,24 @@ class _TaskManager extends State<TaskManager> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add image'),
+        title: const Text('Add'),
         actions: [
-          PopupMenuButton<UploadType>(
-            onSelected: handleUploadType,
-            icon: const Icon(Icons.add),
-            itemBuilder:
-                (context) => [
-                  // const PopupMenuItem(
-                  //   // ignore: sort_child_properties_last
-                  //   child: Text('Upload string'),
-                  //   value: UploadType.string,
-                  // ),
-                  const PopupMenuItem(
-                    // ignore: sort_child_properties_last
-                    child: Text('Upload local file'),
-                    value: UploadType.file,
-                  ),
-                  // const PopupMenuItem(
-                  //   // ignore: sort_child_properties_last
-                  //   child: Text('Upload Uint8List'),
-                  //   value: UploadType.uint8List,
-                  // ),
-                  if (_uploadTasks.isNotEmpty)
-                    const PopupMenuItem(
-                      // ignore: sort_child_properties_last
-                      child: Text('Clear list'),
-                      value: UploadType.clear,
-                    ),
-                ],
+          FilledButton(
+            onPressed: () {
+              handleUpload();
+            },
+            child: Text('Upload local file'),
           ),
+          SizedBox(width: 16.0),
+          if (_uploadTasks.isNotEmpty)
+            FilledButton(
+              onPressed: () {
+                setState(() {
+                  _uploadTasks = [];
+                });
+              },
+              child: Text('Clear list'),
+            ),
         ],
       ),
       body:
@@ -246,17 +192,17 @@ class _TaskManager extends State<TaskManager> {
                       onDownloadLink: () async {
                         return _downloadLink(_uploadTasks[index].snapshot.ref);
                       },
-                      onDownload: () async {
-                        if (kIsWeb) {
-                          // return _downloadBytes(
-                          //   _uploadTasks[index].snapshot.ref,
-                          // );
-                        } else {
-                          return _downloadFile(
-                            _uploadTasks[index].snapshot.ref,
-                          );
-                        }
-                      },
+                      // onDownload: () async {
+                      //   if (kIsWeb) {
+                      //     return _downloadBytes(
+                      //       _uploadTasks[index].snapshot.ref,
+                      //     );
+                      //   } else {
+                      //     return _downloadFile(
+                      //       _uploadTasks[index].snapshot.ref,
+                      //     );
+                      //   }
+                      // },
                       onDelete: () async {
                         return _delete(_uploadTasks[index].snapshot.ref);
                       },
@@ -273,7 +219,7 @@ class UploadTaskListTile extends StatelessWidget {
     super.key,
     required this.task,
     required this.onDismissed,
-    required this.onDownload,
+    // required this.onDownload,
     required this.onDownloadLink,
     required this.onDelete,
   });
@@ -285,7 +231,7 @@ class UploadTaskListTile extends StatelessWidget {
   final VoidCallback /*!*/ onDismissed;
 
   /// Triggered when the user presses the download button on a completed upload task.
-  final VoidCallback /*!*/ onDownload;
+  // final VoidCallback /*!*/ onDownload;
 
   /// Triggered when the user presses the "link" button on a completed upload task.
   final VoidCallback /*!*/ onDownloadLink;
@@ -348,11 +294,11 @@ class UploadTaskListTile extends StatelessWidget {
                     icon: const Icon(Icons.file_upload),
                     onPressed: task.resume,
                   ),
-                if (state == TaskState.success)
-                  IconButton(
-                    icon: const Icon(Icons.file_download),
-                    onPressed: onDownload,
-                  ),
+                // if (state == TaskState.success)
+                //   IconButton(
+                //     icon: const Icon(Icons.file_download),
+                //     onPressed: onDownload,
+                //   ),
                 if (state == TaskState.success)
                   IconButton(
                     icon: const Icon(Icons.link),

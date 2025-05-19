@@ -15,48 +15,34 @@ class ListPage extends ConsumerStatefulWidget {
 }
 
 class _ListPageState extends ConsumerState<ListPage> {
-  late Future<void> _fetchFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    final api = ref.read(myApiProvider);
-    _fetchFuture = api.fetchRecords();
-  }
+  late final Future<void> _fetchFuture = ref.read(myApiProvider).fetchRecords();
 
   @override
   Widget build(BuildContext context) {
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
-    final records = ref.watch(myApiProvider).records;
-    final isAuthenticated = ref.watch(myUserProvider).isAuthenticated;
-    final flags = ref.read(myFlagProvider);
-    final editMode = ref.watch(myFlagProvider).editMode;
+    final api = ref.watch(myApiProvider);
+    final records = api.records;
+    final user = ref.watch(myUserProvider);
+    final flags = ref.watch(myFlagProvider);
 
-    return FutureBuilder(
+    return FutureBuilder<void>(
       future: _fetchFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        // Optionally handle error state
         if (snapshot.hasError) {
           return AlertBox(title: 'Error', content: 'Failed to load records.');
         }
-
         return Scaffold(
           appBar: AppBar(
             title: Text(widget.title),
             actions: [
-              if (isAuthenticated)
+              if (user.isAuthenticated)
                 TextButton(
-                  onPressed: () {
-                    flags.toggleEditMode();
-                  },
+                  onPressed: flags.toggleEditMode,
                   child: Text(
-                    editMode ? 'EDIT MODE' : 'VIEW MODE',
-                    // style: TextStyle(
-                    //   color: Theme.of(context).colorScheme.onSurface,
-                    // ),
+                    flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
                   ),
                 ),
             ],
@@ -69,14 +55,12 @@ class _ListPageState extends ConsumerState<ListPage> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child:
-                      (records.isNotEmpty)
-                          ? SimpleGridView(records: records)
-                          : AlertBox(
-                            title: 'No Records',
-                            content:
-                                'No records found. Please try again later.',
-                          ),
+                  child: records.isNotEmpty
+                      ? SimpleGridView(records: records)
+                      : AlertBox(
+                          title: 'No Records',
+                          content: 'No records found. Please try again later.',
+                        ),
                 ),
               ),
             ],
