@@ -151,8 +151,8 @@ class FronTitle extends ConsumerWidget {
                   icon: Icon(Icons.add),
                   style: IconButton.styleFrom(
                     iconSize: 40.0,
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
               if (isAuthenticated == true)

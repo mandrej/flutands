@@ -20,8 +20,7 @@ class _ListPageState extends ConsumerState<ListPage> {
   @override
   Widget build(BuildContext context) {
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
-    final api = ref.watch(myApiProvider);
-    final records = api.records;
+    final records = ref.watch(myApiProvider).records;
     final user = ref.watch(myUserProvider);
     final flags = ref.watch(myFlagProvider);
 

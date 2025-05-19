@@ -48,6 +48,7 @@ Future<void> main() async {
   runApp(ProviderScope(observers: [Logger()], child: MyApp()));
 }
 
+// https://rydmike.com/flexcolorscheme/themesplayground-latest/?config=H4sIAHoMK2gA_61UwW7iMBC99yuinCtEQ7tiuVGgElohrTbsOTL2BCw5dmSPKVHVf9-xE7pNgnYv5YT83pt582aUt7uEfmmtWHO0xmtRCIYsXSTp_gQVuOTnB5IEJIFLbSyCSB6-T6ZPk2yaPSUP2eJxvsi-pfejamewThodCs4n2WR6pXBT1YzjzgggrGTKQYcIKJlX-IsJ6R1h8-69VIah1MclRyr47BGNXqpX1riVtNwrZgeFbgl-O8hPrB72lLr2uAZuLENjn40VYPdNpL1FRuuMWSywfU5B-6ooFVyKKC4OUdTC9381Z6Z85FMYYJXUkEbw_WbnrXuRSoEY2UOwLI6xKUvgGHJB66-4kg73UkEOikAQOQ-7Wxll7P8mcJFa8Mi95bu2smK26bseNoz_v7Cp0TlFosWocavcUpYX4mWz6_PJvOYdRHlGE4OMnKzoRijjZV1f9dMhtqKrNBo0uiEFQ_HuWv85WyQWVWDemkzJ4wn7M2FYr1hLxw60-pXRaI0auEdTSx49bbTIZbSRjbAcyU6HXqPxDl7oSmMkbUT9yoRveze4b2NcS6bM0Y3IP6D5iPfzjRK0y3JsFKzlmSzYrd7NRurdbGNtyHm8oIAyunPqO9bl_tB-j_oIfV1Qcqa6xQTk7v0Pv90zZdMEAAA=
 abstract final class AppTheme {
   // The FlexColorScheme defined light mode ThemeData.
   static ThemeData light = FlexThemeData.light(
