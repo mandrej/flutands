@@ -15,7 +15,7 @@ class SearchForm extends ConsumerWidget {
     final find = ref.watch(myApiProvider).find;
 
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.only(left: 16.0),
       color: Theme.of(context).colorScheme.surface,
       child: Form(
         key: formKey,
@@ -24,14 +24,14 @@ class SearchForm extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AutoSuggestField(
-              hintText: 'filter by year',
+              hintText: 'by year',
               initialValue: find?['year']?.toString() ?? '',
               options: values!['year']!.keys.map((e) => e.toString()).toList(),
               onChanged:
                   (value) => api.changeFind('year', int.tryParse(value ?? '')),
             ),
             AutoSuggestField(
-              hintText: 'filter by month',
+              hintText: 'by month',
               initialValue:
                   values['month']!.entries
                       .firstWhere(

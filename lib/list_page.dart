@@ -41,9 +41,7 @@ class _ListPageState extends ConsumerState<ListPage> {
               if (user.isAuthenticated)
                 TextButton(
                   onPressed: flags.toggleEditMode,
-                  child: Text(
-                    flags.editMode ? 'EDIT MODE' : 'VIEW MODE',
-                  ),
+                  child: Text(flags.editMode ? 'EDIT MODE' : 'VIEW MODE'),
                 ),
             ],
           ),
@@ -55,12 +53,14 @@ class _ListPageState extends ConsumerState<ListPage> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: records.isNotEmpty
-                      ? SimpleGridView(records: records)
-                      : AlertBox(
-                          title: 'No Records',
-                          content: 'No records found. Please try again later.',
-                        ),
+                  child:
+                      records.isNotEmpty
+                          ? SimpleGridView(records: records)
+                          : AlertBox(
+                            title: 'No Records',
+                            content:
+                                'No records found. Please try again later.',
+                          ),
                 ),
               ),
             ],

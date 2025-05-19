@@ -1,7 +1,6 @@
 // import 'package:flutands/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'parts/alert_box.dart';
 import 'providers/api_provider.dart';
 import 'providers/user_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
