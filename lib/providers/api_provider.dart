@@ -3,6 +3,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../helpers/common.dart';
 
+const months = {
+  'January': 1,
+  'February': 2,
+  'March': 3,
+  'April': 4,
+  'May': 5,
+  'June': 6,
+  'July': 7,
+  'August': 8,
+  'September': 9,
+  'October': 10,
+  'November': 11,
+  'December': 12,
+};
+
 final myFlagProvider = ChangeNotifierProvider<FlagProvider>(
   (ref) => FlagProvider(),
 );
@@ -92,6 +107,7 @@ class ApiProvider extends ChangeNotifier {
               result['nick']![nickEmail(key)] = value;
             });
           }
+          result['month'] = months;
         }
       }
     } catch (e) {

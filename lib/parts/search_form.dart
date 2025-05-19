@@ -30,6 +30,19 @@ class SearchForm extends ConsumerWidget {
               onChanged:
                   (value) => api.changeFind('year', int.tryParse(value ?? '')),
             ),
+            AutoSuggestField(
+              hintText: 'filter by month',
+              initialValue:
+                  values['month']!.entries
+                      .firstWhere(
+                        (entry) => entry.value == find?['month'],
+                        orElse: () => MapEntry('', 0),
+                      )
+                      .key,
+              options: values['month']!.keys.toList(),
+              onChanged:
+                  (value) => api.changeFind('month', values['month']![value]),
+            ),
             AutoSuggestMultiSelect(
               hintText: 'by tags',
               initialValues: find?['tags'] ?? [],
