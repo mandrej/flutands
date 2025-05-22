@@ -92,8 +92,8 @@ class ItemThumbnail extends ConsumerWidget {
                   Positioned(
                     bottom: 0,
                     left: 0,
+                    right: 0,
                     child: Container(
-                      width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(color: Colors.black45),
                       padding: const EdgeInsets.all(8.0),
                       child: Text(

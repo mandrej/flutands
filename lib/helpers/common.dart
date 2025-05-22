@@ -7,3 +7,19 @@ String nickEmail(String email) {
   // Return an empty string or throw an error if no match is found
   return '';
 }
+
+List<String> splitFileName(String fileName) {
+  // final regex = RegExp(r'[^.]+');
+  // var res = <String>[];
+  // var matches = regex.allMatches(fileName);
+  // for (final m in matches) {
+  //   res.add(m[0]!);
+  // }
+  // return res;
+  return fileName.split('.');
+}
+
+String thumbFileName(String fileName) {
+  var [name, ext] = splitFileName(fileName);
+  return '${name}_400x400.jpeg';
+}

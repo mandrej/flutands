@@ -14,7 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 import 'add_page.dart';
-import 'providers/logger.dart';
+// import 'providers/logger.dart';
 
 Future<void> main() async {
   setPathUrlStrategy();
@@ -45,10 +45,16 @@ Future<void> main() async {
       return true;
     };
   }
-  runApp(ProviderScope(observers: [Logger()], child: MyApp()));
+  runApp(
+    ProviderScope(
+      //observers: [Logger()],
+      child: MyApp(),
+    ),
+  );
 }
 
-// https://rydmike.com/flexcolorscheme/themesplayground-latest/?config=H4sIAHoMK2gA_61UwW7iMBC99yuinCtEQ7tiuVGgElohrTbsOTL2BCw5dmSPKVHVf9-xE7pNgnYv5YT83pt582aUt7uEfmmtWHO0xmtRCIYsXSTp_gQVuOTnB5IEJIFLbSyCSB6-T6ZPk2yaPSUP2eJxvsi-pfejamewThodCs4n2WR6pXBT1YzjzgggrGTKQYcIKJlX-IsJ6R1h8-69VIah1MclRyr47BGNXqpX1riVtNwrZgeFbgl-O8hPrB72lLr2uAZuLENjn40VYPdNpL1FRuuMWSywfU5B-6ooFVyKKC4OUdTC9381Z6Z85FMYYJXUkEbw_WbnrXuRSoEY2UOwLI6xKUvgGHJB66-4kg73UkEOikAQOQ-7Wxll7P8mcJFa8Mi95bu2smK26bseNoz_v7Cp0TlFosWocavcUpYX4mWz6_PJvOYdRHlGE4OMnKzoRijjZV1f9dMhtqKrNBo0uiEFQ_HuWv85WyQWVWDemkzJ4wn7M2FYr1hLxw60-pXRaI0auEdTSx49bbTIZbSRjbAcyU6HXqPxDl7oSmMkbUT9yoRveze4b2NcS6bM0Y3IP6D5iPfzjRK0y3JsFKzlmSzYrd7NRurdbGNtyHm8oIAyunPqO9bl_tB-j_oIfV1Qcqa6xQTk7v0Pv90zZdMEAAA=
+// https://rydmike.com/flexcolorscheme/themesplayground-latest/?config=H4sIAHiALWgA_61UTY-bMBC9769AnFdRlijqNrd8rRRVkaqSntGsGRKrxkb2OBu02v_ewcC2gai9hAvI78288fMz7w8RP3GloD5a43We5UAQL6L4cMISXfT9E4kaJMJLZSxhHiVPk-l8kkyTeTT9uki-LOZJ_DjqdkbrpNFNw-dJMpn2FGHKCgTtTY6MFaAcdkiOBXhFPyCX3jH23K0XygBJfVwK4oYrT2T0Ur1B7dbSCq_ADhrdKvjpMD1BNdSUuvK0QWEskLErY3O0hzrQ3gOjnQwsZdQux6h9mRUKL1kozl5DUQs__qk5g_KBz2agVVJjHMCPm8o79yKVwnw0HqGFsI1tUaCgxheyvseVdHSQClNUDGKeiubs1kYZ-78duEDNRODemruysgRbX089FAzfdxQ1OmVLdD4Sbit37OWFecmsXz6Zt7SD2M8wxMAjJ0vOCHu8rKq-fjrE1pxKo1GTG1E0iF8rsCt-tdG-8369LUAMwtGL3lPK9caujSbgPNprTWrqu2v5T6VAzMqGeUtHyeOJBq2bHOcb6eCVM97oW6MGx0SmkiKYv2WLZRgjGWEp8Tgd-tQfkXf4wvcx2NQ6dt2a8d3VbTu0gdlIUOboRuRvWH8G6e_byNA-SalWuJFnnsHu9H42qt7PttY2iRpHsUGBbzTrjutS_9r-ea8R_o-SFKC6k2mQh4_fXD9cIL0FAAA=
+
 abstract final class AppTheme {
   // The FlexColorScheme defined light mode ThemeData.
   static ThemeData light = FlexThemeData.light(
@@ -66,6 +72,8 @@ abstract final class AppTheme {
       listTileSelectedTileSchemeColor: SchemeColor.onSecondary,
       alignedDropdown: true,
       useInputDecoratorThemeInDialogs: true,
+      snackBarBackgroundSchemeColor: SchemeColor.secondaryContainer,
+      snackBarActionSchemeColor: SchemeColor.onSurface,
       navigationRailUseIndicator: true,
     ),
     // Direct ThemeData properties.
@@ -90,6 +98,8 @@ abstract final class AppTheme {
       listTileSelectedTileSchemeColor: SchemeColor.onSecondary,
       alignedDropdown: true,
       useInputDecoratorThemeInDialogs: true,
+      snackBarBackgroundSchemeColor: SchemeColor.secondaryContainer,
+      snackBarActionSchemeColor: SchemeColor.onSurface,
       navigationRailUseIndicator: true,
     ),
     // Direct ThemeData properties.
