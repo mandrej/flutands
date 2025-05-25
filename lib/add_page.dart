@@ -6,30 +6,29 @@
 
 import 'dart:async';
 import 'dart:io' as io;
-// import 'dart:js_interop';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'providers/user_provider.dart'
+import 'providers/user_provider.dart';
+import 'package:intl/intl.dart';
+import 'helpers/read_exif.dart';
 import 'helpers/common.dart';
 import 'package:uuid/uuid.dart';
 
-class TaskManager extends StatefulWidget {
+class TaskManager extends ConsumerStatefulWidget {
   TaskManager({super.key});
 
   @override
-  State<StatefulWidget> createState() {
-    return _TaskManager();
-  }
+  ConsumerState<TaskManager> createState() => _TaskManagerState();
 }
 
-class _TaskManager extends State<TaskManager> {
+class _TaskManagerState extends ConsumerState<TaskManager> {
   List<UploadTask> _uploadTasks = [];
 
-  /// The user selects a file, and the task is added to the list.
   Future<UploadTask?> uploadFile(XFile? file) async {
     if (file == null) {
       ScaffoldMessenger.of(
@@ -37,18 +36,15 @@ class _TaskManager extends State<TaskManager> {
       ).showSnackBar(const SnackBar(content: Text('No file was selected')));
       return null;
     }
-    var fileName = file.name;
+    String fileName = file.name;
     var uuid = Uuid();
 
     UploadTask uploadTask;
-    Reference ref = FirebaseStorage.instance
-        .ref()
-        .child('test')
-        .child('/$fileName');
+    Reference photoRef = FirebaseStorage.instance.ref().child(fileName);
 
     bool exists = false;
     try {
-      await ref.getDownloadURL();
+      await photoRef.getDownloadURL();
       exists = true;
     } catch (e) {
       exists = false;
@@ -58,7 +54,7 @@ class _TaskManager extends State<TaskManager> {
       var [name, ext] = splitFileName(fileName);
       String gen = uuid.v4().split('-').last;
       fileName = '$name-$gen.$ext';
-      ref = FirebaseStorage.instance.ref().child('test').child('/$fileName');
+      photoRef = FirebaseStorage.instance.ref().child(fileName);
     }
 
     final metadata = SettableMetadata(
@@ -67,15 +63,14 @@ class _TaskManager extends State<TaskManager> {
     );
 
     if (kIsWeb) {
-      uploadTask = ref.putData(await file.readAsBytes(), metadata);
+      uploadTask = photoRef.putData(await file.readAsBytes(), metadata);
     } else {
-      uploadTask = ref.putFile(io.File(file.path), metadata);
+      uploadTask = photoRef.putFile(io.File(file.path), metadata);
     }
 
     return Future.value(uploadTask);
   }
 
-  /// Handles the user pressing the PopupMenuItem item.
   Future<void> handleUploads() async {
     final ImagePicker _picker = ImagePicker();
     final List<XFile> images = await _picker.pickMultiImage();
@@ -95,53 +90,69 @@ class _TaskManager extends State<TaskManager> {
     }
   }
 
-  void _removeTaskAtIndex(int index) {
-    setState(() {
-      _uploadTasks = _uploadTasks..removeAt(index);
-    });
-  }
+  // void _removeTaskAtIndex(int index) {
+  //   setState(() {
+  //     _uploadTasks = _uploadTasks..removeAt(index);
+  //   });
+  // }
 
-  Future<void> _publish(Reference ref) async {
-    print('Publishing ${ref.name}');
-    final email = ref.watch(myUserProvider).email;
-    var metadata = await ref.getMetadata();
-    Map<String, dynamic> record = {
-      'filename': ref.name,
-      'url': _downloadUrl(ref),
+  Future<void> _publish(Reference photoRef) async {
+    Reference thumbRef = FirebaseStorage.instance
+        .ref()
+        .child('/thumbnails')
+        .child('/${thumbFileName(photoRef.name)}');
+
+    final db = FirebaseFirestore.instance;
+    final auth = ref.read(myUserProvider);
+    final email = auth.userEmail;
+
+    var metadata = await photoRef.getMetadata();
+    final url = await _downloadUrl(photoRef);
+    final thumb = await _downloadUrl(thumbRef);
+
+    var date = DateTime.now();
+    final exif = await readExif(photoRef.name);
+
+    final record = <String, dynamic>{
+      'filename': photoRef.name,
+      'date': DateFormat('yyyy-MM-dd HH:mm').format(date),
+      'url': url,
+      'thumb': thumb,
       'size': metadata.size,
       'headline': 'No name',
       'email': email,
+      ...exif,
     };
-    print(record);
+
+    await db.collection('Photo').doc(photoRef.name).set(record);
+    print('RECORD $record');
   }
 
-  Future<void> _delete(Reference ref) async {
-    // print(thumbFileName(ref.name));
+  Future<void> _delete(Reference photoRef) async {
+    // print(thumbFileName(photoRef.name));
     Reference thumbRef = FirebaseStorage.instance
         .ref()
-        .child('test')
         .child('/thumbnails')
-        .child('/${thumbFileName(ref.name)}');
+        .child('/${thumbFileName(photoRef.name)}');
 
-    print(thumbRef.fullPath);
     try {
       await thumbRef.delete();
     } catch (e) {
       print('Error deleting thumbnail: $e');
     }
-    await ref.delete();
+    await photoRef.delete();
 
     setState(() {
       _uploadTasks.removeWhere(
-        (task) => task.snapshot.ref.fullPath == ref.fullPath,
+        (task) => task.snapshot.ref.fullPath == photoRef.fullPath,
       );
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Success!\n deleted ${ref.name} \n from bucket: ${ref.bucket}\n '
-          'at path: ${ref.fullPath} \n',
+          'Success!\n deleted ${photoRef.name} \n from bucket: ${photoRef.bucket}\n '
+          'at path: ${photoRef.fullPath} \n',
         ),
       ),
     );
@@ -205,8 +216,8 @@ class _TaskManager extends State<TaskManager> {
   }
 }
 
-Future<String> _downloadUrl(Reference ref) async {
-  return await ref.getDownloadURL();
+Future<String> _downloadUrl(Reference photoRef) async {
+  return await photoRef.getDownloadURL();
 }
 
 class ItemThumbnail extends StatelessWidget {

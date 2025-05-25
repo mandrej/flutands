@@ -160,7 +160,7 @@ class FronTitle extends ConsumerWidget {
                   onPressed: () async {
                     await auth.signOut();
                   },
-                  child: Text('Sign out ${auth.user!['displayName']}'),
+                  child: Text('Sign out ${auth.userName!}'),
                 )
               else
                 FilledButton(

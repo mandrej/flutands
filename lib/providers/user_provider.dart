@@ -28,6 +28,8 @@ class UserProvider with ChangeNotifier {
   Map<String, dynamic>? _user;
 
   Map<String, dynamic>? get user => _user;
+  String? get userName => _user?['displayName'];
+  String? get userEmail => _user?['email'];
   bool get isAuthenticated => _isAuthenticated;
   bool get isAdmin =>
       _isAuthenticated ? admins.contains(_user!['email']) : false;
@@ -46,7 +48,6 @@ class UserProvider with ChangeNotifier {
         _user = {
           'displayName': googleUser.displayName,
           'email': googleUser.email,
-          'photoURL': googleUser.photoURL,
           'uid': googleUser.uid,
         };
         notifyListeners();
@@ -62,7 +63,6 @@ class UserProvider with ChangeNotifier {
       _user = {
         'displayName': googleUser?.displayName,
         'email': googleUser?.email,
-        'photoURL': googleUser?.photoURL,
         'uid': googleUser?.uid,
       };
       _isAuthenticated = true;
