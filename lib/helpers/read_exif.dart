@@ -21,15 +21,7 @@ double decimalCoords(IfdValues val, String ref) {
 }
 
 Future readExif(filename) async {
-  Map<String, dynamic> result = {};
-  // final reFilename = RegExp(r'^(.*?)(\.[^.]*)?$');
-  // final match = reFilename.firstMatch(filename);
-  // if (match == null) {
-  //   print('Invalid filename format');
-  //   return;
-  // }
-  // final thumbFielname = '${match[1]}_400x400.jpeg';
-  // print(thumbFielname);
+  Map<String, dynamic>? result = {};
   Reference ref = FirebaseStorage.instance.ref().child(filename);
   try {
     const maxSize = 4 * 1024 * 1024;
@@ -37,13 +29,13 @@ Future readExif(filename) async {
 
     if (data == null) {
       print('Failed to retrieve data from Firebase Storage');
-      return;
+      return result;
     }
     final exif = await readExifFromBytes(data);
     // Data for "images/island.jpg" is returned, use this as needed.
     if (exif.isEmpty) {
       print('No EXIF information found');
-      return;
+      return result;
     }
 
     // for (final entry in exif.entries) {
@@ -164,7 +156,5 @@ Future readExif(filename) async {
   } on FirebaseException catch (e) {
     print(e);
   }
-
-  print('-----------------> $result');
   return result;
 }

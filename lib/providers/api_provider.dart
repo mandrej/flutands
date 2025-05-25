@@ -164,17 +164,15 @@ class ApiProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateRecord(
-    Map<String, dynamic> record,
-    Map<String, dynamic> newValues,
-  ) async {
+  Future<void> updateRecord(Map<String, dynamic> record) async {
     try {
-      await db.collection('Photo').doc(record['filename']).update(newValues);
+      await db.collection('Photo').doc(record['filename']).update(record);
+
       int index = _records.indexWhere(
         (item) => item['filename'] == record['filename'],
       );
       if (index != -1) {
-        _records[index].addAll(newValues);
+        _records[index].addAll(record);
         notifyListeners();
       }
     } catch (e) {

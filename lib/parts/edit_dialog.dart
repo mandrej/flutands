@@ -52,7 +52,8 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                 child: const Text('Save'),
                 onPressed: () {
                   _formKey.currentState!.save();
-                  print('Saved: $_record[date]');
+                  print('Saved: $_record');
+                  ref.read(myApiProvider).updateRecord(_record);
                   Navigator.of(context).pop();
                 },
               ),
@@ -193,7 +194,7 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                         ),
                         TextFormField(
                           controller: TextEditingController(
-                            text: _record['loc'],
+                            text: _record['loc'] ?? '',
                           ),
                           decoration: InputDecoration(
                             labelText: 'GPS location',
@@ -216,7 +217,8 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                         CheckboxListTile(
                           controlAffinity: ListTileControlAffinity.leading,
                           title: Text('Flash fired'),
-                          value: _record['flash'],
+                          value: _record['flash'] ?? false,
+                          tristate: false,
                           onChanged: (value) {
                             setState(() {
                               _record['flash'] = value;

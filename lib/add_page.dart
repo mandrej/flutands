@@ -18,6 +18,7 @@ import 'package:intl/intl.dart';
 import 'helpers/read_exif.dart';
 import 'helpers/common.dart';
 import 'package:uuid/uuid.dart';
+import 'parts/edit_dialog.dart';
 
 class TaskManager extends ConsumerStatefulWidget {
   TaskManager({super.key});
@@ -90,46 +91,64 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     }
   }
 
-  // void _removeTaskAtIndex(int index) {
-  //   setState(() {
-  //     _uploadTasks = _uploadTasks..removeAt(index);
-  //   });
-  // }
+  void _removeTaskAtIndex(int index) {
+    setState(() {
+      _uploadTasks = _uploadTasks..removeAt(index);
+    });
+  }
 
   Future<void> _publish(Reference photoRef) async {
-    Reference thumbRef = FirebaseStorage.instance
-        .ref()
-        .child('/thumbnails')
-        .child('/${thumbFileName(photoRef.name)}');
+    final url = await _downloadUrl(photoRef);
+    // Reference thumbRef = FirebaseStorage.instance
+    //     .ref()
+    //     .child('/thumbnails')
+    //     .child('/${thumbFileName(photoRef.name)}');
+    // final thumb = await _downloadUrl(thumbRef);
+    var metadata = await photoRef.getMetadata();
 
     final db = FirebaseFirestore.instance;
     final auth = ref.read(myUserProvider);
     final email = auth.userEmail;
 
-    var metadata = await photoRef.getMetadata();
-    final url = await _downloadUrl(photoRef);
-    final thumb = await _downloadUrl(thumbRef);
-
-    var date = DateTime.now();
-    final exif = await readExif(photoRef.name);
-
+    var exif = await readExif(photoRef.name);
+    if (exif.isEmpty) {
+      var date = DateTime.now();
+      exif = {
+        'model': 'UNKNOWN',
+        'date': DateFormat('yyyy-MM-dd HH:mm').format(date),
+        'year': date.year,
+        'month': date.month,
+        'day': date.day,
+      };
+    }
+    /*
+    MISSING dim: [3200, 2129]
+    */
     final record = <String, dynamic>{
       'filename': photoRef.name,
-      'date': DateFormat('yyyy-MM-dd HH:mm').format(date),
       'url': url,
-      'thumb': thumb,
+      // 'thumb': thumb,
       'size': metadata.size,
-      'headline': 'No name',
       'email': email,
+      'nick': nickEmail(email!),
+      'headline': 'No name',
+      'text': [],
+      'tags': [],
       ...exif,
     };
 
-    await db.collection('Photo').doc(photoRef.name).set(record);
+    // await db.collection('Photo').doc(photoRef.name).set(record);
     print('RECORD $record');
+
+    int index = _uploadTasks.indexWhere(
+      (item) => item.snapshot.ref.name == photoRef.name,
+    );
+    if (index != -1) {
+      _removeTaskAtIndex(index);
+    }
   }
 
   Future<void> _delete(Reference photoRef) async {
-    // print(thumbFileName(photoRef.name));
     Reference thumbRef = FirebaseStorage.instance
         .ref()
         .child('/thumbnails')
