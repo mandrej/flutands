@@ -35,7 +35,7 @@ class _EditDialogState extends ConsumerState<EditDialog> {
 
     return Dialog(
       child: SizedBox(
-        width: 800,
+        // width: width,
         child: Scaffold(
           appBar: AppBar(
             title: Text('Edit'),
@@ -53,7 +53,11 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                 onPressed: () {
                   _formKey.currentState!.save();
                   print('Saved: $_record');
-                  ref.read(myApiProvider).updateRecord(_record);
+                  if (_record.containsKey('thumb')) {
+                    ref.read(myApiProvider).updateRecord(_record);
+                  } else {
+                    ref.read(myApiProvider).addRecord(_record);
+                  }
                   Navigator.of(context).pop();
                 },
               ),
@@ -71,7 +75,9 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                       child: Column(
                         children: [
                           Image.network(
-                            _record['thumb'],
+                            _record.containsKey('thumb')
+                                ? _record['thumb']
+                                : _record['url'],
                             width: 400,
                             // height: 400,
                             fit: BoxFit.cover,

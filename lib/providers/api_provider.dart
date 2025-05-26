@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../helpers/common.dart';
 
@@ -180,13 +181,23 @@ class ApiProvider extends ChangeNotifier {
     }
   }
 
-  // Future<void> addRecord(Map<String, dynamic> record) async {
-  //   try {
-  //     await db.collection('Photo').add(record);
-  //     _records.add(record);
-  //     notifyListeners();
-  //   } catch (e) {
-  //     print('Error adding document: $e');
-  //   }
-  // }
+  Future<void> addRecord(Map<String, dynamic> record) async {
+    try {
+      Reference thumbRef = FirebaseStorage.instance
+          .ref()
+          .child('/thumbnails')
+          .child('/${thumbFileName(record['filename'])}');
+      record['thumb'] = await thumbRef.getDownloadURL();
+    } catch (e) {
+      print('Error processing date: $e');
+    }
+
+    try {
+      await db.collection('Photo').add(record);
+      _records.add(record);
+      notifyListeners();
+    } catch (e) {
+      print('Error adding document: $e');
+    }
+  }
 }

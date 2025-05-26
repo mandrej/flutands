@@ -156,5 +156,6 @@ Future readExif(filename) async {
   } on FirebaseException catch (e) {
     print(e);
   }
+  // MISSING dim: [3200, 2129]
   return result;
 }

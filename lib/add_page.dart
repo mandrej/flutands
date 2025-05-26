@@ -7,7 +7,6 @@
 import 'dart:async';
 import 'dart:io' as io;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -91,62 +90,11 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     }
   }
 
-  void _removeTaskAtIndex(int index) {
-    setState(() {
-      _uploadTasks = _uploadTasks..removeAt(index);
-    });
-  }
-
-  Future<void> _publish(Reference photoRef) async {
-    final url = await _downloadUrl(photoRef);
-    // Reference thumbRef = FirebaseStorage.instance
-    //     .ref()
-    //     .child('/thumbnails')
-    //     .child('/${thumbFileName(photoRef.name)}');
-    // final thumb = await _downloadUrl(thumbRef);
-    var metadata = await photoRef.getMetadata();
-
-    final db = FirebaseFirestore.instance;
-    final auth = ref.read(myUserProvider);
-    final email = auth.userEmail;
-
-    var exif = await readExif(photoRef.name);
-    if (exif.isEmpty) {
-      var date = DateTime.now();
-      exif = {
-        'model': 'UNKNOWN',
-        'date': DateFormat('yyyy-MM-dd HH:mm').format(date),
-        'year': date.year,
-        'month': date.month,
-        'day': date.day,
-      };
-    }
-    /*
-    MISSING dim: [3200, 2129]
-    */
-    final record = <String, dynamic>{
-      'filename': photoRef.name,
-      'url': url,
-      // 'thumb': thumb,
-      'size': metadata.size,
-      'email': email,
-      'nick': nickEmail(email!),
-      'headline': 'No name',
-      'text': [],
-      'tags': [],
-      ...exif,
-    };
-
-    // await db.collection('Photo').doc(photoRef.name).set(record);
-    print('RECORD $record');
-
-    int index = _uploadTasks.indexWhere(
-      (item) => item.snapshot.ref.name == photoRef.name,
-    );
-    if (index != -1) {
-      _removeTaskAtIndex(index);
-    }
-  }
+  // void _removeTaskAtIndex(int index) {
+  //   setState(() {
+  //     _uploadTasks = _uploadTasks..removeAt(index);
+  //   });
+  // }
 
   Future<void> _delete(Reference photoRef) async {
     Reference thumbRef = FirebaseStorage.instance
@@ -183,6 +131,12 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
       appBar: AppBar(
         title: const Text('Add'),
         actions: [
+          FilledButton(
+            onPressed: () {
+              handleUploads();
+            },
+            child: Text('Upload local files'),
+          ),
           SizedBox(width: 16.0),
           if (_uploadTasks.isNotEmpty)
             FilledButton(
@@ -199,14 +153,6 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Center(
-              child: FilledButton(
-                onPressed: () {
-                  handleUploads();
-                },
-                child: Text('Upload local files'),
-              ),
-            ),
             if (_uploadTasks.isNotEmpty)
               GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -223,11 +169,10 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
                       onDelete: () async {
                         return _delete(_uploadTasks[index].snapshot.ref);
                       },
-                      onPublish: () async {
-                        return _publish(_uploadTasks[index].snapshot.ref);
-                      },
                     ),
-              ),
+              )
+            else
+              SizedBox(height: 16.0),
           ],
         ),
       ),
@@ -235,26 +180,65 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
   }
 }
 
-Future<String> _downloadUrl(Reference photoRef) async {
-  return await photoRef.getDownloadURL();
-}
+// Future<String> _downloadUrl(Reference photoRef) async {
+//   return await photoRef.getDownloadURL();
+// }
 
-class ItemThumbnail extends StatelessWidget {
+class ItemThumbnail extends ConsumerWidget {
   const ItemThumbnail({
     super.key,
     required this.task,
     required this.onDelete,
-    required this.onPublish,
+    // required this.onPublish,
   });
 
   final UploadTask /*!*/ task;
 
   /// Triggered when the user presses the "delete" button on a completed upload task.
   final VoidCallback /*!*/ onDelete;
-  final VoidCallback /*!*/ onPublish;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    Future<Map<String, dynamic>> _recordPublish(Reference photoRef) async {
+      final url = await photoRef.getDownloadURL();
+      var metadata = await photoRef.getMetadata();
+
+      final auth = ref.read(myUserProvider);
+      final email = auth.userEmail;
+
+      var exif = await readExif(photoRef.name);
+      if (exif.isEmpty) {
+        var date = DateTime.now();
+        exif = {
+          'model': 'UNKNOWN',
+          'date': DateFormat('yyyy-MM-dd HH:mm').format(date),
+          'year': date.year,
+          'month': date.month,
+          'day': date.day,
+        };
+      }
+      final record = <String, dynamic>{
+        'filename': photoRef.name,
+        'url': url,
+        // 'thumb': thumb,
+        'size': metadata.size,
+        'email': email,
+        'nick': nickEmail(email!),
+        'headline': 'No name',
+        // 'text': [],
+        'tags': [],
+        ...exif,
+      };
+
+      // int index = _uploadTasks.indexWhere(
+      //   (item) => item.snapshot.ref.name == photoRef.name,
+      // );
+      // if (index != -1) {
+      //   _removeTaskAtIndex(index);
+      // }
+      return record;
+    }
+
     return StreamBuilder<TaskSnapshot>(
       stream: task.snapshotEvents,
       builder: (
@@ -271,57 +255,61 @@ class ItemThumbnail extends StatelessWidget {
         }
         return Card(
           clipBehavior: Clip.antiAliasWithSaveLayer,
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: FutureBuilder<String>(
-                      future: _downloadUrl(task.snapshot.ref),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Center(child: Icon(Icons.error));
-                        } else if (snapshot.hasData) {
-                          return Image.network(
-                            snapshot.data!,
-                            fit: BoxFit.cover,
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(color: Colors.white70),
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.publish),
-                            onPressed: onPublish,
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: onDelete,
-                          ),
-                        ],
+          child: FutureBuilder<Map<String, dynamic>>(
+            future: _recordPublish(task.snapshot.ref),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Icon(Icons.error));
+              } else if (snapshot.hasData) {
+                return Stack(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 1.0,
+                      child: Image.network(
+                        snapshot.data!['url'],
+                        fit: BoxFit.cover,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        decoration: BoxDecoration(color: Colors.white70),
+                        // padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: onDelete,
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.publish),
+                              onPressed: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder:
+                                      (context) => EditDialog(
+                                        editRecord: snapshot.data!,
+                                      ),
+                                  barrierDismissible: false,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
           ),
         );
       },
