@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'providers/api_provider.dart';
 import 'providers/user_provider.dart';
 import 'package:intl/intl.dart';
 import 'helpers/read_exif.dart';
@@ -27,8 +28,6 @@ class TaskManager extends ConsumerStatefulWidget {
 }
 
 class _TaskManagerState extends ConsumerState<TaskManager> {
-  List<UploadTask> _uploadTasks = [];
-
   Future<UploadTask?> uploadFile(XFile? file) async {
     if (file == null) {
       ScaffoldMessenger.of(
@@ -67,11 +66,11 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     } else {
       uploadTask = photoRef.putFile(io.File(file.path), metadata);
     }
-
     return Future.value(uploadTask);
   }
 
   Future<void> handleUploads() async {
+    final api = ref.read(myApiProvider);
     final ImagePicker _picker = ImagePicker();
     final List<XFile> images = await _picker.pickMultiImage();
     if (images.isEmpty) {
@@ -83,20 +82,13 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     for (var file in images) {
       UploadTask? task = await uploadFile(file);
       if (task != null) {
-        setState(() {
-          _uploadTasks = [..._uploadTasks, task];
-        });
+        api.addTask(task);
       }
     }
   }
 
-  // void _removeTaskAtIndex(int index) {
-  //   setState(() {
-  //     _uploadTasks = _uploadTasks..removeAt(index);
-  //   });
-  // }
-
   Future<void> _delete(Reference photoRef) async {
+    final api = ref.read(myApiProvider);
     Reference thumbRef = FirebaseStorage.instance
         .ref()
         .child('/thumbnails')
@@ -109,11 +101,7 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     }
     await photoRef.delete();
 
-    setState(() {
-      _uploadTasks.removeWhere(
-        (task) => task.snapshot.ref.fullPath == photoRef.fullPath,
-      );
-    });
+    api.removeTask(photoRef.name);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -127,26 +115,22 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
 
   @override
   Widget build(BuildContext context) {
+    final api = ref.read(myApiProvider);
+    List<UploadTask> _uploadTasks = ref.watch(myApiProvider).uploadTasks;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add'),
         actions: [
-          FilledButton(
-            onPressed: () {
-              handleUploads();
-            },
-            child: Text('Upload local files'),
-          ),
-          SizedBox(width: 16.0),
-          if (_uploadTasks.isNotEmpty)
-            FilledButton(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: FilledButton(
               onPressed: () {
-                setState(() {
-                  _uploadTasks = [];
-                });
+                handleUploads();
               },
-              child: Text('Clear list'),
+              child: Text('Upload local files'),
             ),
+          ),
         ],
       ),
       body: Padding(
@@ -229,13 +213,6 @@ class ItemThumbnail extends ConsumerWidget {
         'tags': [],
         ...exif,
       };
-
-      // int index = _uploadTasks.indexWhere(
-      //   (item) => item.snapshot.ref.name == photoRef.name,
-      // );
-      // if (index != -1) {
-      //   _removeTaskAtIndex(index);
-      // }
       return record;
     }
 

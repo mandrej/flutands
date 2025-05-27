@@ -27,6 +27,7 @@ class _EditDialogState extends ConsumerState<EditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final api = ref.read(myApiProvider);
     final values = ref.watch(myApiProvider).values;
     final width = MediaQuery.of(context).size.width;
     final _controllerHeadline = TextEditingController(
@@ -52,12 +53,12 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                 child: const Text('Save'),
                 onPressed: () {
                   _formKey.currentState!.save();
-                  print('Saved: $_record');
                   if (_record.containsKey('thumb')) {
-                    ref.read(myApiProvider).updateRecord(_record);
+                    api.updateRecord(_record);
                   } else {
-                    ref.read(myApiProvider).addRecord(_record);
+                    api.addRecord(_record);
                   }
+                  api.removeTask(_record['filename']);
                   Navigator.of(context).pop();
                 },
               ),
