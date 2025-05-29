@@ -46,6 +46,7 @@ class ApiProvider extends ChangeNotifier {
   Map<String, Map<String, int>>? _values;
   Map<String, dynamic>? _find = {};
   List<Map<String, dynamic>> _records = [];
+  List<Map<String, dynamic>> _uploaded = [];
   List<UploadTask> _uploadTasks = [];
 
   ApiProvider() {
@@ -53,6 +54,7 @@ class ApiProvider extends ChangeNotifier {
   }
 
   List<Map<String, dynamic>> get records => _records;
+  List<Map<String, dynamic>> get uploaded => _uploaded;
   List<UploadTask> get uploadTasks => _uploadTasks;
   Map<String, Map<String, int>>? get values => _values;
   Map<String, dynamic>? get find => _find;
@@ -158,22 +160,10 @@ class ApiProvider extends ChangeNotifier {
   }
 
   Future<void> deleteRecord(Map<String, dynamic> record) async {
-    Reference photoRef = FirebaseStorage.instance.ref().child(
-      record['filename'],
-    );
-    Reference thumbRef = FirebaseStorage.instance
-        .ref()
-        .child('/thumbnails')
-        .child('/${thumbFileName(photoRef.name)}');
+    removeFromStorage(record['filename']);
     try {
       await db.collection('Photo').doc(record['filename']).delete();
       _records.removeWhere((item) => item['filename'] == record['filename']);
-      try {
-        await thumbRef.delete();
-      } catch (e) {
-        print('Error deleting thumbnail: $e');
-      }
-      await photoRef.delete();
       notifyListeners();
     } catch (e) {
       print('Error deleting document: $e');
@@ -204,7 +194,7 @@ class ApiProvider extends ChangeNotifier {
           .child('/${thumbFileName(record['filename'])}');
       record['thumb'] = await thumbRef.getDownloadURL();
     } catch (e) {
-      print('Error processing date: $e');
+      print('Error processing thumbnail: $e');
     }
 
     try {
@@ -216,7 +206,24 @@ class ApiProvider extends ChangeNotifier {
     }
   }
 
+  void removeFromStorage(String fileName) {
+    final photoRef = FirebaseStorage.instance.ref().child(fileName);
+    photoRef.delete().catchError((e) {
+      print('Error deleting file: $e');
+    });
+    final thumbRef = FirebaseStorage.instance
+        .ref()
+        .child('/thumbnails')
+        .child('/${thumbFileName(photoRef.name)}');
+    thumbRef.delete().catchError((e) {
+      print('Error deleting thumbnail: $e');
+    });
+  }
+
   void clearTasks() {
+    for (var task in _uploadTasks) {
+      removeFromStorage(task.snapshot.ref.name);
+    }
     _uploadTasks = [];
     notifyListeners();
   }
@@ -226,8 +233,20 @@ class ApiProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addUploaded(Map<String, dynamic> record) {
+    _uploaded.add(record);
+    notifyListeners();
+  }
+
+  void removeUploaded(Map<String, dynamic> record) {
+    _uploaded.removeWhere((item) => item['filename'] == record['filename']);
+    removeFromStorage(record['filename']);
+    notifyListeners();
+  }
+
   void removeTask(String fileName) {
     final photoRef = FirebaseStorage.instance.ref().child(fileName);
+    removeFromStorage(fileName);
     _uploadTasks.removeWhere(
       (item) => item.snapshot.ref.fullPath == photoRef.fullPath,
     );

@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,6 +29,8 @@ class TaskManager extends ConsumerStatefulWidget {
 }
 
 class _TaskManagerState extends ConsumerState<TaskManager> {
+  List<UploadTask> _uploadTasks = [];
+
   Future<UploadTask?> uploadFile(XFile? file) async {
     if (file == null) {
       ScaffoldMessenger.of(
@@ -70,9 +73,9 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
   }
 
   Future<void> handleUploads() async {
-    final api = ref.read(myApiProvider);
     final ImagePicker _picker = ImagePicker();
     final List<XFile> images = await _picker.pickMultiImage();
+    if (!mounted) return;
     if (images.isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -82,7 +85,9 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     for (var file in images) {
       UploadTask? task = await uploadFile(file);
       if (task != null) {
-        api.addTask(task);
+        setState(() {
+          _uploadTasks = [..._uploadTasks, task];
+        });
       }
     }
   }
@@ -100,7 +105,7 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
       print('Error deleting thumbnail: $e');
     }
     await photoRef.delete();
-
+    if (!mounted) return;
     api.removeTask(photoRef.name);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -116,7 +121,8 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
   @override
   Widget build(BuildContext context) {
     final api = ref.read(myApiProvider);
-    List<UploadTask> _uploadTasks = ref.watch(myApiProvider).uploadTasks;
+    final uploaded = ref.watch(myApiProvider).uploaded;
+    // List<UploadTask> _uploadTasks = ref.watch(myApiProvider).uploadTasks;
 
     return Scaffold(
       appBar: AppBar(
@@ -124,41 +130,81 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FilledButton(
-              onPressed: () {
-                handleUploads();
-              },
-              child: Text('Upload local files'),
+            child: Row(
+              children: [
+                // if (_uploadTasks.isNotEmpty)
+                //   TextButton(
+                //     onPressed: () {
+                //       api.clearTasks();
+                //       ScaffoldMessenger.of(context).showSnackBar(
+                //         const SnackBar(content: Text('Cleared upload list')),
+                //       );
+                //     },
+                //     child: Text('Clear list'),
+                //   ),
+                // SizedBox(width: 8.0),
+                FilledButton(
+                  onPressed: () {
+                    handleUploads();
+                  },
+                  child: Text('Upload local files'),
+                ),
+              ],
             ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (_uploadTasks.isNotEmpty)
-              GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: MediaQuery.of(context).size.width ~/ 200,
-                  mainAxisSpacing: 8.0,
-                  crossAxisSpacing: 8.0,
-                  childAspectRatio: 1,
-                ),
-                shrinkWrap: true,
+      body: Column(
+        children: [
+          if (_uploadTasks.isNotEmpty)
+            Expanded(
+              child: ListView.builder(
                 itemCount: _uploadTasks.length,
                 itemBuilder:
-                    (context, index) => ItemThumbnail(
+                    (context, index) => UploadTaskListTile(
                       task: _uploadTasks[index],
                       onDelete: () async {
                         return _delete(_uploadTasks[index].snapshot.ref);
                       },
                     ),
-              )
-            else
-              SizedBox(height: 16.0),
-          ],
-        ),
+              ),
+            ),
+          if (uploaded.isNotEmpty)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: MediaQuery.of(context).size.width ~/ 200,
+                    mainAxisSpacing: 8.0,
+                    crossAxisSpacing: 8.0,
+                    childAspectRatio: 1,
+                  ),
+                  shrinkWrap: true,
+                  itemCount: uploaded.length,
+                  itemBuilder:
+                      (context, index) => ItemThumbnail(
+                        uploadedRecord: uploaded[index],
+                        onDelete: () async {
+                          api.removeUploaded(uploaded[index]);
+                          // return _delete(_uploadTasks[index].snapshot.ref);
+                        },
+                        onPublish: () async {
+                          await showDialog(
+                            context: context,
+                            builder:
+                                (context) =>
+                                    EditDialog(editRecord: uploaded[index]),
+                            barrierDismissible: false,
+                          );
+                        },
+                      ),
+                ),
+              ),
+            )
+          else
+            SizedBox(height: 16.0),
+        ],
       ),
     );
   }
@@ -167,129 +213,173 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
 // Future<String> _downloadUrl(Reference photoRef) async {
 //   return await photoRef.getDownloadURL();
 // }
+Future<Map<String, dynamic>> _recordUploaded(Reference photoRef) async {
+  final url = await photoRef.getDownloadURL();
+  var metadata = await photoRef.getMetadata();
 
-class ItemThumbnail extends ConsumerWidget {
-  const ItemThumbnail({
+  final record = <String, dynamic>{
+    'filename': photoRef.name,
+    'url': url,
+    'size': metadata.size,
+    'headline': 'No name',
+  };
+  return record;
+}
+
+Future<Map<String, dynamic>> _recordPublish(
+  Reference photoRef,
+  WidgetRef ref,
+) async {
+  Map<String, dynamic> record;
+  // final url = await photoRef.getDownloadURL();
+  // var metadata = await photoRef.getMetadata();
+  final db = FirebaseFirestore.instance;
+  final docRef = db.collection('Photo').doc(photoRef.name);
+  final doc = await docRef.get();
+  if (doc.exists) {
+    record = doc.data() as Map<String, dynamic>;
+  }
+
+  final auth = ref.read(myUserProvider);
+  final email = auth.userEmail;
+
+  var exif = await readExif(photoRef.name);
+  if (exif.isEmpty) {
+    var date = DateTime.now();
+    exif = {
+      'model': 'UNKNOWN',
+      'date': DateFormat('yyyy-MM-dd HH:mm').format(date),
+      'year': date.year,
+      'month': date.month,
+      'day': date.day,
+    };
+  }
+  record = <String, dynamic>{
+    'email': email,
+    'nick': nickEmail(email!),
+    // 'tags': [],
+    ...exif,
+  };
+  return record;
+}
+
+class UploadTaskListTile extends ConsumerWidget {
+  // ignore: public_member_api_docs
+  const UploadTaskListTile({
     super.key,
     required this.task,
     required this.onDelete,
-    // required this.onPublish,
   });
 
   final UploadTask /*!*/ task;
-
-  /// Triggered when the user presses the "delete" button on a completed upload task.
   final VoidCallback /*!*/ onDelete;
+
+  /// Displays the current transferred bytes of the task.
+  String _bytesTransferred(TaskSnapshot snapshot) {
+    return '${snapshot.bytesTransferred}/${snapshot.totalBytes}';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Future<Map<String, dynamic>> _recordPublish(Reference photoRef) async {
-      final url = await photoRef.getDownloadURL();
-      var metadata = await photoRef.getMetadata();
-
-      final auth = ref.read(myUserProvider);
-      final email = auth.userEmail;
-
-      var exif = await readExif(photoRef.name);
-      if (exif.isEmpty) {
-        var date = DateTime.now();
-        exif = {
-          'model': 'UNKNOWN',
-          'date': DateFormat('yyyy-MM-dd HH:mm').format(date),
-          'year': date.year,
-          'month': date.month,
-          'day': date.day,
-        };
-      }
-      final record = <String, dynamic>{
-        'filename': photoRef.name,
-        'url': url,
-        // 'thumb': thumb,
-        'size': metadata.size,
-        'email': email,
-        'nick': nickEmail(email!),
-        'headline': 'No name',
-        // 'text': [],
-        'tags': [],
-        ...exif,
-      };
-      return record;
-    }
-
+    var api = ref.read(myApiProvider);
     return StreamBuilder<TaskSnapshot>(
       stream: task.snapshotEvents,
       builder: (
         BuildContext context,
         AsyncSnapshot<TaskSnapshot> asyncSnapshot,
       ) {
+        Widget subtitle = const Text('---');
+        TaskSnapshot? snapshot = asyncSnapshot.data;
+        TaskState? state = snapshot?.state;
+
         if (asyncSnapshot.hasError) {
           if (asyncSnapshot.error is FirebaseException &&
               // ignore: cast_nullable_to_non_nullable
               (asyncSnapshot.error as FirebaseException).code == 'canceled') {
+            subtitle = const Text('Upload canceled.');
           } else {
+            // ignore: avoid_print
             print(asyncSnapshot.error);
+            subtitle = const Text('Something went wrong.');
           }
+        } else if (snapshot != null) {
+          subtitle = Text('$state: ${_bytesTransferred(snapshot)} bytes sent');
+          print('$state ... ${snapshot.ref.name}');
+          // if (state == TaskState.success) {
+          //   _recordUploaded(snapshot.ref).then((record) {
+          //     api.addUploaded(record);
+          //   });
+          // }
         }
-        return Card(
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          child: FutureBuilder<Map<String, dynamic>>(
-            future: _recordPublish(task.snapshot.ref),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Icon(Icons.error));
-              } else if (snapshot.hasData) {
-                return Stack(
-                  children: [
-                    AspectRatio(
-                      aspectRatio: 1.0,
-                      child: Image.network(
-                        snapshot.data!['url'],
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        decoration: BoxDecoration(color: Colors.white70),
-                        // padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: onDelete,
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.publish),
-                              onPressed: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder:
-                                      (context) => EditDialog(
-                                        editRecord: snapshot.data!,
-                                      ),
-                                  barrierDismissible: false,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
+
+        return ListTile(
+          title: Text('#${task.hashCode}'),
+          subtitle: subtitle,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (state == TaskState.success)
+                IconButton(icon: const Icon(Icons.delete), onPressed: onDelete),
+            ],
           ),
         );
       },
+    );
+  }
+}
+
+class ItemThumbnail extends ConsumerWidget {
+  const ItemThumbnail({
+    super.key,
+    required this.uploadedRecord,
+    required this.onDelete,
+    required this.onPublish,
+  });
+
+  final Map<String, dynamic> uploadedRecord;
+
+  /// Triggered when the user presses the "delete" button on a completed upload task.
+  final VoidCallback /*!*/ onDelete;
+  final VoidCallback /*!*/ onPublish;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // final api = ref.read(myApiProvider);
+    return Card(
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      child: Stack(
+        children: [
+          AspectRatio(
+            aspectRatio: 1.0,
+            child: Image.network(
+              uploadedRecord['url'] as String,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(color: Colors.white70),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: onDelete,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.publish),
+                    onPressed: onPublish,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
