@@ -53,11 +53,12 @@ class ApiProvider extends ChangeNotifier {
     initializeStartup();
   }
 
-  List<Map<String, dynamic>> get records => _records;
-  List<Map<String, dynamic>> get uploaded => _uploaded;
-  List<UploadTask> get uploadTasks => _uploadTasks;
-  Map<String, Map<String, int>>? get values => _values;
   Map<String, dynamic>? get find => _find;
+  List<Map<String, dynamic>> get records => _records;
+  Map<String, Map<String, int>>? get values => _values;
+
+  List<UploadTask> get uploadTasks => _uploadTasks;
+  List<Map<String, dynamic>> get uploaded => _uploaded;
 
   void initializeStartup() async {
     lastRecord = await getRecord('Photo', true);
@@ -221,15 +222,17 @@ class ApiProvider extends ChangeNotifier {
   }
 
   void clearTasks() {
-    for (var task in _uploadTasks) {
-      removeFromStorage(task.snapshot.ref.name);
-    }
     _uploadTasks = [];
     notifyListeners();
   }
 
   void addTask(UploadTask task) {
     _uploadTasks = [..._uploadTasks, task];
+    notifyListeners();
+  }
+
+  void removeTask(Reference photoRef) {
+    _uploadTasks.removeWhere((item) => item.snapshot.ref == photoRef);
     notifyListeners();
   }
 
@@ -244,12 +247,9 @@ class ApiProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTask(String fileName) {
-    final photoRef = FirebaseStorage.instance.ref().child(fileName);
-    removeFromStorage(fileName);
-    _uploadTasks.removeWhere(
-      (item) => item.snapshot.ref.fullPath == photoRef.fullPath,
-    );
+  void donePublish(String fileName) {
+    _uploaded.removeWhere((item) => item['filename'] == fileName);
+    // _uploadTasks.removeWhere((item) => item.snapshot.ref.name == fileName);
     notifyListeners();
   }
 }

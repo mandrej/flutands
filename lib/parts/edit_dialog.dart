@@ -45,7 +45,6 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                 child: const Text('Read Exif'),
                 onPressed: () {
                   readExif(_record['filename']);
-                  Navigator.of(context).pop();
                 },
               ),
               SizedBox(width: 16),
@@ -58,7 +57,7 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                   } else {
                     api.addRecord(_record);
                   }
-                  api.removeTask(_record['filename']);
+                  api.donePublish(_record['filename']);
                   Navigator.of(context).pop();
                 },
               ),
@@ -156,6 +155,15 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                               _record['date'] = value;
                             });
                           },
+                        ),
+                        TextFormField(
+                          enabled: false,
+                          controller: TextEditingController(
+                            text: _record['filename'],
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Filename',
+                          ),
                         ),
                         AutoSuggestField(
                           hintText: 'email',

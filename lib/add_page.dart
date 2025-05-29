@@ -8,7 +8,7 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,8 +29,6 @@ class TaskManager extends ConsumerStatefulWidget {
 }
 
 class _TaskManagerState extends ConsumerState<TaskManager> {
-  List<UploadTask> _uploadTasks = [];
-
   Future<UploadTask?> uploadFile(XFile? file) async {
     if (file == null) {
       ScaffoldMessenger.of(
@@ -73,6 +71,7 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
   }
 
   Future<void> handleUploads() async {
+    var api = ref.read(myApiProvider);
     final ImagePicker _picker = ImagePicker();
     final List<XFile> images = await _picker.pickMultiImage();
     if (!mounted) return;
@@ -85,44 +84,40 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     for (var file in images) {
       UploadTask? task = await uploadFile(file);
       if (task != null) {
-        setState(() {
-          _uploadTasks = [..._uploadTasks, task];
-        });
+        api.addTask(task);
       }
     }
   }
 
-  Future<void> _delete(Reference photoRef) async {
-    final api = ref.read(myApiProvider);
-    Reference thumbRef = FirebaseStorage.instance
-        .ref()
-        .child('/thumbnails')
-        .child('/${thumbFileName(photoRef.name)}');
-
-    try {
-      await thumbRef.delete();
-    } catch (e) {
-      print('Error deleting thumbnail: $e');
-    }
-    await photoRef.delete();
-    if (!mounted) return;
-    api.removeTask(photoRef.name);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Success!\n deleted ${photoRef.name} \n from bucket: ${photoRef.bucket}\n '
-          'at path: ${photoRef.fullPath} \n',
-        ),
-      ),
-    );
-  }
+  // Future<void> _delete(Reference photoRef) async {
+  //   final api = ref.read(myApiProvider);
+  //   Reference thumbRef = FirebaseStorage.instance
+  //       .ref()
+  //       .child('/thumbnails')
+  //       .child('/${thumbFileName(photoRef.name)}');
+  //   try {
+  //     await thumbRef.delete();
+  //   } catch (e) {
+  //     print('Error deleting thumbnail: $e');
+  //   }
+  //   await photoRef.delete();
+  //   if (!mounted) return;
+  //   api.removeTask(photoRef);
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text(
+  //         'Success!\n deleted ${photoRef.name} \n from bucket: ${photoRef.bucket}\n '
+  //         'at path: ${photoRef.fullPath} \n',
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     final api = ref.read(myApiProvider);
-    final uploaded = ref.watch(myApiProvider).uploaded;
-    // List<UploadTask> _uploadTasks = ref.watch(myApiProvider).uploadTasks;
+    final _uploaded = ref.watch(myApiProvider).uploaded;
+    List<UploadTask> _uploadTasks = ref.watch(myApiProvider).uploadTasks;
 
     return Scaffold(
       appBar: AppBar(
@@ -163,13 +158,13 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
                 itemBuilder:
                     (context, index) => UploadTaskListTile(
                       task: _uploadTasks[index],
-                      onDelete: () async {
-                        return _delete(_uploadTasks[index].snapshot.ref);
+                      onDelete: () {
+                        api.removeTask(_uploadTasks[index].snapshot.ref);
                       },
                     ),
               ),
             ),
-          if (uploaded.isNotEmpty)
+          if (_uploaded.isNotEmpty)
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -181,20 +176,23 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
                     childAspectRatio: 1,
                   ),
                   shrinkWrap: true,
-                  itemCount: uploaded.length,
+                  itemCount: _uploaded.length,
                   itemBuilder:
                       (context, index) => ItemThumbnail(
-                        uploadedRecord: uploaded[index],
+                        uploadedRecord: _uploaded[index],
                         onDelete: () async {
-                          api.removeUploaded(uploaded[index]);
+                          api.removeUploaded(_uploaded[index]);
                           // return _delete(_uploadTasks[index].snapshot.ref);
                         },
                         onPublish: () async {
+                          var editRecord = await _recordPublish(
+                            _uploaded[index],
+                            ref,
+                          );
                           await showDialog(
                             context: context,
                             builder:
-                                (context) =>
-                                    EditDialog(editRecord: uploaded[index]),
+                                (context) => EditDialog(editRecord: editRecord),
                             barrierDismissible: false,
                           );
                         },
@@ -210,9 +208,6 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
   }
 }
 
-// Future<String> _downloadUrl(Reference photoRef) async {
-//   return await photoRef.getDownloadURL();
-// }
 Future<Map<String, dynamic>> _recordUploaded(Reference photoRef) async {
   final url = await photoRef.getDownloadURL();
   var metadata = await photoRef.getMetadata();
@@ -227,23 +222,21 @@ Future<Map<String, dynamic>> _recordUploaded(Reference photoRef) async {
 }
 
 Future<Map<String, dynamic>> _recordPublish(
-  Reference photoRef,
+  Map<String, dynamic> defaultRecord,
   WidgetRef ref,
 ) async {
-  Map<String, dynamic> record;
-  // final url = await photoRef.getDownloadURL();
-  // var metadata = await photoRef.getMetadata();
-  final db = FirebaseFirestore.instance;
-  final docRef = db.collection('Photo').doc(photoRef.name);
-  final doc = await docRef.get();
-  if (doc.exists) {
-    record = doc.data() as Map<String, dynamic>;
-  }
-
   final auth = ref.read(myUserProvider);
+  Map<String, dynamic> record;
+  // final db = FirebaseFirestore.instance;
+  // final docRef = db.collection('Photo').doc(defaultRecord['filename']);
+
+  // final doc = await docRef.get();
+  // if (doc.exists) {
+  //   record = doc.data() as Map<String, dynamic>;
+  // }
   final email = auth.userEmail;
 
-  var exif = await readExif(photoRef.name);
+  var exif = await readExif(defaultRecord['filename']);
   if (exif.isEmpty) {
     var date = DateTime.now();
     exif = {
@@ -255,11 +248,13 @@ Future<Map<String, dynamic>> _recordPublish(
     };
   }
   record = <String, dynamic>{
+    ...defaultRecord,
+    ...exif,
     'email': email,
     'nick': nickEmail(email!),
-    // 'tags': [],
-    ...exif,
+    'tags': [],
   };
+
   return record;
 }
 
@@ -271,8 +266,8 @@ class UploadTaskListTile extends ConsumerWidget {
     required this.onDelete,
   });
 
-  final UploadTask /*!*/ task;
-  final VoidCallback /*!*/ onDelete;
+  final UploadTask task;
+  final VoidCallback onDelete;
 
   /// Displays the current transferred bytes of the task.
   String _bytesTransferred(TaskSnapshot snapshot) {
@@ -304,12 +299,12 @@ class UploadTaskListTile extends ConsumerWidget {
           }
         } else if (snapshot != null) {
           subtitle = Text('$state: ${_bytesTransferred(snapshot)} bytes sent');
-          print('$state ... ${snapshot.ref.name}');
-          // if (state == TaskState.success) {
-          //   _recordUploaded(snapshot.ref).then((record) {
-          //     api.addUploaded(record);
-          //   });
-          // }
+          if (state == TaskState.success) {
+            api.removeTask(snapshot.ref);
+            _recordUploaded(snapshot.ref).then((record) {
+              api.addUploaded(record);
+            });
+          }
         }
 
         return ListTile(
@@ -318,8 +313,7 @@ class UploadTaskListTile extends ConsumerWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              if (state == TaskState.success)
-                IconButton(icon: const Icon(Icons.delete), onPressed: onDelete),
+              IconButton(icon: const Icon(Icons.delete), onPressed: onDelete),
             ],
           ),
         );
@@ -337,10 +331,8 @@ class ItemThumbnail extends ConsumerWidget {
   });
 
   final Map<String, dynamic> uploadedRecord;
-
-  /// Triggered when the user presses the "delete" button on a completed upload task.
-  final VoidCallback /*!*/ onDelete;
-  final VoidCallback /*!*/ onPublish;
+  final VoidCallback onDelete;
+  final VoidCallback onPublish;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
