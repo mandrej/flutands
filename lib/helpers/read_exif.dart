@@ -1,6 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:exif/exif.dart';
 import 'dart:typed_data';
+import 'common.dart';
 import 'package:intl/intl.dart';
 
 double handleRatio(IfdValues val) {
@@ -49,7 +50,7 @@ Future readExif(filename) async {
       (match) => '${match[1]}-${match[2]}-${match[3]}',
     );
     var date = DateTime.parse(fixDate);
-    result['date'] = DateFormat('yyyy-MM-dd HH:mm').format(date);
+    result['date'] = DateFormat(formatDate).format(date);
     result['year'] = date.year;
     result['month'] = date.month;
     result['day'] = date.day;

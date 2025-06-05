@@ -161,9 +161,9 @@ class ApiProvider extends ChangeNotifier {
   }
 
   Future<void> deleteRecord(Map<String, dynamic> record) async {
-    removeFromStorage(record['filename']);
     try {
       await db.collection('Photo').doc(record['filename']).delete();
+      removeFromStorage(record['filename']);
       _records.removeWhere((item) => item['filename'] == record['filename']);
       notifyListeners();
     } catch (e) {
@@ -174,16 +174,16 @@ class ApiProvider extends ChangeNotifier {
   Future<void> updateRecord(Map<String, dynamic> record) async {
     try {
       await db.collection('Photo').doc(record['filename']).update(record);
-
+    } catch (e) {
+      print('Error updating document: $e');
+    } finally {
       int index = _records.indexWhere(
         (item) => item['filename'] == record['filename'],
       );
       if (index != -1) {
-        _records[index].addAll(record);
+        _records[index] = record;
         notifyListeners();
       }
-    } catch (e) {
-      print('Error updating document: $e');
     }
   }
 
@@ -199,7 +199,7 @@ class ApiProvider extends ChangeNotifier {
     }
 
     try {
-      await db.collection('Photo').add(record);
+      await db.collection('Photo').doc(record['filename']).set(record);
       _records.add(record);
       notifyListeners();
     } catch (e) {

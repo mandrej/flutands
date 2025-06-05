@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../providers/api_provider.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 import '../widgets/datetime_widget.dart';
 import '../helpers/read_exif.dart';
+import '../helpers/common.dart';
 
 class EditDialog extends ConsumerStatefulWidget {
   final Map<String, dynamic> editRecord;
@@ -41,25 +43,32 @@ class _EditDialogState extends ConsumerState<EditDialog> {
           appBar: AppBar(
             title: Text('Edit'),
             actions: [
-              ElevatedButton(
-                child: const Text('Read Exif'),
-                onPressed: () {
-                  readExif(_record['filename']);
-                },
-              ),
-              SizedBox(width: 16),
-              ElevatedButton(
-                child: const Text('Save'),
-                onPressed: () {
-                  _formKey.currentState!.save();
-                  if (_record.containsKey('thumb')) {
-                    api.updateRecord(_record);
-                  } else {
-                    api.addRecord(_record);
-                  }
-                  api.donePublish(_record['filename']);
-                  Navigator.of(context).pop();
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                      child: const Text('Read Exif'),
+                      onPressed: () {
+                        readExif(_record['filename']);
+                      },
+                    ),
+                    SizedBox(width: 16),
+                    ElevatedButton(
+                      child: const Text('Save'),
+                      onPressed: () {
+                        _formKey.currentState!.save();
+                        if (_record.containsKey('thumb')) {
+                          api.updateRecord(_record);
+                        } else {
+                          api.addRecord(_record);
+                          api.donePublish(_record['filename']);
+                        }
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

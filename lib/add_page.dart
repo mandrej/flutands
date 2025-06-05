@@ -241,7 +241,7 @@ Future<Map<String, dynamic>> _recordPublish(
     var date = DateTime.now();
     exif = {
       'model': 'UNKNOWN',
-      'date': DateFormat('yyyy-MM-dd HH:mm').format(date),
+      'date': DateFormat(formatDate).format(date),
       'year': date.year,
       'month': date.month,
       'day': date.day,

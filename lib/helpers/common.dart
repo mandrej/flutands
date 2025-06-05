@@ -1,3 +1,5 @@
+String formatDate = 'yyyy-MM-dd HH:mm';
+
 String nickEmail(String email) {
   final regex = RegExp(r'[^.@]+');
   var match = regex.stringMatch(email);
