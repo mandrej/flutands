@@ -8,7 +8,6 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -89,30 +88,6 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     }
   }
 
-  // Future<void> _delete(Reference photoRef) async {
-  //   final api = ref.read(myApiProvider);
-  //   Reference thumbRef = FirebaseStorage.instance
-  //       .ref()
-  //       .child('/thumbnails')
-  //       .child('/${thumbFileName(photoRef.name)}');
-  //   try {
-  //     await thumbRef.delete();
-  //   } catch (e) {
-  //     print('Error deleting thumbnail: $e');
-  //   }
-  //   await photoRef.delete();
-  //   if (!mounted) return;
-  //   api.removeTask(photoRef);
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(
-  //       content: Text(
-  //         'Success!\n deleted ${photoRef.name} \n from bucket: ${photoRef.bucket}\n '
-  //         'at path: ${photoRef.fullPath} \n',
-  //       ),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final api = ref.read(myApiProvider);
@@ -127,17 +102,6 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
-                // if (_uploadTasks.isNotEmpty)
-                //   TextButton(
-                //     onPressed: () {
-                //       api.clearTasks();
-                //       ScaffoldMessenger.of(context).showSnackBar(
-                //         const SnackBar(content: Text('Cleared upload list')),
-                //       );
-                //     },
-                //     child: Text('Clear list'),
-                //   ),
-                // SizedBox(width: 8.0),
                 FilledButton(
                   onPressed: () {
                     handleUploads();
@@ -154,6 +118,7 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
           if (_uploadTasks.isNotEmpty)
             Expanded(
               child: ListView.builder(
+                shrinkWrap: true,
                 itemCount: _uploadTasks.length,
                 itemBuilder:
                     (context, index) => UploadTaskListTile(
@@ -227,13 +192,6 @@ Future<Map<String, dynamic>> _recordPublish(
 ) async {
   final auth = ref.read(myUserProvider);
   Map<String, dynamic> record;
-  // final db = FirebaseFirestore.instance;
-  // final docRef = db.collection('Photo').doc(defaultRecord['filename']);
-
-  // final doc = await docRef.get();
-  // if (doc.exists) {
-  //   record = doc.data() as Map<String, dynamic>;
-  // }
   final email = auth.userEmail;
 
   var exif = await readExif(defaultRecord['filename']);
@@ -258,7 +216,7 @@ Future<Map<String, dynamic>> _recordPublish(
   return record;
 }
 
-class UploadTaskListTile extends ConsumerWidget {
+class UploadTaskListTile extends ConsumerStatefulWidget {
   // ignore: public_member_api_docs
   const UploadTaskListTile({
     super.key,
@@ -269,21 +227,42 @@ class UploadTaskListTile extends ConsumerWidget {
   final UploadTask task;
   final VoidCallback onDelete;
 
-  /// Displays the current transferred bytes of the task.
-  String _bytesTransferred(TaskSnapshot snapshot) {
-    return '${snapshot.bytesTransferred}/${snapshot.totalBytes}';
+  // num _bytesTransferred(TaskSnapshot snapshot) {
+  //   return snapshot.bytesTransferred / snapshot.totalBytes;
+  // }
+
+  @override
+  ConsumerState<UploadTaskListTile> createState() => _UploadTaskListTileState();
+}
+
+class _UploadTaskListTileState extends ConsumerState<UploadTaskListTile>
+    with TickerProviderStateMixin {
+  late AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(vsync: this, value: 0.0)..addListener(() {
+      setState(() {});
+    });
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     var api = ref.read(myApiProvider);
     return StreamBuilder<TaskSnapshot>(
-      stream: task.snapshotEvents,
+      stream: widget.task.snapshotEvents,
       builder: (
         BuildContext context,
         AsyncSnapshot<TaskSnapshot> asyncSnapshot,
       ) {
-        Widget subtitle = const Text('---');
+        var info = '';
         TaskSnapshot? snapshot = asyncSnapshot.data;
         TaskState? state = snapshot?.state;
 
@@ -291,15 +270,14 @@ class UploadTaskListTile extends ConsumerWidget {
           if (asyncSnapshot.error is FirebaseException &&
               // ignore: cast_nullable_to_non_nullable
               (asyncSnapshot.error as FirebaseException).code == 'canceled') {
-            subtitle = const Text('Upload canceled.');
+            info = 'Upload canceled.';
           } else {
             // ignore: avoid_print
-            print(asyncSnapshot.error);
-            subtitle = const Text('Something went wrong.');
+            info = 'Something went wrong.';
           }
         } else if (snapshot != null) {
-          subtitle = Text('$state: ${_bytesTransferred(snapshot)} bytes sent');
           if (state == TaskState.success) {
+            // controller.stop();
             api.removeTask(snapshot.ref);
             _recordUploaded(snapshot.ref).then((record) {
               api.addUploaded(record);
@@ -308,12 +286,19 @@ class UploadTaskListTile extends ConsumerWidget {
         }
 
         return ListTile(
-          title: Text('#${task.hashCode}'),
-          subtitle: subtitle,
+          title: Text('${widget.task.snapshot.ref.name} $info'),
+          subtitle: LinearProgressIndicator(
+            value:
+                widget.task.snapshot.bytesTransferred /
+                widget.task.snapshot.totalBytes,
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              IconButton(icon: const Icon(Icons.delete), onPressed: onDelete),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: widget.onDelete,
+              ),
             ],
           ),
         );

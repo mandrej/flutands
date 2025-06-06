@@ -247,9 +247,8 @@ class ApiProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void donePublish(String fileName) {
-    _uploaded.removeWhere((item) => item['filename'] == fileName);
-    // _uploadTasks.removeWhere((item) => item.snapshot.ref.name == fileName);
+  void donePublish(Map<String, dynamic> record) {
+    _uploaded.removeWhere((item) => item['filename'] == record['filename']);
     notifyListeners();
   }
 }

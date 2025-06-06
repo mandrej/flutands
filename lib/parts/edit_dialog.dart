@@ -62,7 +62,7 @@ class _EditDialogState extends ConsumerState<EditDialog> {
                           api.updateRecord(_record);
                         } else {
                           api.addRecord(_record);
-                          api.donePublish(_record['filename']);
+                          api.donePublish(_record);
                         }
                         Navigator.of(context).pop();
                       },
