@@ -1,6 +1,5 @@
 import 'package:flutands/parts/alert_box.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/api_provider.dart';
 import 'providers/user_provider.dart';
 import 'parts/search_form.dart';
