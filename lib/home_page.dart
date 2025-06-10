@@ -73,7 +73,7 @@ class HomePage extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      if (UserBloc().isAuthenticated == false)
+                      if (UserCubit().state!['isAuthenticated'] == false)
                         FilledButton(
                           onPressed: () async {
                             // await auth.signInWithGoogle();

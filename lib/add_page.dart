@@ -123,7 +123,9 @@ class _TaskManagerState extends State<TaskManager> {
                     (context, index) => UploadTaskListTile(
                       task: taskCubit.state[index],
                       onDelete: () {
-                        taskCubit.removeTask(taskCubit.state[index].snapshot.ref);
+                        taskCubit.removeTask(
+                          taskCubit.state[index].snapshot.ref,
+                        );
                       },
                     ),
               ),
@@ -145,11 +147,14 @@ class _TaskManagerState extends State<TaskManager> {
                       (context, index) => ItemThumbnail(
                         uploadedRecord: uploadedCubit.state[index],
                         onDelete: () async {
-                          uploadedCubit.removeUploaded(uploadedCubit.state[index]);
+                          uploadedCubit.removeUploaded(
+                            uploadedCubit.state[index],
+                          );
                         },
                         onPublish: () async {
                           var editRecord = await _recordPublish(
-                            uploadedCubit.state[index]
+                            context,
+                            uploadedCubit.state[index],
                           );
                           await showDialog(
                             context: context,
@@ -183,34 +188,35 @@ Future<Map<String, dynamic>> _recordUploaded(Reference photoRef) async {
   return record;
 }
 
-Future<Map<String, dynamic>> _recordPublish(Map<String, dynamic> defaultRecord) async {
-    final userCubit = BlocProvider.of<UserCubit>(context, listen: false);
-    Map<String, dynamic> record;
-    final email = userCubit.state!['email'];
+Future<Map<String, dynamic>> _recordPublish(
+  BuildContext context,
+  Map<String, dynamic> defaultRecord,
+) async {
+  final userCubit = BlocProvider.of<UserCubit>(context, listen: false);
+  Map<String, dynamic> record;
+  final email = userCubit.state!['email'];
 
-    var exif = await readExif(defaultRecord['filename']);
-    if (exif.isEmpty) {
-      var date = DateTime.now();
-      exif = {
-        'model': 'UNKNOWN',
-        'date': DateFormat(formatDate).format(date),
-        'year': date.year,
-        'month': date.month,
-        'day': date.day,
-      };
-    }
-    record = <String, dynamic>{
-      ...defaultRecord,
-      ...exif,
-      'email': email,
-      'nick': nickEmail(email!),
-      'tags': [],
+  var exif = await readExif(defaultRecord['filename']);
+  if (exif.isEmpty) {
+    var date = DateTime.now();
+    exif = {
+      'model': 'UNKNOWN',
+      'date': DateFormat(formatDate).format(date),
+      'year': date.year,
+      'month': date.month,
+      'day': date.day,
     };
-
-    return record;
   }
+  record = <String, dynamic>{
+    ...defaultRecord,
+    ...exif,
+    'email': email,
+    'nick': nickEmail(email!),
+    'tags': [],
+  };
 
-
+  return record;
+}
 
 class UploadTaskListTile extends StatefulWidget {
   // ignore: public_member_api_docs
@@ -253,61 +259,56 @@ class _UploadTaskListTileState extends State<UploadTaskListTile>
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<TaskCubit>(
-          create:
-              (context) => TaskCubit(),
-        ),
-        BlocProvider<UploadedCubit>(
-          create: (context) => UploadedCubit(),
-        ),
+        BlocProvider<TaskCubit>(create: (context) => TaskCubit()),
+        BlocProvider<UploadedCubit>(create: (context) => UploadedCubit()),
       ],
-    child: StreamBuilder<TaskSnapshot>(
-      stream: widget.task.snapshotEvents,
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<TaskSnapshot> asyncSnapshot,
-      ) {
-        var info = '';
-        TaskSnapshot? snapshot = asyncSnapshot.data;
-        TaskState? state = snapshot?.state;
+      child: StreamBuilder<TaskSnapshot>(
+        stream: widget.task.snapshotEvents,
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<TaskSnapshot> asyncSnapshot,
+        ) {
+          var info = '';
+          TaskSnapshot? snapshot = asyncSnapshot.data;
+          TaskState? state = snapshot?.state;
 
-        if (asyncSnapshot.hasError) {
-          if (asyncSnapshot.error is FirebaseException &&
-              // ignore: cast_nullable_to_non_nullable
-              (asyncSnapshot.error as FirebaseException).code == 'canceled') {
-            info = 'Upload canceled.';
-          } else {
-            // ignore: avoid_print
-            info = 'Something went wrong.';
+          if (asyncSnapshot.hasError) {
+            if (asyncSnapshot.error is FirebaseException &&
+                // ignore: cast_nullable_to_non_nullable
+                (asyncSnapshot.error as FirebaseException).code == 'canceled') {
+              info = 'Upload canceled.';
+            } else {
+              // ignore: avoid_print
+              info = 'Something went wrong.';
+            }
+          } else if (snapshot != null) {
+            if (state == TaskState.success) {
+              // controller.stop();
+              TaskCubit().removeTask(snapshot.ref);
+              _recordUploaded(snapshot.ref).then((record) {
+                UploadedCubit().addUploaded(record);
+              });
+            }
           }
-        } else if (snapshot != null) {
-          if (state == TaskState.success) {
-            // controller.stop();
-            TaskCubit().removeTask(snapshot.ref);
-            _recordUploaded(snapshot.ref).then((record) {
-              UploadedCubit().addUploaded(record);
-            });
-          }
-        }
-
-        return ListTile(
-          title: Text('${widget.task.snapshot.ref.name} $info'),
-          subtitle: LinearProgressIndicator(
-            value:
-                widget.task.snapshot.bytesTransferred /
-                widget.task.snapshot.totalBytes,
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: widget.onDelete,
-              ),
-            ],
-          ),
-        );
-      },
+          return ListTile(
+            title: Text('${widget.task.snapshot.ref.name} $info'),
+            subtitle: LinearProgressIndicator(
+              value:
+                  widget.task.snapshot.bytesTransferred /
+                  widget.task.snapshot.totalBytes,
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: widget.onDelete,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

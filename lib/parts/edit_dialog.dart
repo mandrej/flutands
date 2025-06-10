@@ -185,7 +185,9 @@ class _EditDialogState extends State<EditDialog> {
                           AutoSuggestField(
                             hintText: 'email',
                             initialValue: _record['email'],
-                            options: values!['email']!.keys.toList(),
+                            options:
+                                AvailableValuesCubit().state!['email']!.keys
+                                    .toList(),
                             onChanged: (value) {
                               setState(() {
                                 _record['email'] = value!;

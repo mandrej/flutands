@@ -32,7 +32,7 @@ class _ListPageState extends State<ListPage> {
         appBar: AppBar(
           title: Text(widget.title),
           actions: [
-            if (UserCubit().state['isAuthenticated'])
+            if (UserCubit().state!['isAuthenticated'])
               TextButton(
                 onPressed: EditModeCubit().toggleEditMode,
                 child: Text(EditModeCubit().state ? 'EDIT MODE' : 'VIEW MODE'),

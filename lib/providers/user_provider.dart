@@ -35,8 +35,8 @@ class UserCubit extends HydratedCubit<Map<String, dynamic>?> {
           'email': user.email,
           'uid': user.uid,
           'isAuthenticated': true,
-          'isAdmin': admins.contains(user.email);
-          'isFamily': family.contains(user.email);
+          'isAdmin': admins.contains(user.email),
+          'isFamily': family.contains(user.email),
         });
       } else {
         emit(null);
@@ -50,6 +50,7 @@ class UserCubit extends HydratedCubit<Map<String, dynamic>?> {
     await _auth.signOut();
     emit(null);
   }
+
   @override
   Map<String, dynamic>? fromJson(Map<String, dynamic> json) {
     if (json['user'] == null) return null;
@@ -75,8 +76,7 @@ class UserCubit extends HydratedCubit<Map<String, dynamic>?> {
         'isAuthenticated': state['isAuthenticated'],
         'isAdmin': state['isAdmin'],
         'isFamily': state['isFamily'],
-      }
+      },
     };
   }
-
 }
