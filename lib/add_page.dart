@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,14 +20,14 @@ import 'helpers/common.dart';
 import 'package:uuid/uuid.dart';
 import 'parts/edit_dialog.dart';
 
-class TaskManager extends ConsumerStatefulWidget {
+class TaskManager extends StatefulWidget {
   TaskManager({super.key});
 
   @override
-  ConsumerState<TaskManager> createState() => _TaskManagerState();
+  State<TaskManager> createState() => _TaskManagerState();
 }
 
-class _TaskManagerState extends ConsumerState<TaskManager> {
+class _TaskManagerState extends State<TaskManager> {
   Future<UploadTask?> uploadFile(XFile? file) async {
     if (file == null) {
       ScaffoldMessenger.of(
@@ -69,7 +70,7 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
   }
 
   Future<void> handleUploads() async {
-    var api = ref.read(myApiProvider);
+    final taskCubit = BlocProvider.of<TaskCubit>(context, listen: false);
     final ImagePicker _picker = ImagePicker();
     final List<XFile> images = await _picker.pickMultiImage();
     if (!mounted) return;
@@ -82,16 +83,15 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
     for (var file in images) {
       UploadTask? task = await uploadFile(file);
       if (task != null) {
-        api.addTask(task);
+        taskCubit.addTask(task);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final api = ref.read(myApiProvider);
-    final _uploaded = ref.watch(myApiProvider).uploaded;
-    List<UploadTask> _uploadTasks = ref.watch(myApiProvider).uploadTasks;
+    final taskCubit = BlocProvider.of<TaskCubit>(context);
+    final uploadedCubit = BlocProvider.of<UploadedCubit>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -114,21 +114,21 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
       ),
       body: Column(
         children: [
-          if (_uploadTasks.isNotEmpty)
+          if (taskCubit.state.isNotEmpty)
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: _uploadTasks.length,
+                itemCount: taskCubit.state.length,
                 itemBuilder:
                     (context, index) => UploadTaskListTile(
-                      task: _uploadTasks[index],
+                      task: taskCubit.state[index],
                       onDelete: () {
-                        api.removeTask(_uploadTasks[index].snapshot.ref);
+                        taskCubit.removeTask(taskCubit.state[index].snapshot.ref);
                       },
                     ),
               ),
             ),
-          if (_uploaded.isNotEmpty)
+          if (uploadedCubit.state.isNotEmpty)
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -140,18 +140,16 @@ class _TaskManagerState extends ConsumerState<TaskManager> {
                     childAspectRatio: 1,
                   ),
                   shrinkWrap: true,
-                  itemCount: _uploaded.length,
+                  itemCount: uploadedCubit.state.length,
                   itemBuilder:
                       (context, index) => ItemThumbnail(
-                        uploadedRecord: _uploaded[index],
+                        uploadedRecord: uploadedCubit.state[index],
                         onDelete: () async {
-                          api.removeUploaded(_uploaded[index]);
-                          // return _delete(_uploadTasks[index].snapshot.ref);
+                          uploadedCubit.removeUploaded(uploadedCubit.state[index]);
                         },
                         onPublish: () async {
                           var editRecord = await _recordPublish(
-                            _uploaded[index],
-                            ref,
+                            uploadedCubit.state[index]
                           );
                           await showDialog(
                             context: context,
@@ -185,37 +183,36 @@ Future<Map<String, dynamic>> _recordUploaded(Reference photoRef) async {
   return record;
 }
 
-Future<Map<String, dynamic>> _recordPublish(
-  Map<String, dynamic> defaultRecord,
-  WidgetRef ref,
-) async {
-  final auth = ref.read(myUserProvider);
-  Map<String, dynamic> record;
-  final email = auth.userEmail;
+Future<Map<String, dynamic>> _recordPublish(Map<String, dynamic> defaultRecord) async {
+    final userCubit = BlocProvider.of<UserCubit>(context, listen: false);
+    Map<String, dynamic> record;
+    final email = userCubit.state!['email'];
 
-  var exif = await readExif(defaultRecord['filename']);
-  if (exif.isEmpty) {
-    var date = DateTime.now();
-    exif = {
-      'model': 'UNKNOWN',
-      'date': DateFormat(formatDate).format(date),
-      'year': date.year,
-      'month': date.month,
-      'day': date.day,
+    var exif = await readExif(defaultRecord['filename']);
+    if (exif.isEmpty) {
+      var date = DateTime.now();
+      exif = {
+        'model': 'UNKNOWN',
+        'date': DateFormat(formatDate).format(date),
+        'year': date.year,
+        'month': date.month,
+        'day': date.day,
+      };
+    }
+    record = <String, dynamic>{
+      ...defaultRecord,
+      ...exif,
+      'email': email,
+      'nick': nickEmail(email!),
+      'tags': [],
     };
+
+    return record;
   }
-  record = <String, dynamic>{
-    ...defaultRecord,
-    ...exif,
-    'email': email,
-    'nick': nickEmail(email!),
-    'tags': [],
-  };
 
-  return record;
-}
 
-class UploadTaskListTile extends ConsumerStatefulWidget {
+
+class UploadTaskListTile extends StatefulWidget {
   // ignore: public_member_api_docs
   const UploadTaskListTile({
     super.key,
@@ -231,10 +228,10 @@ class UploadTaskListTile extends ConsumerStatefulWidget {
   // }
 
   @override
-  ConsumerState<UploadTaskListTile> createState() => _UploadTaskListTileState();
+  State<UploadTaskListTile> createState() => _UploadTaskListTileState();
 }
 
-class _UploadTaskListTileState extends ConsumerState<UploadTaskListTile>
+class _UploadTaskListTileState extends State<UploadTaskListTile>
     with TickerProviderStateMixin {
   late AnimationController controller;
 
@@ -254,8 +251,17 @@ class _UploadTaskListTileState extends ConsumerState<UploadTaskListTile>
 
   @override
   Widget build(BuildContext context) {
-    var api = ref.read(myApiProvider);
-    return StreamBuilder<TaskSnapshot>(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<TaskCubit>(
+          create:
+              (context) => TaskCubit(),
+        ),
+        BlocProvider<UploadedCubit>(
+          create: (context) => UploadedCubit(),
+        ),
+      ],
+    child: StreamBuilder<TaskSnapshot>(
       stream: widget.task.snapshotEvents,
       builder: (
         BuildContext context,
@@ -277,9 +283,9 @@ class _UploadTaskListTileState extends ConsumerState<UploadTaskListTile>
         } else if (snapshot != null) {
           if (state == TaskState.success) {
             // controller.stop();
-            api.removeTask(snapshot.ref);
+            TaskCubit().removeTask(snapshot.ref);
             _recordUploaded(snapshot.ref).then((record) {
-              api.addUploaded(record);
+              UploadedCubit().addUploaded(record);
             });
           }
         }
@@ -306,7 +312,7 @@ class _UploadTaskListTileState extends ConsumerState<UploadTaskListTile>
   }
 }
 
-class ItemThumbnail extends ConsumerWidget {
+class ItemThumbnail extends StatelessWidget {
   const ItemThumbnail({
     super.key,
     required this.uploadedRecord,
@@ -319,7 +325,7 @@ class ItemThumbnail extends ConsumerWidget {
   final VoidCallback onPublish;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     // final api = ref.read(myApiProvider);
     return Card(
       clipBehavior: Clip.antiAliasWithSaveLayer,

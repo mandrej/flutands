@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import '../providers/api_provider.dart';
@@ -48,66 +49,72 @@ class SimpleGridView extends StatelessWidget {
   }
 }
 
-class ItemThumbnail extends ConsumerWidget {
+class ItemThumbnail extends StatelessWidget {
   const ItemThumbnail({super.key, required this.record, required this.onTap});
 
   final Map<String, dynamic> record;
   final GestureTapCallback onTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var editMode = ref.watch(myFlagProvider).editMode;
+  Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Hero(
-        tag: record['filename'],
-        child: Card(
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: Image.network(record['thumb'], fit: BoxFit.cover),
-                  ),
-                  if (editMode == true)
+    return BlocProvider(
+      create: (context) => EditModeCubit(),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Hero(
+          tag: record['filename'],
+          child: Card(
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 1,
+                      child: Image.network(record['thumb'], fit: BoxFit.cover),
+                    ),
+                    if (EditModeCubit().state)
+                      BlocBuilder<EditModeCubit, bool>(
+                        builder: (context, editMode) {
+                          return Positioned(
+                            top: 0,
+                            right: 0,
+                            child: Container(
+                              width: 42,
+                              alignment: Alignment.topRight,
+                              child: Column(
+                                children: [
+                                  DeleteButton(record: record),
+                                  EditButton(record: record),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     Positioned(
-                      top: 0,
+                      bottom: 0,
+                      left: 0,
                       right: 0,
                       child: Container(
-                        width: 42,
-                        alignment: Alignment.topRight,
-                        child: Column(
-                          children: [
-                            DeleteButton(record: record),
-                            EditButton(record: record),
-                          ],
+                        decoration: BoxDecoration(color: Colors.black45),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          record['headline'] ?? '',
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(color: Colors.black45),
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        record['headline'] ?? '',
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.normal,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -115,7 +122,7 @@ class ItemThumbnail extends ConsumerWidget {
   }
 }
 
-class GalleryPhotoViewWrapper extends ConsumerStatefulWidget {
+class GalleryPhotoViewWrapper extends StatefulWidget {
   GalleryPhotoViewWrapper({
     this.loadingBuilder,
     this.backgroundDecoration,
@@ -137,13 +144,12 @@ class GalleryPhotoViewWrapper extends ConsumerStatefulWidget {
   final Axis scrollDirection;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() {
+  State<StatefulWidget> createState() {
     return _GalleryPhotoViewWrapperState();
   }
 }
 
-class _GalleryPhotoViewWrapperState
-    extends ConsumerState<GalleryPhotoViewWrapper> {
+class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
   late int currentIndex = widget.initialIndex;
 
   void onPageChanged(int index) {
@@ -154,37 +160,38 @@ class _GalleryPhotoViewWrapperState
 
   @override
   Widget build(BuildContext context) {
-    final editMode = ref.watch(myFlagProvider).editMode;
+    return BlocProvider(
+      create: (context) => EditModeCubit(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.records[currentIndex]['headline'] ?? ''),
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.records[currentIndex]['headline'] ?? ''),
+          actions:
+              (EditModeCubit().state == true)
+                  ? [
+                    DeleteButton(
+                      record: widget.records[currentIndex],
+                      color: Colors.black,
+                    ),
 
-        actions:
-            (editMode == true)
-                ? [
-                  DeleteButton(
-                    record: widget.records[currentIndex],
-                    color: Colors.black,
-                  ),
-
-                  EditButton(
-                    record: widget.records[currentIndex],
-                    color: Colors.black,
-                  ),
-                ]
-                : null,
-      ),
-      body: Expanded(
-        child: PhotoViewGallery.builder(
-          scrollPhysics: const BouncingScrollPhysics(),
-          builder: _buildItem,
-          itemCount: widget.records.length,
-          loadingBuilder: widget.loadingBuilder,
-          backgroundDecoration: widget.backgroundDecoration,
-          pageController: widget.pageController,
-          onPageChanged: onPageChanged,
-          scrollDirection: widget.scrollDirection,
+                    EditButton(
+                      record: widget.records[currentIndex],
+                      color: Colors.black,
+                    ),
+                  ]
+                  : null,
+        ),
+        body: Expanded(
+          child: PhotoViewGallery.builder(
+            scrollPhysics: const BouncingScrollPhysics(),
+            builder: _buildItem,
+            itemCount: widget.records.length,
+            loadingBuilder: widget.loadingBuilder,
+            backgroundDecoration: widget.backgroundDecoration,
+            pageController: widget.pageController,
+            onPageChanged: onPageChanged,
+            scrollDirection: widget.scrollDirection,
+          ),
         ),
       ),
     );

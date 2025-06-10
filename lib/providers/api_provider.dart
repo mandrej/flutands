@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import '../helpers/common.dart';
 
 const months = {
@@ -139,6 +139,17 @@ class AvailableValuesCubit
   };
 }
 
+Map<String, dynamic>? fix(find) {
+  find?.removeWhere(
+    (key, value) =>
+        value == null ||
+        (value is List && value.isEmpty) ||
+        (value is String && value.isEmpty) ||
+        (value is int && value == 0),
+  );
+  return find;
+}
+
 sealed class SearchFindEvent {}
 
 final class SearchFindChanged extends SearchFindEvent {
@@ -153,198 +164,194 @@ class SearchFindBloc extends Bloc<SearchFindEvent, Map<String, dynamic>> {
     on<SearchFindChanged>((event, emit) {
       final updated = Map<String, dynamic>.from(state);
       updated[event.field] = event.value;
-      emit(updated);
+      emit(fix(updated) ?? {});
     });
   }
 }
 
-Future<void> fetchRecords() async {
-  final db = FirebaseFirestore.instance;
-  final _find = SearchFindBloc().state;
-    debugPrint('FIND ------------------------------- ${_find.toString()}');
-    try {
-      Query<Map<String, dynamic>> query = db.collection('Photo');
-      query = query.where('year', isEqualTo: _find!['year']);
-      query = query.where('month', isEqualTo: _find!['month']);
-      query = query.where('tags', arrayContainsAny: _find!['tags']);
-      query = query.where('model', isEqualTo: _find!['model']);
-      query = query.where('lens', isEqualTo: _find!['lens']);
-      query = query.where('nick', isEqualTo: _find!['nick']);
+sealed class RecordsBlocdEvent {}
 
-      final querySnapshot =
-          await query.orderBy('date', descending: true).limit(100).get();
+final class FetchRecords extends RecordsBlocdEvent {
+  final BuildContext context;
 
-      if (querySnapshot.docs.isNotEmpty) {
-        _records.clear();
-        _records = querySnapshot.docs.map((doc) => doc.data()).toList();
-      } else {
-        _records.clear();
+  FetchRecords(this.context);
+}
+
+final class AddRecord extends RecordsBlocdEvent {
+  final Map<String, dynamic> record;
+  AddRecord(this.record);
+}
+
+final class UpdatedRecord extends RecordsBlocdEvent {
+  final Map<String, dynamic> record;
+  UpdatedRecord(this.record);
+}
+
+final class DeleteRecord extends RecordsBlocdEvent {
+  final Map<String, dynamic> record;
+  DeleteRecord(this.record);
+}
+
+class RecordsBloc extends Bloc<RecordsBlocdEvent, List<Map<String, dynamic>>> {
+  RecordsBloc() : super([]) {
+    on<FetchRecords>((event, emit) async {
+      final db = FirebaseFirestore.instance;
+      final find = (BlocProvider.of<SearchFindBloc>(event.context).state);
+      try {
+        Query<Map<String, dynamic>> query = db.collection('Photo');
+        if (find['year'] != null) {
+          query = query.where('year', isEqualTo: find['year']);
+        }
+        if (find['month'] != null) {
+          query = query.where('month', isEqualTo: find['month']);
+        }
+        if (find['tags'] != null && (find['tags'] as List).isNotEmpty) {
+          query = query.where('tags', arrayContainsAny: find['tags']);
+        }
+        if (find['model'] != null) {
+          query = query.where('model', isEqualTo: find['model']);
+        }
+        if (find['lens'] != null) {
+          query = query.where('lens', isEqualTo: find['lens']);
+        }
+        if (find['nick'] != null) {
+          query = query.where('nick', isEqualTo: find['nick']);
+        }
+        final querySnapshot =
+            await query.orderBy('date', descending: true).limit(100).get();
+        emit(querySnapshot.docs.map((doc) => doc.data()).toList());
+      } catch (e) {
+        print('Error fetching records: $e');
+        emit([]);
       }
-    } catch (e) {
-      print('Error completing: $e');
-    }
-  }
-class FetchRecordsCubit extends Cubit<List<Map<String, dynamic>>> {
-  FetchRecordsCubit() : super([]);
-
-  void fetch() {
-    fetchRecords().then((_) {
-      emit(records);
     });
-  }
 
-  void deleteRecord(Map<String, dynamic> record) {
-    apiProvider.deleteRecord(record).then((_) {
-      emit(apiProvider.records);
-    });
-  }
-
-  void updateRecord(Map<String, dynamic> record) {
-    apiProvider.updateRecord(record).then((_) {
-      emit(apiProvider.records);
-    });
-  }
-
-  void addRecord(Map<String, dynamic> record) {
-    apiProvider.addRecord(record).then((_) {
-      emit(apiProvider.records);
-    });
-// class SearchCriteriaBloc extends Bloc<SearchFindEvent, Map<String, dynamic>?> {
-//   HydratedBloc() : super({});
-
-//   Map<String, dynamic>? fix(_find) {
-//     _find?.removeWhere(
-//       (key, value) =>
-//           value == null ||
-//           (value is List && value.isEmpty) ||
-//           (value is String && value.isEmpty) ||
-//           (value is int && value == 0),
-//     );
-//     return _find;
-//   }
-
-//   void setCriteria(Map<String, dynamic> criteria) => emit(fix(criteria));
-//   Map<String, dynamic>? getCriteria() => fix(state);
-
-//   @override
-//   Map<String, dynamic>? fromJson(Map<String, dynamic> json) =>
-//       json['searchCriteria'] as Map<String, dynamic>?;
-
-//   @override
-//   Map<String, dynamic> toJson(Map<String, dynamic>? state) => {
-//     'searchCriteria': state,
-//   };
-// }
-
-class ApiProvider extends ChangeNotifier {
-  final db = FirebaseFirestore.instance;
-
-  List<Map<String, dynamic>> _records = [];
-  List<Map<String, dynamic>> _uploaded = [];
-  List<UploadTask> _uploadTasks = [];
-
-  List<Map<String, dynamic>> get records => _records;
-
-  List<UploadTask> get uploadTasks => _uploadTasks;
-  List<Map<String, dynamic>> get uploaded => _uploaded;
-
-  void changeFind(String field, dynamic value) {
-    _find![field] = value;
-    fetchRecords();
-    notifyListeners();
-  }
-
-  
-
-  Future<void> deleteRecord(Map<String, dynamic> record) async {
-    try {
-      await db.collection('Photo').doc(record['filename']).delete();
-      removeFromStorage(record['filename']);
-      _records.removeWhere((item) => item['filename'] == record['filename']);
-      notifyListeners();
-    } catch (e) {
-      print('Error deleting document: $e');
-    }
-  }
-
-  Future<void> updateRecord(Map<String, dynamic> record) async {
-    try {
-      await db.collection('Photo').doc(record['filename']).update(record);
-    } catch (e) {
-      print('Error updating document: $e');
-    } finally {
-      int index = _records.indexWhere(
-        (item) => item['filename'] == record['filename'],
-      );
-      if (index != -1) {
-        _records[index] = record;
-        notifyListeners();
+    on<AddRecord>((event, emit) async {
+      final db = FirebaseFirestore.instance;
+      final record = event.record;
+      try {
+        Reference thumbRef = FirebaseStorage.instance
+            .ref()
+            .child('/thumbnails')
+            .child('/${thumbFileName(record['filename'])}');
+        record['thumb'] = await thumbRef.getDownloadURL();
+      } catch (e) {
+        print('Error processing thumbnail: $e');
       }
-    }
-  }
-
-  Future<void> addRecord(Map<String, dynamic> record) async {
-    try {
-      Reference thumbRef = FirebaseStorage.instance
-          .ref()
-          .child('/thumbnails')
-          .child('/${thumbFileName(record['filename'])}');
-      record['thumb'] = await thumbRef.getDownloadURL();
-    } catch (e) {
-      print('Error processing thumbnail: $e');
-    }
-
-    try {
-      await db.collection('Photo').doc(record['filename']).set(record);
-      _records.add(record);
-      notifyListeners();
-    } catch (e) {
-      print('Error adding document: $e');
-    }
-  }
-
-  void removeFromStorage(String fileName) {
-    final photoRef = FirebaseStorage.instance.ref().child(fileName);
-    photoRef.delete().catchError((e) {
-      print('Error deleting file: $e');
+      try {
+        await db.collection('Photo').doc(record['filename']).set(record);
+        final updated = List<Map<String, dynamic>>.from(state)..add(record);
+        emit(updated);
+      } catch (e) {
+        print('Error adding document: $e');
+      }
     });
-    final thumbRef = FirebaseStorage.instance
-        .ref()
-        .child('/thumbnails')
-        .child('/${thumbFileName(photoRef.name)}');
-    thumbRef.delete().catchError((e) {
-      print('Error deleting thumbnail: $e');
+
+    on<UpdatedRecord>((event, emit) async {
+      final db = FirebaseFirestore.instance;
+      final record = event.record;
+      try {
+        await db.collection('Photo').doc(record['filename']).update(record);
+        final updated = List<Map<String, dynamic>>.from(state);
+        int index = updated.indexWhere(
+          (item) => item['filename'] == record['filename'],
+        );
+        if (index != -1) {
+          updated[index] = record;
+          emit(updated);
+        }
+      } catch (e) {
+        print('Error updating document: $e');
+      }
+    });
+
+    on<DeleteRecord>((event, emit) async {
+      final db = FirebaseFirestore.instance;
+      final record = event.record;
+      try {
+        await db.collection('Photo').doc(record['filename']).delete();
+        final photoRef = FirebaseStorage.instance.ref().child(
+          record['filename'],
+        );
+        photoRef.delete().catchError((e) {
+          print('Error deleting file: $e');
+        });
+        final thumbRef = FirebaseStorage.instance
+            .ref()
+            .child('/thumbnails')
+            .child('/${thumbFileName(photoRef.name)}');
+        thumbRef.delete().catchError((e) {
+          print('Error deleting thumbnail: $e');
+        });
+        final updated = List<Map<String, dynamic>>.from(state)
+          ..removeWhere((item) => item['filename'] == record['filename']);
+        emit(updated);
+      } catch (e) {
+        print('Error deleting document: $e');
+      }
     });
   }
+}
 
-  void clearTasks() {
-    _uploadTasks = [];
-    notifyListeners();
-  }
+void removeFromStorage(String fileName) {
+  final photoRef = FirebaseStorage.instance.ref().child(fileName);
+  photoRef.delete().catchError((e) {
+    print('Error deleting file: $e');
+  });
+  final thumbRef = FirebaseStorage.instance
+      .ref()
+      .child('/thumbnails')
+      .child('/${thumbFileName(photoRef.name)}');
+  thumbRef.delete().catchError((e) {
+    print('Error deleting thumbnail: $e');
+  });
+}
+
+class TaskCubit extends Cubit<List<UploadTask>> {
+  TaskCubit() : super([]);
 
   void addTask(UploadTask task) {
-    _uploadTasks = [..._uploadTasks, task];
-    notifyListeners();
+    emit([...state, task]);
   }
 
   void removeTask(Reference photoRef) {
-    _uploadTasks.removeWhere((item) => item.snapshot.ref == photoRef);
-    notifyListeners();
+    emit(state.where((item) => item.snapshot.ref != photoRef).toList());
   }
 
+  void clearTasks() {
+    emit([]);
+  }
+}
+
+class UploadedCubit extends HydratedCubit<List<Map<String, dynamic>>> {
+  UploadedCubit() : super([]);
+
   void addUploaded(Map<String, dynamic> record) {
-    _uploaded.add(record);
-    notifyListeners();
+    emit([...state, record]);
   }
 
   void removeUploaded(Map<String, dynamic> record) {
-    _uploaded.removeWhere((item) => item['filename'] == record['filename']);
+    emit(
+      state.where((item) => item['filename'] != record['filename']).toList(),
+    );
     removeFromStorage(record['filename']);
-    notifyListeners();
   }
 
   void donePublish(Map<String, dynamic> record) {
-    _uploaded.removeWhere((item) => item['filename'] == record['filename']);
-    notifyListeners();
+    emit(
+      state.where((item) => item['filename'] != record['filename']).toList(),
+    );
+  }
+
+  @override
+  List<Map<String, dynamic>>? fromJson(Map<String, dynamic> json) {
+    final list = json['uploaded'] as List<dynamic>?;
+    if (list == null) return [];
+    return list.map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  @override
+  Map<String, dynamic>? toJson(List<Map<String, dynamic>> state) {
+    return {'uploaded': state};
   }
 }
