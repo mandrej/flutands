@@ -1,0 +1,90 @@
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+Future<Map<String, dynamic>?> getRecord(String kind, bool descending) async {
+  final db = FirebaseFirestore.instance;
+  try {
+    final querySnapshot =
+        await db
+            .collection(kind)
+            .orderBy('date', descending: descending)
+            .limit(1)
+            .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.data() as Map<String, dynamic>?;
+    }
+  } catch (e) {
+    print('Error completing: $e');
+  }
+  return null;
+}
+
+abstract class LastRecordEvent {}
+
+class FetchLastRecord extends LastRecordEvent {
+  FetchLastRecord();
+}
+
+class LastRecordState {
+  final Map<String, dynamic>? record;
+  final bool loading;
+  final String? error;
+
+  LastRecordState({this.record, this.loading = false, this.error});
+
+  LastRecordState copyWith({
+    Map<String, dynamic>? record,
+    bool? loading,
+    String? error,
+  }) {
+    return LastRecordState(
+      record: record ?? this.record,
+      loading: loading ?? this.loading,
+      error: error,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {'record': record, 'loading': loading, 'error': error};
+  }
+
+  factory LastRecordState.fromMap(Map<String, dynamic> map) {
+    return LastRecordState(
+      record:
+          map['record'] != null
+              ? Map<String, dynamic>.from(map['record'])
+              : null,
+      loading: map['loading'] ?? false,
+      error: map['error'],
+    );
+  }
+}
+
+class LastRecordBloc extends HydratedBloc<LastRecordEvent, LastRecordState> {
+  LastRecordBloc() : super(LastRecordState()) {
+    on<FetchLastRecord>(_onFetchLastRecord);
+  }
+
+  Future<void> _onFetchLastRecord(
+    FetchLastRecord event,
+    Emitter<LastRecordState> emit,
+  ) async {
+    emit(state.copyWith(loading: true, error: null));
+    try {
+      final record = await getRecord('Phoro', true);
+      emit(state.copyWith(record: record, loading: false));
+    } catch (e) {
+      emit(state.copyWith(loading: false, error: e.toString()));
+    }
+  }
+
+  @override
+  LastRecordState? fromJson(Map<String, dynamic> json) {
+    return LastRecordState.fromMap(json);
+  }
+
+  @override
+  Map<String, dynamic>? toJson(LastRecordState state) {
+    return state.toMap();
+  }
+}

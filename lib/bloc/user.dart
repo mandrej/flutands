@@ -1,0 +1,75 @@
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final List<String> admins = [
+  'milan.andrejevic@gmail.com',
+  'mihailo.genije@gmail.com',
+];
+final List<String> family = [
+  'milan.andrejevic@gmail.com',
+  'mihailo.genije@gmail.com',
+  'ana.devic@gmail.com',
+  'dannytaboo@gmail.com',
+  'svetlana.andrejevic@gmail.com',
+  '011.nina@gmail.com',
+  'bogdan.andrejevic16@gmail.com',
+  'zile.zikson@gmail.com',
+];
+
+class UserCubit extends HydratedCubit<Map<String, dynamic>?> {
+  UserCubit() : super(null);
+
+  Future<void> login() async {
+    try {
+      final auth = FirebaseAuth.instance;
+      final googleProvider = GoogleAuthProvider();
+      final userCredential = await auth.signInWithPopup(googleProvider);
+      final user = userCredential.user;
+      emit({
+        'displayName': user!.displayName,
+        'email': user.email,
+        'uid': user.uid,
+        'isAuthenticated': true,
+        'isAdmin': admins.contains(user.email),
+        'isFamily': family.contains(user.email),
+      });
+    } catch (e) {
+      emit(null);
+      rethrow;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      emit(null);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? fromJson(Map<String, dynamic> json) {
+    return {
+      'displayName': json['displayName'],
+      'email': json['email'],
+      'uid': json['uid'],
+      'isAuthenticated': json['isAuthenticated'],
+      'isAdmin': json['isAdmin'],
+      'isFamily': json['isFamily'],
+    };
+  }
+
+  @override
+  Map<String, dynamic>? toJson(Map<String, dynamic>? state) {
+    if (state == null) return null;
+    return {
+      'displayName': state['displayName'],
+      'email': state['email'],
+      'uid': state['uid'],
+      'isAuthenticated': state['isAuthenticated'],
+      'isAdmin': state['isAdmin'],
+      'isFamily': state['isFamily'],
+    };
+  }
+}

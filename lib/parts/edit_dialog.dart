@@ -37,8 +37,10 @@ class _EditDialogState extends State<EditDialog> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<RecordsBloc>(create: (context) => RecordsBloc()),
-        BlocProvider<AvailableValuesCubit>(
-          create: (context) => AvailableValuesCubit()..get('Counter'),
+        BlocProvider<AvailableValuesBloc>(
+          create:
+              (context) =>
+                  AvailableValuesBloc()..add(FetchAvailableValues('Counter')),
         ),
         BlocProvider<UploadedCubit>(create: (context) => UploadedCubit()),
       ],
@@ -186,7 +188,7 @@ class _EditDialogState extends State<EditDialog> {
                             hintText: 'email',
                             initialValue: _record['email'],
                             options:
-                                AvailableValuesCubit().state!['email']!.keys
+                                AvailableValuesBloc().state!['email']!.keys
                                     .toList(),
                             onChanged: (value) {
                               setState(() {
@@ -200,7 +202,7 @@ class _EditDialogState extends State<EditDialog> {
                               _record['tags'] as List,
                             ),
                             options:
-                                AvailableValuesCubit().state!['tags']!.keys
+                                AvailableValuesBloc().state!['tags']!.keys
                                     .toList(),
                             onChanged: (value) {
                               setState(() {
@@ -212,7 +214,7 @@ class _EditDialogState extends State<EditDialog> {
                             hintText: 'by make',
                             initialValue: _record['model'],
                             options:
-                                AvailableValuesCubit().state!['model']!.keys
+                                AvailableValuesBloc().state!['model']!.keys
                                     .toList(),
                             onChanged: (value) {
                               setState(() {
@@ -224,7 +226,7 @@ class _EditDialogState extends State<EditDialog> {
                             hintText: 'lens',
                             initialValue: _record['lens'],
                             options:
-                                AvailableValuesCubit().state!['lens']!.keys
+                                AvailableValuesBloc().state!['lens']!.keys
                                     .toList(),
                             onChanged: (value) {
                               setState(() {

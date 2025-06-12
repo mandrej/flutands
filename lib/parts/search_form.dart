@@ -17,8 +17,10 @@ class SearchForm extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<SearchFindBloc>(create: (context) => SearchFindBloc()),
-        BlocProvider<AvailableValuesCubit>(
-          create: (context) => AvailableValuesCubit()..get('Counter'),
+        BlocProvider<AvailableValuesBloc>(
+          create:
+              (context) =>
+                  AvailableValuesBloc()..add(FetchAvailableValues('Counter')),
         ),
       ],
       child: Container(
@@ -34,7 +36,7 @@ class SearchForm extends StatelessWidget {
                 hintText: 'by year',
                 initialValue: SearchFindBloc().state['year'].toString(),
                 options:
-                    (AvailableValuesCubit().state?['year']?.keys ?? [])
+                    (AvailableValuesBloc().state?['year']?.keys ?? [])
                         .map((e) => e.toString())
                         .toList(),
                 onChanged:
@@ -45,26 +47,26 @@ class SearchForm extends StatelessWidget {
               AutoSuggestField(
                 hintText: 'by month',
                 initialValue:
-                    AvailableValuesCubit().state!['month']!.entries
+                    AvailableValuesBloc().state!['month']!.entries
                         .firstWhere(
                           (entry) =>
                               entry.value == SearchFindBloc().state['month'],
                           orElse: () => MapEntry('', 0),
                         )
                         .key,
-                options: AvailableValuesCubit().state!['month']!.keys.toList(),
+                options: AvailableValuesBloc().state!['month']!.keys.toList(),
                 onChanged:
                     (value) => context.read<SearchFindBloc>().add(
                       SearchFindChanged(
                         'month',
-                        AvailableValuesCubit().state!['month']![value],
+                        AvailableValuesBloc().state!['month']![value],
                       ),
                     ),
               ),
               AutoSuggestMultiSelect(
                 hintText: 'by tags',
                 initialValues: SearchFindBloc().state['tags'],
-                options: AvailableValuesCubit().state!['tags']!.keys.toList(),
+                options: AvailableValuesBloc().state!['tags']!.keys.toList(),
                 onChanged:
                     (value) => context.read<SearchFindBloc>().add(
                       SearchFindChanged('tags', value),
@@ -73,7 +75,7 @@ class SearchForm extends StatelessWidget {
               AutoSuggestField(
                 hintText: 'by make',
                 initialValue: SearchFindBloc().state['model'],
-                options: AvailableValuesCubit().state!['model']!.keys.toList(),
+                options: AvailableValuesBloc().state!['model']!.keys.toList(),
                 onChanged:
                     (value) => context.read<SearchFindBloc>().add(
                       SearchFindChanged('model', value),
@@ -82,7 +84,7 @@ class SearchForm extends StatelessWidget {
               AutoSuggestField(
                 hintText: 'by lens',
                 initialValue: SearchFindBloc().state['lens'],
-                options: AvailableValuesCubit().state!['lens']!.keys.toList(),
+                options: AvailableValuesBloc().state!['lens']!.keys.toList(),
                 onChanged:
                     (value) => context.read<SearchFindBloc>().add(
                       SearchFindChanged('lens', value),
@@ -91,7 +93,7 @@ class SearchForm extends StatelessWidget {
               AutoSuggestField(
                 hintText: 'by nick',
                 initialValue: SearchFindBloc().state['nick'],
-                options: AvailableValuesCubit().state!['nick']!.keys.toList(),
+                options: AvailableValuesBloc().state!['nick']!.keys.toList(),
                 onChanged:
                     (value) => context.read<SearchFindBloc>().add(
                       SearchFindChanged('nick', value),
