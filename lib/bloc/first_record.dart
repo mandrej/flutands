@@ -32,6 +32,10 @@ class FirstRecordState {
 
   FirstRecordState({this.record, this.loading = false, this.error});
 
+  String? get filename => record?['filename'] as String?;
+  String? get url => record?['url'] as String?;
+  int? get year => int.tryParse(record!['year']);
+
   FirstRecordState copyWith({
     Map<String, dynamic>? record,
     bool? loading,

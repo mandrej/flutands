@@ -101,7 +101,6 @@ class FrontButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final values = context.watch<AvailableValuesBloc>().state;
     return BlocProvider(
       create: (context) {
         final bloc = LastRecordBloc();
@@ -109,8 +108,7 @@ class FrontButton extends StatelessWidget {
         return bloc;
       },
       child: ElevatedButton(
-        onPressed:
-            () => values != null ? Navigator.pushNamed(context, '/list') : null,
+        onPressed: () => Navigator.pushNamed(context, '/list'),
         style: ElevatedButton.styleFrom(
           elevation: 16,
           padding: EdgeInsets.zero,
@@ -121,7 +119,7 @@ class FrontButton extends StatelessWidget {
           height: height,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: NetworkImage(LastRecordState()['url']),
+              image: NetworkImage(LastRecordState().url ?? ''),
               fit: BoxFit.cover,
             ),
           ),
@@ -191,25 +189,24 @@ class FronTitle extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  'Since ${FirstRecordState()!['year'].toString()}',
+                  'Since ${FirstRecordState().year.toString()}',
                   style: TextStyle(fontSize: 14),
                 ),
-                if (values != null && values!['email'] != null)
+                if (values.email != null)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children:
-                        (values!['email'] as Map<String, dynamic>).keys
-                            .map<Widget>((email) {
-                              return Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child: Text(
-                                  nickEmail(email),
-                                  style:
-                                      Theme.of(context).textTheme.headlineSmall,
-                                ),
-                              );
-                            })
-                            .toList(),
+                        (values.email as Map<String, int>).keys.map<Widget>((
+                          email,
+                        ) {
+                          return Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Text(
+                              nickEmail(email),
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                          );
+                        }).toList(),
                   ),
               ],
             ),

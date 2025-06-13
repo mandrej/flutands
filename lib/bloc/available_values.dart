@@ -60,6 +60,14 @@ class AvailableValuesState {
     'error': error,
   };
 
+  Map<String, int>? get year => values!['year'];
+  Map<String, int>? get month => values!['month'];
+  Map<String, int>? get tags => values!['tags'];
+  Map<String, int>? get email => values!['email'];
+  Map<String, int>? get nick => values!['nick'];
+  Map<String, int>? get model => values!['model'];
+  Map<String, int>? get lens => values!['lens'];
+
   factory AvailableValuesState.fromMap(Map<String, dynamic> map) {
     return AvailableValuesState(
       values: (map['values'] as Map?)?.map(

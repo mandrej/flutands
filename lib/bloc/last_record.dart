@@ -32,6 +32,9 @@ class LastRecordState {
 
   LastRecordState({this.record, this.loading = false, this.error});
 
+  String? get filename => record?['filename'] as String?;
+  String? get url => record?['url'] as String?;
+
   LastRecordState copyWith({
     Map<String, dynamic>? record,
     bool? loading,
