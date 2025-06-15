@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import '../providers/api_provider.dart';
+// import 'package:intl/intl.dart';
+import '../bloc/records.dart';
+import '../bloc/uploaded_record.dart';
+import '../bloc/available_values.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 import '../widgets/datetime_widget.dart';
 import '../helpers/read_exif.dart';
-import '../helpers/common.dart';
+// import '../helpers/common.dart';
 
 class EditDialog extends StatefulWidget {
   final Map<String, dynamic> editRecord;
@@ -37,12 +39,9 @@ class _EditDialogState extends State<EditDialog> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<RecordsBloc>(create: (context) => RecordsBloc()),
-        BlocProvider<AvailableValuesBloc>(
-          create:
-              (context) =>
-                  AvailableValuesBloc()..add(FetchAvailableValues('Counter')),
+        BlocProvider<UploadedRecordCubit>(
+          create: (context) => UploadedRecordCubit(),
         ),
-        BlocProvider<UploadedCubit>(create: (context) => UploadedCubit()),
       ],
       child: Dialog(
         child: SizedBox(
@@ -67,10 +66,10 @@ class _EditDialogState extends State<EditDialog> {
                         onPressed: () {
                           _formKey.currentState!.save();
                           if (_record.containsKey('thumb')) {
-                            RecordsBloc().add(UpdatedRecord(_record));
+                            RecordsBloc().add(UpdateRecord(_record));
                           } else {
                             RecordsBloc().add(AddRecord(_record));
-                            UploadedCubit().donePublish(_record);
+                            UploadedRecordCubit().donePublish(_record);
                           }
                           Navigator.of(context).pop();
                         },
@@ -132,143 +131,140 @@ class _EditDialogState extends State<EditDialog> {
                         ),
                       ),
                     if (width > 600) SizedBox(width: 16),
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _controllerHeadline,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return 'Please enter Headline.';
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              labelText: 'Headline',
-                              suffixIcon:
-                                  _controllerHeadline.text.isEmpty
-                                      ? null
-                                      : IconButton(
-                                        icon: const Icon(Icons.clear),
-                                        onPressed: () {
-                                          setState(() {
-                                            _record['headline'] = '';
-                                          });
-                                        },
-                                      ),
-                            ),
-                            onSaved:
-                                (value) => {
-                                  setState(() {
-                                    _record['headline'] = value!;
-                                  }),
+                    BlocBuilder<AvailableValuesBloc, AvailableValuesState>(
+                      builder: (context, values) {
+                        return Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _controllerHeadline,
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please enter Headline.';
+                                  }
+                                  return null;
                                 },
-                          ),
-                          DatetimeWidget(
-                            dateAndTime: _record['date'],
-                            format: 'yyyy-MM-dd HH:mm',
-                            labelText: 'Date',
-                            onDone: (value) {
-                              setState(() {
-                                _record['date'] = value;
-                              });
-                            },
-                          ),
-                          TextFormField(
-                            enabled: false,
-                            controller: TextEditingController(
-                              text: _record['filename'],
-                            ),
-                            decoration: const InputDecoration(
-                              labelText: 'Filename',
-                            ),
-                          ),
-                          AutoSuggestField(
-                            hintText: 'email',
-                            initialValue: _record['email'],
-                            options:
-                                AvailableValuesBloc().state!['email']!.keys
-                                    .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _record['email'] = value!;
-                              });
-                            },
-                          ),
-                          AutoSuggestMultiSelect(
-                            hintText: 'tags',
-                            initialValues: List<String>.from(
-                              _record['tags'] as List,
-                            ),
-                            options:
-                                AvailableValuesBloc().state!['tags']!.keys
-                                    .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _record['tags'] = value;
-                              });
-                            },
-                          ),
-                          AutoSuggestField(
-                            hintText: 'by make',
-                            initialValue: _record['model'],
-                            options:
-                                AvailableValuesBloc().state!['model']!.keys
-                                    .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _record['model'] = value;
-                              });
-                            },
-                          ),
-                          AutoSuggestField(
-                            hintText: 'lens',
-                            initialValue: _record['lens'],
-                            options:
-                                AvailableValuesBloc().state!['lens']!.keys
-                                    .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _record['lens'] = value;
-                              });
-                            },
-                          ),
-                          TextFormField(
-                            controller: TextEditingController(
-                              text: _record['loc'] ?? '',
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'GPS location',
-                              hintText: 'latitude, longitude',
-                              suffixIcon: IconButton(
-                                icon: Icon(Icons.clear),
-                                onPressed: () {
+                                decoration: InputDecoration(
+                                  labelText: 'Headline',
+                                  suffixIcon:
+                                      _controllerHeadline.text.isEmpty
+                                          ? null
+                                          : IconButton(
+                                            icon: const Icon(Icons.clear),
+                                            onPressed: () {
+                                              setState(() {
+                                                _record['headline'] = '';
+                                              });
+                                            },
+                                          ),
+                                ),
+                                onSaved:
+                                    (value) => {
+                                      setState(() {
+                                        _record['headline'] = value!;
+                                      }),
+                                    },
+                              ),
+                              DatetimeWidget(
+                                dateAndTime: _record['date'],
+                                format: 'yyyy-MM-dd HH:mm',
+                                labelText: 'Date',
+                                onDone: (value) {
                                   setState(() {
-                                    _record['loc'] = '';
+                                    _record['date'] = value;
                                   });
                                 },
                               ),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                _record['loc'] = value;
-                              });
-                            },
+                              TextFormField(
+                                enabled: false,
+                                controller: TextEditingController(
+                                  text: _record['filename'],
+                                ),
+                                decoration: const InputDecoration(
+                                  labelText: 'Filename',
+                                ),
+                              ),
+                              AutoSuggestField(
+                                hintText: 'email',
+                                initialValue: _record['email'],
+                                options: values.email!.keys.toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _record['email'] = value!;
+                                  });
+                                },
+                              ),
+                              AutoSuggestMultiSelect(
+                                hintText: 'tags',
+                                initialValues: List<String>.from(
+                                  _record['tags'] as List,
+                                ),
+                                options: values.tags!.keys.toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _record['tags'] = value;
+                                  });
+                                },
+                              ),
+                              AutoSuggestField(
+                                hintText: 'by make',
+                                initialValue: _record['model'],
+                                options: values.model!.keys.toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _record['model'] = value;
+                                  });
+                                },
+                              ),
+                              AutoSuggestField(
+                                hintText: 'lens',
+                                initialValue: _record['lens'],
+                                options: values.lens!.keys.toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _record['lens'] = value;
+                                  });
+                                },
+                              ),
+                              TextFormField(
+                                controller: TextEditingController(
+                                  text: _record['loc'] ?? '',
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'GPS location',
+                                  hintText: 'latitude, longitude',
+                                  suffixIcon: IconButton(
+                                    icon: Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _record['loc'] = '';
+                                      });
+                                    },
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _record['loc'] = value;
+                                  });
+                                },
+                              ),
+                              CheckboxListTile(
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                title: Text('Flash fired'),
+                                value: _record['flash'] ?? false,
+                                tristate: false,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _record['flash'] = value;
+                                  });
+                                },
+                              ),
+                            ],
                           ),
-                          CheckboxListTile(
-                            controlAffinity: ListTileControlAffinity.leading,
-                            title: Text('Flash fired'),
-                            value: _record['flash'] ?? false,
-                            tristate: false,
-                            onChanged: (value) {
-                              setState(() {
-                                _record['flash'] = value;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),

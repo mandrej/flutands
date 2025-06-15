@@ -18,77 +18,78 @@ class HomePage extends StatelessWidget {
 
     return BlocBuilder<AvailableValuesBloc, AvailableValuesState>(
       builder: (context, values) {
-        print(values);
         return Scaffold(
-          body: Center(child: Text('X')),
-          // body: Builder(
-          //   builder: (context) {
-          //     context.read<AvailableValuesBloc>().add(
-          //       FetchAvailableValues('Counter'),
-          //     );
-          //     return AvailableValuesBloc().state != null
-          //         ? width < 960
-          //             ? Column(
-          //               children: [
-          //                 FrontButton(width: width, height: height / 2),
-          //                 FronTitle(title: title, width: width, height: height / 2),
-          //               ],
-          //             )
-          //             : Row(
-          //               children: [
-          //                 FrontButton(width: width / 2, height: height),
-          //                 FronTitle(title: title, width: width * 2, height: height),
-          //               ],
-          //             )
-          //         : Center(
-          //           child: Column(
-          //             mainAxisSize: MainAxisSize.min,
-          //             children: [
-          //               SvgPicture.asset(
-          //                 width: 100,
-          //                 'assets/camera.svg',
-          //                 colorFilter: ColorFilter.mode(
-          //                   Theme.of(context).primaryColor,
-          //                   BlendMode.srcIn,
-          //                 ),
-          //                 semanticsLabel: 'App Logo',
-          //               ),
-          //               Text(
-          //                 title,
-          //                 style: TextStyle(fontSize: 40),
-          //                 textAlign: TextAlign.center,
-          //               ),
-          //               Padding(
-          //                 padding: const EdgeInsets.all(16.0),
-          //                 child: Text(
-          //                   'No images yet\n Sign in with Google\n to add some',
-          //                   style: Theme.of(context).textTheme.bodyLarge,
-          //                   textAlign: TextAlign.center,
-          //                 ),
-          //               ),
-          //               if (UserCubit().state!['isAuthenticated'] == false)
-          //                 FilledButton(
-          //                   onPressed: () async {
-          //                     // await auth.signInWithGoogle();
-          //                   },
-          //                   child: Text('Sign in'),
-          //                 )
-          //               else
-          //                 IconButton(
-          //                   onPressed: () => Navigator.pushNamed(context, '/add'),
-          //                   icon: Icon(Icons.add),
-          //                   style: IconButton.styleFrom(
-          //                     iconSize: 40.0,
-          //                     backgroundColor: Theme.of(context).primaryColor,
-          //                     foregroundColor:
-          //                         Theme.of(context).colorScheme.onPrimary,
-          //                   ),
-          //                 ),
-          //             ],
-          //           ),
-          //         );
-          //   },
-          // ),
+          body:
+              AvailableValuesState().email != null
+                  ? width < 960
+                      ? Column(
+                        children: [
+                          FrontButton(width: width, height: height / 2),
+                          FronTitle(
+                            title: title,
+                            width: width,
+                            height: height / 2,
+                          ),
+                        ],
+                      )
+                      : Row(
+                        children: [
+                          FrontButton(width: width / 2, height: height),
+                          FronTitle(
+                            title: title,
+                            width: width * 2,
+                            height: height,
+                          ),
+                        ],
+                      )
+                  : Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SvgPicture.asset(
+                          width: 100,
+                          'assets/camera.svg',
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).primaryColor,
+                            BlendMode.srcIn,
+                          ),
+                          semanticsLabel: 'App Logo',
+                        ),
+                        Text(
+                          title,
+                          style: TextStyle(fontSize: 40),
+                          textAlign: TextAlign.center,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'No images yet\n Sign in with Google\n to add some',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        if (UserCubit().state!['isAuthenticated'] == false)
+                          FilledButton(
+                            onPressed: () async {
+                              // await auth.signInWithGoogle();
+                            },
+                            child: Text('Sign in'),
+                          )
+                        else
+                          IconButton(
+                            onPressed:
+                                () => Navigator.pushNamed(context, '/add'),
+                            icon: Icon(Icons.add),
+                            style: IconButton.styleFrom(
+                              iconSize: 40.0,
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
         );
       },
     );
@@ -141,7 +142,7 @@ class FronTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final values = context.watch<AvailableValuesBloc>().state;
+    final values = context.watch<AvailableValuesState>();
     final user = context.watch<UserCubit>().state;
     return BlocProvider(
       create: (context) {

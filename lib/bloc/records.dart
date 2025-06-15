@@ -40,9 +40,8 @@ class AddRecord extends RecordsEvent {
 }
 
 class UpdateRecord extends RecordsEvent {
-  final String id;
   final Map<String, dynamic> updatedData;
-  UpdateRecord(this.id, this.updatedData);
+  UpdateRecord(this.updatedData);
 }
 
 class DeleteRecord extends RecordsEvent {
@@ -129,7 +128,10 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
   ) async {
     try {
       final db = FirebaseFirestore.instance;
-      await db.collection('Photo').doc(event.id).update(event.updatedData);
+      await db
+          .collection('Photo')
+          .doc(event.updatedData['filename'])
+          .update(event.updatedData);
       add(FetchRecords());
     } catch (e) {
       emit(RecordsError('Error updating record: $e'));
