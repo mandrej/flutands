@@ -90,23 +90,22 @@ class FetchAvailableValues extends AvailableValuesEvent {
 
 class AvailableValuesBloc
     extends HydratedBloc<AvailableValuesEvent, AvailableValuesState> {
-  AvailableValuesBloc() : super(AvailableValuesState(loading: false));
+  AvailableValuesBloc() : super(AvailableValuesState(loading: false)) {
+    on<FetchAvailableValues>(_onFetchAvailableValues);
+  }
 
-  Stream<AvailableValuesState> mapEventToState(
-    AvailableValuesEvent event,
-  ) async* {
-    if (event is FetchAvailableValues) {
-      yield AvailableValuesState(loading: true);
-      try {
-        final values = await getValues('Counter');
-        yield AvailableValuesState(values: values, loading: false);
-      } catch (e) {
-        yield AvailableValuesState(
-          loading: false,
-          error: e.toString(),
-          values: null,
-        );
-      }
+  Future<void> _onFetchAvailableValues(
+    FetchAvailableValues event,
+    Emitter<AvailableValuesState> emit,
+  ) async {
+    emit(AvailableValuesState(loading: true));
+    try {
+      final values = await getValues('Counter');
+      emit(AvailableValuesState(values: values, loading: false));
+    } catch (e) {
+      emit(
+        AvailableValuesState(loading: false, error: e.toString(), values: null),
+      );
     }
   }
 

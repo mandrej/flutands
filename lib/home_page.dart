@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
       builder: (context, values) {
         return Scaffold(
           body:
-              AvailableValuesState().email != null
+              values.email != null
                   ? width < 960
                       ? Column(
                         children: [
