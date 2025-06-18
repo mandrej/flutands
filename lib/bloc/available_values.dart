@@ -1,5 +1,6 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../model/values.dart';
 import '../helpers/common.dart';
 
 const months = {
@@ -17,7 +18,7 @@ const months = {
   'December': 12,
 };
 
-Future<Map<String, Map<String, int>>?> getValues(String kind) async {
+Future<Values?> getValues(String kind) async {
   final db = FirebaseFirestore.instance;
   var result = <String, Map<String, int>>{};
 
@@ -27,7 +28,7 @@ Future<Map<String, Map<String, int>>?> getValues(String kind) async {
       for (var doc in querySnapshot.docs) {
         var d = doc.data();
         if (!result.containsKey(d['field'])) {
-          // start filed
+          // start field
           result[d['field']] = {d['value']: d['count']};
         } else {
           result[d['field']]!.addAll({d['value']: d['count']});
@@ -44,48 +45,56 @@ Future<Map<String, Map<String, int>>?> getValues(String kind) async {
   } catch (e) {
     print('Error completing: $e');
   }
-  return result.isNotEmpty ? result : null;
+  if (result.isNotEmpty) {
+    return Values(
+      year: result['year'] ?? {},
+      month: result['month'] ?? {},
+      tags: result['tags'] ?? {},
+      email: result['email'] ?? {},
+      nick: result['nick'] ?? {},
+      model: result['model'] ?? {},
+      lens: result['lens'] ?? {},
+    );
+  } else {
+    return null;
+  }
 }
 
+abstract class AvailableValuesEvent {}
+
+class FetchAvailableValues extends AvailableValuesEvent {}
+
 class AvailableValuesState {
-  final Map<String, Map<String, int>>? values;
+  final Values? values;
   final bool loading;
   final String? error;
 
   AvailableValuesState({this.values, this.loading = false, this.error});
 
   Map<String, dynamic> toMap() => {
-    'values': values,
+    'values': values?.toMap(),
     'loading': loading,
     'error': error,
   };
 
-  Map<String, int>? get year => values!['year'];
-  Map<String, int>? get month => values!['month'];
-  Map<String, int>? get tags => values!['tags'];
-  Map<String, int>? get email => values!['email'];
-  Map<String, int>? get nick => values!['nick'];
-  Map<String, int>? get model => values!['model'];
-  Map<String, int>? get lens => values!['lens'];
+  Map<String, int>? get year => values?.year;
+  Map<String, int>? get month => values?.month;
+  Map<String, int>? get tags => values?.tags;
+  Map<String, int>? get email => values?.email;
+  Map<String, int>? get nick => values?.nick;
+  Map<String, int>? get model => values?.model;
+  Map<String, int>? get lens => values?.lens;
 
   factory AvailableValuesState.fromMap(Map<String, dynamic> map) {
     return AvailableValuesState(
-      values: (map['values'] as Map?)?.map(
-        (k, v) => MapEntry(
-          k as String,
-          (v as Map).map((kk, vv) => MapEntry(kk as String, vv as int)),
-        ),
-      ),
+      values:
+          map['values'] != null
+              ? Values.fromMap(Map<String, dynamic>.from(map['values']))
+              : null,
       loading: map['loading'] ?? false,
       error: map['error'],
     );
   }
-}
-
-abstract class AvailableValuesEvent {}
-
-class FetchAvailableValues extends AvailableValuesEvent {
-  FetchAvailableValues();
 }
 
 class AvailableValuesBloc
@@ -103,9 +112,7 @@ class AvailableValuesBloc
       final values = await getValues('Counter');
       emit(AvailableValuesState(values: values, loading: false));
     } catch (e) {
-      emit(
-        AvailableValuesState(loading: false, error: e.toString(), values: null),
-      );
+      emit(AvailableValuesState(loading: false, error: e.toString()));
     }
   }
 
@@ -119,3 +126,76 @@ class AvailableValuesBloc
     return state.toMap();
   }
 }
+
+// class AvailableValuesState {
+//   final Map<String, Map<String, int>>? values;
+//   final bool loading;
+//   final String? error;
+
+//   AvailableValuesState({this.values, this.loading = false, this.error});
+
+//   Map<String, dynamic> toMap() => {
+//     'values': values,
+//     'loading': loading,
+//     'error': error,
+//   };
+
+//   Map<String, int>? get year => values!['year'];
+//   Map<String, int>? get month => values!['month'];
+//   Map<String, int>? get tags => values!['tags'];
+//   Map<String, int>? get email => values!['email'];
+//   Map<String, int>? get nick => values!['nick'];
+//   Map<String, int>? get model => values!['model'];
+//   Map<String, int>? get lens => values!['lens'];
+
+//   factory AvailableValuesState.fromMap(Map<String, dynamic> map) {
+//     return AvailableValuesState(
+//       values: (map['values'] as Map?)?.map(
+//         (k, v) => MapEntry(
+//           k as String,
+//           (v as Map).map((kk, vv) => MapEntry(kk as String, vv as int)),
+//         ),
+//       ),
+//       loading: map['loading'] ?? false,
+//       error: map['error'],
+//     );
+//   }
+// }
+
+// abstract class AvailableValuesEvent {}
+
+// class FetchAvailableValues extends AvailableValuesEvent {
+//   FetchAvailableValues();
+// }
+
+// class AvailableValuesBloc
+//     extends HydratedBloc<AvailableValuesEvent, AvailableValuesState> {
+//   AvailableValuesBloc() : super(AvailableValuesState(loading: false)) {
+//     on<FetchAvailableValues>(_onFetchAvailableValues);
+//   }
+
+//   Future<void> _onFetchAvailableValues(
+//     FetchAvailableValues event,
+//     Emitter<AvailableValuesState> emit,
+//   ) async {
+//     emit(AvailableValuesState(loading: true));
+//     try {
+//       final values = await getValues('Counter');
+//       emit(AvailableValuesState(values: values, loading: false));
+//     } catch (e) {
+//       emit(
+//         AvailableValuesState(loading: false, error: e.toString(), values: null),
+//       );
+//     }
+//   }
+
+//   @override
+//   AvailableValuesState? fromJson(Map<String, dynamic> json) {
+//     return AvailableValuesState.fromMap(json);
+//   }
+
+//   @override
+//   Map<String, dynamic>? toJson(AvailableValuesState state) {
+//     return state.toMap();
+//   }
+// }

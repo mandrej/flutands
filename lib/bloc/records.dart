@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'search_find.dart';
+import '../model/record.dart';
 
 // Future<void> fetchRecords() async {
 //   final db = FirebaseFirestore.instance;
@@ -35,12 +36,12 @@ abstract class RecordsEvent {}
 class FetchRecords extends RecordsEvent {}
 
 class AddRecord extends RecordsEvent {
-  final Map<String, dynamic> record;
+  final Record record;
   AddRecord(this.record);
 }
 
 class UpdateRecord extends RecordsEvent {
-  final Map<String, dynamic> updatedData;
+  final Record updatedData;
   UpdateRecord(this.updatedData);
 }
 
@@ -57,7 +58,7 @@ class RecordsInitial extends RecordsState {}
 class RecordsLoading extends RecordsState {}
 
 class RecordsLoaded extends RecordsState {
-  final List<Map<String, dynamic>> records;
+  final List<Record> records;
   RecordsLoaded(this.records);
 }
 

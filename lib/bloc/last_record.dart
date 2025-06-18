@@ -1,7 +1,8 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../model/record.dart';
 
-Future<Map<String, dynamic>?> getRecord(String kind, bool descending) async {
+Future<Record?> getRecord(String kind, bool descending) async {
   final db = FirebaseFirestore.instance;
   try {
     final querySnapshot =
@@ -11,7 +12,8 @@ Future<Map<String, dynamic>?> getRecord(String kind, bool descending) async {
             .limit(1)
             .get();
     if (querySnapshot.docs.isNotEmpty) {
-      return querySnapshot.docs.first.data() as Map<String, dynamic>?;
+      final data = querySnapshot.docs.first.data();
+      return Record.fromMap(data);
     }
   } catch (e) {
     print('Error completing: $e');
@@ -26,20 +28,15 @@ class FetchLastRecord extends LastRecordEvent {
 }
 
 class LastRecordState {
-  final Map<String, dynamic>? record;
+  final Record? record;
   final bool loading;
   final String? error;
 
   LastRecordState({this.record, this.loading = false, this.error});
+  String? get filename => record?.filename;
+  String? get url => record!.url as String?;
 
-  String? get filename => record?['filename'] as String?;
-  String? get url => record?['url'] as String?;
-
-  LastRecordState copyWith({
-    Map<String, dynamic>? record,
-    bool? loading,
-    String? error,
-  }) {
+  LastRecordState copyWith({Record? record, bool? loading, String? error}) {
     return LastRecordState(
       record: record ?? this.record,
       loading: loading ?? this.loading,
@@ -48,14 +45,14 @@ class LastRecordState {
   }
 
   Map<String, dynamic> toMap() {
-    return {'record': record, 'loading': loading, 'error': error};
+    return {'record': record?.toMap(), 'loading': loading, 'error': error};
   }
 
   factory LastRecordState.fromMap(Map<String, dynamic> map) {
     return LastRecordState(
       record:
           map['record'] != null
-              ? Map<String, dynamic>.from(map['record'])
+              ? Record.fromMap(Map<String, dynamic>.from(map['record']))
               : null,
       loading: map['loading'] ?? false,
       error: map['error'],
@@ -74,7 +71,7 @@ class LastRecordBloc extends HydratedBloc<LastRecordEvent, LastRecordState> {
   ) async {
     emit(state.copyWith(loading: true, error: null));
     try {
-      final record = await getRecord('Phoro', true);
+      final record = await getRecord('Photo', true);
       emit(state.copyWith(record: record, loading: false));
     } catch (e) {
       emit(state.copyWith(loading: false, error: e.toString()));

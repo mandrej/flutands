@@ -1,5 +1,6 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// import '../model/user.dart';
 
 final List<String> admins = [
   'milan.andrejevic@gmail.com',
@@ -16,7 +17,7 @@ final List<String> family = [
   'zile.zikson@gmail.com',
 ];
 
-class UserCubit extends HydratedCubit<Map<String, dynamic>?> {
+class UserCubit extends HydratedCubit<User?> {
   UserCubit() : super(null);
 
   Future<void> login() async {
@@ -49,27 +50,25 @@ class UserCubit extends HydratedCubit<Map<String, dynamic>?> {
   }
 
   @override
-  Map<String, dynamic>? fromJson(Map<String, dynamic> json) {
+  Map<String, dynamic>? toJson(User? state) {
+    if (state == null) return null;
     return {
-      'displayName': json['displayName'],
-      'email': json['email'],
-      'uid': json['uid'],
-      'isAuthenticated': json['isAuthenticated'],
-      'isAdmin': json['isAdmin'],
-      'isFamily': json['isFamily'],
+      'displayName': state.displayName,
+      'email': state.email,
+      'uid': state.uid,
+      'isAuthenticated': true,
+      'isAdmin': admins.contains(state.email),
+      'isFamily': family.contains(state.email),
     };
   }
 
   @override
-  Map<String, dynamic>? toJson(Map<String, dynamic>? state) {
-    if (state == null) return null;
-    return {
-      'displayName': state['displayName'],
-      'email': state['email'],
-      'uid': state['uid'],
-      'isAuthenticated': state['isAuthenticated'],
-      'isAdmin': state['isAdmin'],
-      'isFamily': state['isFamily'],
-    };
+  User? fromJson(Map<String, dynamic> json) {
+    if (json.isEmpty) return null;
+    return User(
+      displayName: json['displayName'],
+      email: json['email'],
+      uid: json['uid'],
+    );
   }
 }

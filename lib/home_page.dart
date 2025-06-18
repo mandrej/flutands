@@ -96,6 +96,40 @@ class HomePage extends StatelessWidget {
   }
 }
 
+class Test extends StatelessWidget {
+  const Test({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        final bloc = LastRecordBloc();
+        bloc.add(FetchLastRecord());
+        return bloc;
+      },
+      child: BlocBuilder<AvailableValuesBloc, AvailableValuesState>(
+        builder: (context, values) {
+          var values = context.watch<AvailableValuesBloc>().state;
+          var record = context.watch<LastRecordBloc>().state;
+          return Center(
+            child: Column(
+              children: [
+                if (values.email != null)
+                  ...((values.email as Map<String, int>).keys.map<Widget>((
+                    email,
+                  ) {
+                    return Text(email);
+                  }).toList()),
+                Text(record.url ?? ''),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class FrontButton extends StatelessWidget {
   const FrontButton({super.key, required this.width, required this.height});
   final double width, height;
@@ -108,23 +142,27 @@ class FrontButton extends StatelessWidget {
         bloc.add(FetchLastRecord());
         return bloc;
       },
-      child: ElevatedButton(
-        onPressed: () => Navigator.pushNamed(context, '/list'),
-        style: ElevatedButton.styleFrom(
-          elevation: 16,
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        ),
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(LastRecordState().url ?? ''),
-              fit: BoxFit.cover,
+      child: BlocBuilder<LastRecordBloc, LastRecordState>(
+        builder: (context, record) {
+          return ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, '/list'),
+            style: ElevatedButton.styleFrom(
+              elevation: 16,
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             ),
-          ),
-        ),
+            child: Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(record.url ?? ''),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

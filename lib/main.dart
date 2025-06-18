@@ -234,9 +234,10 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         initialRoute: '/',
         routes: {
-          '/': (context) => HomePage(title: 'Andrejeвићи'),
-          '/list': (context) => ListPage(title: 'Andrejeвићи'),
-          '/add': (context) => TaskManager(),
+          '/': (context) => Test(),
+          // '/': (context) => HomePage(title: 'Andrejeвићи'),
+          // '/list': (context) => ListPage(title: 'Andrejeвићи'),
+          // '/add': (context) => TaskManager(),
         },
       ),
     );
