@@ -106,7 +106,8 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
       final querySnapshot =
           await query.orderBy('date', descending: true).limit(100).get();
 
-      final records = querySnapshot.docs.map((doc) => doc.data()).toList();
+      final records =
+          querySnapshot.docs.map((doc) => Record.fromMap(doc.data())).toList();
       emit(RecordsLoaded(records));
     } catch (e) {
       emit(RecordsError('Error fetching records: $e'));
@@ -116,7 +117,7 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
   Future<void> _onAddRecord(AddRecord event, Emitter<RecordsState> emit) async {
     try {
       final db = FirebaseFirestore.instance;
-      await db.collection('Photo').add(event.record);
+      await db.collection('Photo').add(event.record.toMap());
       add(FetchRecords());
     } catch (e) {
       emit(RecordsError('Error adding record: $e'));
@@ -131,8 +132,8 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
       final db = FirebaseFirestore.instance;
       await db
           .collection('Photo')
-          .doc(event.updatedData['filename'])
-          .update(event.updatedData);
+          .doc(event.updatedData.filename)
+          .update(event.updatedData.toMap());
       add(FetchRecords());
     } catch (e) {
       emit(RecordsError('Error updating record: $e'));

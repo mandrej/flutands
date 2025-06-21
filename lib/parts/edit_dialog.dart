@@ -8,6 +8,7 @@ import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
 import '../widgets/datetime_widget.dart';
 import '../helpers/read_exif.dart';
+import '../model/record.dart';
 // import '../helpers/common.dart';
 
 class EditDialog extends StatefulWidget {
@@ -66,10 +67,12 @@ class _EditDialogState extends State<EditDialog> {
                         onPressed: () {
                           _formKey.currentState!.save();
                           if (_record.containsKey('thumb')) {
-                            RecordsBloc().add(UpdateRecord(_record));
+                            RecordsBloc().add(UpdateRecord(_record as Record));
                           } else {
-                            RecordsBloc().add(AddRecord(_record));
-                            UploadedRecordCubit().donePublish(_record);
+                            RecordsBloc().add(AddRecord(_record as Record));
+                            UploadedRecordCubit().donePublish(
+                              _record as Record,
+                            );
                           }
                           Navigator.of(context).pop();
                         },

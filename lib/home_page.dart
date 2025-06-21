@@ -16,113 +16,88 @@ class HomePage extends StatelessWidget {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
-    return BlocBuilder<AvailableValuesBloc, AvailableValuesState>(
-      builder: (context, values) {
-        return Scaffold(
-          body:
-              values.email != null
-                  ? width < 960
-                      ? Column(
-                        children: [
-                          FrontButton(width: width, height: height / 2),
-                          FronTitle(
-                            title: title,
-                            width: width,
-                            height: height / 2,
-                          ),
-                        ],
-                      )
-                      : Row(
-                        children: [
-                          FrontButton(width: width / 2, height: height),
-                          FronTitle(
-                            title: title,
-                            width: width * 2,
-                            height: height,
-                          ),
-                        ],
-                      )
-                  : Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SvgPicture.asset(
-                          width: 100,
-                          'assets/camera.svg',
-                          colorFilter: ColorFilter.mode(
-                            Theme.of(context).primaryColor,
-                            BlendMode.srcIn,
-                          ),
-                          semanticsLabel: 'App Logo',
-                        ),
-                        Text(
-                          title,
-                          style: TextStyle(fontSize: 40),
-                          textAlign: TextAlign.center,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'No images yet\n Sign in with Google\n to add some',
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        if (UserCubit().state!['isAuthenticated'] == false)
-                          FilledButton(
-                            onPressed: () async {
-                              // await auth.signInWithGoogle();
-                            },
-                            child: Text('Sign in'),
-                          )
-                        else
-                          IconButton(
-                            onPressed:
-                                () => Navigator.pushNamed(context, '/add'),
-                            icon: Icon(Icons.add),
-                            style: IconButton.styleFrom(
-                              iconSize: 40.0,
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-        );
-      },
-    );
-  }
-}
-
-class Test extends StatelessWidget {
-  const Test({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = LastRecordBloc();
-        bloc.add(FetchLastRecord());
-        return bloc;
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AvailableValuesBloc>(
+          create:
+              (context) => AvailableValuesBloc()..add(FetchAvailableValues()),
+        ),
+        BlocProvider<UserBloc>(create: (context) => UserBloc()),
+      ],
       child: BlocBuilder<AvailableValuesBloc, AvailableValuesState>(
         builder: (context, values) {
-          var values = context.watch<AvailableValuesBloc>().state;
-          var record = context.watch<LastRecordBloc>().state;
-          return Center(
-            child: Column(
-              children: [
-                if (values.email != null)
-                  ...((values.email as Map<String, int>).keys.map<Widget>((
-                    email,
-                  ) {
-                    return Text(email);
-                  }).toList()),
-                Text(record.url ?? ''),
-              ],
-            ),
+          return Scaffold(
+            body:
+                values.email != null
+                    ? width < 960
+                        ? Column(
+                          children: [
+                            FrontButton(width: width, height: height / 2),
+                            FronTitle(
+                              title: title,
+                              width: width,
+                              height: height / 2,
+                            ),
+                          ],
+                        )
+                        : Row(
+                          children: [
+                            FrontButton(width: width / 2, height: height),
+                            FronTitle(
+                              title: title,
+                              width: width * 2,
+                              height: height,
+                            ),
+                          ],
+                        )
+                    : Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(
+                            width: 100,
+                            'assets/camera.svg',
+                            colorFilter: ColorFilter.mode(
+                              Theme.of(context).primaryColor,
+                              BlendMode.srcIn,
+                            ),
+                            semanticsLabel: 'App Logo',
+                          ),
+                          Text(
+                            title,
+                            style: TextStyle(fontSize: 40),
+                            textAlign: TextAlign.center,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'No images yet\n Sign in with Google\n to add some',
+                              style: Theme.of(context).textTheme.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          if (UserBloc().state.user == null)
+                            FilledButton(
+                              onPressed: () async {
+                                UserBloc().add(UserSignInRequested());
+                              },
+                              child: Text('Sign in'),
+                            )
+                          else
+                            IconButton(
+                              onPressed:
+                                  () => Navigator.pushNamed(context, '/add'),
+                              icon: Icon(Icons.add),
+                              style: IconButton.styleFrom(
+                                iconSize: 40.0,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
           );
         },
       ),
@@ -180,74 +155,104 @@ class FronTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final values = context.watch<AvailableValuesState>();
-    final user = context.watch<UserCubit>().state;
-    return BlocProvider(
-      create: (context) {
-        final bloc = FirstRecordBloc();
-        bloc.add(FetchFirstRecord());
-        return bloc;
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<UserBloc>(create: (context) => UserBloc()),
+        BlocProvider<AvailableValuesBloc>(
+          create:
+              (context) => AvailableValuesBloc()..add(FetchAvailableValues()),
+        ),
+        BlocProvider<FirstRecordBloc>(
+          create: (context) {
+            final bloc = FirstRecordBloc();
+            bloc.add(FetchFirstRecord());
+            return bloc;
+          },
+        ),
+      ],
       child: Expanded(
         child: SizedBox(
           width: width,
           height: height,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (user!['isFamily'])
-                  IconButton(
-                    onPressed: () => Navigator.pushNamed(context, '/add'),
-                    icon: Icon(Icons.add),
-                    style: IconButton.styleFrom(
-                      iconSize: 40.0,
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onSecondary,
-                    ),
-                  ),
-                if (user['isAuthenticated'])
-                  TextButton(
-                    onPressed: () {
-                      UserCubit().logout();
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(title, style: TextStyle(fontSize: 40)),
+                  BlocBuilder<FirstRecordBloc, FirstRecordState>(
+                    builder: (context, record) {
+                      return Text(
+                        'Since ${record.year.toString()}',
+                        style: TextStyle(fontSize: 14),
+                      );
                     },
-                    child: Text('Sign out ${user['displayName']}'),
-                  )
-                else
-                  FilledButton(
-                    onPressed: () {
-                      UserCubit().login();
-                    },
-                    child: Text('Sign in with Google'),
                   ),
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 40),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  'Since ${FirstRecordState().year.toString()}',
-                  style: TextStyle(fontSize: 14),
-                ),
-                if (values.email != null)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children:
-                        (values.email as Map<String, int>).keys.map<Widget>((
-                          email,
-                        ) {
-                          return Padding(
-                            padding: EdgeInsets.all(4.0),
-                            child: Text(
-                              nickEmail(email),
-                              style: Theme.of(context).textTheme.headlineSmall,
+                  SizedBox(height: 16.0),
+                  BlocBuilder<UserBloc, UserState>(
+                    builder: (context, auth) {
+                      if (auth.user != null) {
+                        return Column(
+                          children: [
+                            IconButton(
+                              onPressed:
+                                  () => Navigator.pushNamed(context, '/add'),
+                              icon: Icon(Icons.add),
+                              style: IconButton.styleFrom(
+                                iconSize: 40.0,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.onSecondary,
+                              ),
                             ),
-                          );
-                        }).toList(),
+                            if (AvailableValuesBloc().state.email != null)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children:
+                                    (AvailableValuesBloc().state.email
+                                            as Map<String, int>)
+                                        .keys
+                                        .map<Widget>((email) {
+                                          return Padding(
+                                            padding: EdgeInsets.all(4.0),
+                                            child: Text(
+                                              nickEmail(email),
+                                              style:
+                                                  Theme.of(
+                                                    context,
+                                                  ).textTheme.headlineSmall,
+                                            ),
+                                          );
+                                        })
+                                        .toList(),
+                              ),
+                            TextButton(
+                              onPressed: () {
+                                UserBloc().add(UserSignOutRequested());
+                              },
+                              child: Text('Sign out ${auth.user!.displayName}'),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FilledButton(
+                              onPressed: () {
+                                UserBloc().add(UserSignInRequested());
+                              },
+                              child: Text('Sign in with Google'),
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

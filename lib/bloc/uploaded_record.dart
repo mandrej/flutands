@@ -39,9 +39,7 @@ class UploadedRecordCubit extends HydratedCubit<List<Record>> {
   List<Record>? fromJson(Map<String, dynamic> json) {
     final files = json['uploaded'];
     if (files is List) {
-      return files
-          .map((item) => Record.fromJson(item as Map<String, dynamic>))
-          .toList();
+      return files.map((item) => Record.fromJson(item)).toList();
     }
     return [];
   }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Find {
   int year;
   int month;
@@ -45,5 +47,16 @@ class Find {
     } else {
       throw ArgumentError('Cannot convert object to Find');
     }
+  }
+
+  String toJson() {
+    return '{"year":$year,"month":$month,"tags":${tags.map((e) => '"$e"').toList()},"model":"$model","lens":"$lens","nick":"$nick"}';
+  }
+
+  factory Find.fromJson(String source) {
+    final Map<String, dynamic> map = Map<String, dynamic>.from(
+      jsonDecode(source) as Map,
+    );
+    return Find.fromMap(map);
   }
 }

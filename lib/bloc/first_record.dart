@@ -33,8 +33,9 @@ class FirstRecordState {
   final String? error;
 
   FirstRecordState({this.record, this.loading = false, this.error});
-  String? get filename => record?.filename;
-  String? get url => record!.url as String?;
+  // String? get filename => record?.filename;
+  // String? get url => record!.url as String?;
+  int? get year => record?.year as int;
 
   FirstRecordState copyWith({Record? record, bool? loading, String? error}) {
     return FirstRecordState(

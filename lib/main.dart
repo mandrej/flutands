@@ -14,8 +14,8 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'home_page.dart';
-import 'list_page.dart';
-import 'add_page.dart';
+// import 'list_page.dart';
+// import 'add_page.dart';
 import 'bloc/available_values.dart';
 
 Future<void> main() async {
@@ -234,8 +234,8 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         initialRoute: '/',
         routes: {
-          '/': (context) => Test(),
-          // '/': (context) => HomePage(title: 'Andrejeвићи'),
+          // '/': (context) => FronTitle(title: 'milan', width: 400, height: 400),
+          '/': (context) => HomePage(title: 'Andrejeвићи'),
           // '/list': (context) => ListPage(title: 'Andrejeвићи'),
           // '/add': (context) => TaskManager(),
         },

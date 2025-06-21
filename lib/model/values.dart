@@ -17,30 +17,6 @@ class Values {
     required this.lens,
   });
 
-  // factory Values.fromJson(Map<String, dynamic> json) {
-  //   return Values(
-  //     year: (json['year'] as Map?)?.cast<String, int>(),
-  //     month: (json['month'] as Map?)?.cast<String, int>(),
-  //     tags: (json['tags'] as Map?)?.cast<String, int>(),
-  //     email: (json['email'] as Map?)?.cast<String, int>(),
-  //     nick: (json['nick'] as Map?)?.cast<String, int>(),
-  //     model: (json['model'] as Map?)?.cast<String, int>(),
-  //     lens: (json['lens'] as Map?)?.cast<String, int>(),
-  //   );
-  // }
-
-  // Map<String, dynamic> toJson() {
-  //   return {
-  //     'year': year,
-  //     'month': month,
-  //     'tags': tags,
-  //     'email': email,
-  //     'nick': nick,
-  //     'model': model,
-  //     'lens': lens,
-  //   };
-  // }
-
   factory Values.fromMap(Map<String, dynamic> map) {
     return Values(
       year: (map['year'] as Map?)?.cast<String, int>(),
