@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import '../providers/api_provider.dart';
 import 'confirm_delete.dart';
 import 'edit_dialog.dart';
+import '../bloc/edit_mode.dart';
+import '../model/record.dart';
 
 class SimpleGridView extends StatelessWidget {
   SimpleGridView({super.key, required this.records});
-  final List<Map<String, dynamic>> records;
+  final List<Record> records;
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +53,19 @@ class SimpleGridView extends StatelessWidget {
 class ItemThumbnail extends StatelessWidget {
   const ItemThumbnail({super.key, required this.record, required this.onTap});
 
-  final Map<String, dynamic> record;
+  final Record record;
   final GestureTapCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return BlocProvider(
+    return BlocProvider<EditModeCubit>(
       create: (context) => EditModeCubit(),
       child: GestureDetector(
         onTap: onTap,
         child: Hero(
-          tag: record['filename'],
+          tag: record.filename,
           child: Card(
             clipBehavior: Clip.antiAliasWithSaveLayer,
             child: Column(
@@ -73,7 +74,7 @@ class ItemThumbnail extends StatelessWidget {
                   children: [
                     AspectRatio(
                       aspectRatio: 1,
-                      child: Image.network(record['thumb'], fit: BoxFit.cover),
+                      child: Image.network(record.thumb, fit: BoxFit.cover),
                     ),
                     if (EditModeCubit().state)
                       BlocBuilder<EditModeCubit, bool>(
@@ -102,7 +103,7 @@ class ItemThumbnail extends StatelessWidget {
                         decoration: BoxDecoration(color: Colors.black45),
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          record['headline'] ?? '',
+                          record.headline,
                           overflow: TextOverflow.ellipsis,
                           style: textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.normal,
@@ -140,7 +141,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   final int initialIndex;
   final PageController pageController;
 
-  final List<Map<String, dynamic>> records;
+  final List<Record> records;
   final Axis scrollDirection;
 
   @override
@@ -164,7 +165,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
       create: (context) => EditModeCubit(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.records[currentIndex]['headline'] ?? ''),
+          title: Text(widget.records[currentIndex].headline),
 
           actions:
               (EditModeCubit().state == true)
@@ -200,11 +201,11 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
     final record = widget.records[index];
     return PhotoViewGalleryPageOptions(
-      imageProvider: NetworkImage(record['url'] as String),
+      imageProvider: NetworkImage(record.url),
       initialScale: PhotoViewComputedScale.contained,
       minScale: PhotoViewComputedScale.contained,
       maxScale: 1,
-      heroAttributes: PhotoViewHeroAttributes(tag: record['filename']),
+      heroAttributes: PhotoViewHeroAttributes(tag: record.filename),
     );
   }
 }
@@ -215,7 +216,7 @@ class DeleteButton extends StatelessWidget {
     required this.record,
     this.color = Colors.white,
   });
-  final Map<String, dynamic> record;
+  final Record record;
   final Color color;
 
   @override
@@ -240,7 +241,7 @@ class EditButton extends StatelessWidget {
     required this.record,
     this.color = Colors.white,
   });
-  final Map<String, dynamic> record;
+  final Record record;
   final Color color;
 
   @override

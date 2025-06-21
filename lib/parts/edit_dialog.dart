@@ -12,7 +12,7 @@ import '../model/record.dart';
 // import '../helpers/common.dart';
 
 class EditDialog extends StatefulWidget {
-  final Map<String, dynamic> editRecord;
+  final Record editRecord;
 
   const EditDialog({super.key, required this.editRecord});
 

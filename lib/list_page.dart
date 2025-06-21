@@ -1,9 +1,13 @@
 import 'package:flutands/parts/alert_box.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'providers/api_provider.dart';
-import 'providers/user_provider.dart';
-import 'parts/search_form.dart';
+import 'bloc/edit_mode.dart';
+import 'bloc/records.dart';
+import 'bloc/user.dart';
+import 'bloc/search_find.dart';
+// import 'providers/api_provider.dart';
+// import 'providers/user_provider.dart';
+// import 'parts/search_form.dart';
 import 'parts/simple_grid_view.dart';
 
 class ListPage extends StatefulWidget {
@@ -22,26 +26,38 @@ class _ListPageState extends State<ListPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<EditModeCubit>(create: (context) => EditModeCubit()),
-        BlocProvider<UserCubit>(create: (context) => UserCubit()),
-        // BlocProvider<SearchFindBloc>(create: (context) => SearchFindBloc()),
+        BlocProvider<UserBloc>(create: (context) => UserBloc()),
+        BlocProvider<SearchFindBloc>(create: (context) => SearchFindBloc()),
         BlocProvider<RecordsBloc>(
-          create: (context) => RecordsBloc()..add(FetchRecords(context)),
+          create: (context) {
+            final bloc = RecordsBloc();
+            bloc.add(FetchRecords());
+            return bloc;
+          },
         ),
       ],
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
           actions: [
-            if (UserCubit().state!['isAuthenticated'])
-              TextButton(
-                onPressed: EditModeCubit().toggleEditMode,
-                child: Text(EditModeCubit().state ? 'EDIT MODE' : 'VIEW MODE'),
-              ),
+            BlocBuilder<UserBloc, UserState>(
+              builder: (context, auth) {
+                if (auth.isAuthenticated) {
+                  return TextButton(
+                    onPressed: EditModeCubit().toggle,
+                    child: Text(
+                      EditModeCubit().state ? 'EDIT MODE' : 'VIEW MODE',
+                    ),
+                  );
+                }
+                return SizedBox.shrink();
+              },
+            ),
           ],
         ),
         drawer: isLargeScreen ? null : const _SidebarDrawer(),
-        body: BlocBuilder<RecordsBloc, List<Map<String, dynamic>>>(
-          builder: (context, records) {
+        body: BlocBuilder<RecordsBloc, RecordsState>(
+          builder: (context, state) {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -50,8 +66,8 @@ class _ListPageState extends State<ListPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child:
-                        records.isNotEmpty
-                            ? SimpleGridView(records: records)
+                        (state is RecordsLoaded && state.records.isNotEmpty)
+                            ? SimpleGridView(records: state.records)
                             : AlertBox(
                               title: 'No Records',
                               content:
@@ -113,7 +129,7 @@ class _SidebarDrawer extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SearchForm(),
+          //SearchForm(),
           Spacer(),
           _SidebarItem(
             icon: Icons.home,

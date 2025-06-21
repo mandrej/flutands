@@ -4,7 +4,7 @@ import '../providers/api_provider.dart';
 
 class DeleteDialog extends StatelessWidget {
   const DeleteDialog({super.key, required this.record});
-  final Map<String, dynamic> record;
+  final Record record;
 
   @override
   Widget build(BuildContext context) {
