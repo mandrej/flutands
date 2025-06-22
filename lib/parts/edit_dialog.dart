@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:intl/intl.dart';
 import '../bloc/records.dart';
-import '../bloc/uploaded_record.dart';
+import '../bloc/uploaded.dart';
 import '../bloc/available_values.dart';
 import '../widgets/auto_suggest_field.dart';
 import '../widgets/auto_suggest_multi_select.dart';
@@ -40,9 +40,7 @@ class _EditDialogState extends State<EditDialog> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<RecordsBloc>(create: (context) => RecordsBloc()),
-        BlocProvider<UploadedRecordCubit>(
-          create: (context) => UploadedRecordCubit(),
-        ),
+        BlocProvider<UploadedCubit>(create: (context) => UploadedCubit()),
       ],
       child: Dialog(
         child: SizedBox(
@@ -70,9 +68,7 @@ class _EditDialogState extends State<EditDialog> {
                             RecordsBloc().add(UpdateRecord(_record as Record));
                           } else {
                             RecordsBloc().add(AddRecord(_record as Record));
-                            UploadedRecordCubit().donePublish(
-                              _record as Record,
-                            );
+                            UploadedCubit().donePublish(_record as Record);
                           }
                           Navigator.of(context).pop();
                         },

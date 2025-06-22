@@ -1,11 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class TaskState {
-  final List<String> tasks;
+  final List<UploadTask> tasks;
 
   TaskState({this.tasks = const []});
 
-  TaskState copyWith({List<String>? tasks}) {
+  TaskState copyWith({List<UploadTask>? tasks}) {
     return TaskState(tasks: tasks ?? this.tasks);
   }
 }
@@ -13,11 +14,11 @@ class TaskState {
 class TaskCubit extends Cubit<TaskState> {
   TaskCubit() : super(TaskState());
 
-  void addTask(String task) {
+  void addTask(UploadTask task) {
     emit(state.copyWith(tasks: List.from(state.tasks)..add(task)));
   }
 
-  void removeTask(String task) {
+  void removeTask(UploadTask task) {
     emit(state.copyWith(tasks: List.from(state.tasks)..remove(task)));
   }
 

@@ -12,8 +12,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'providers/api_provider.dart';
-import 'providers/user_provider.dart';
+import 'bloc/task.dart';
+import 'bloc/uploaded.dart';
+import 'bloc/user.dart';
+import 'model/record.dart';
 import 'package:intl/intl.dart';
 import 'helpers/read_exif.dart';
 import 'helpers/common.dart';
@@ -114,18 +116,16 @@ class _TaskManagerState extends State<TaskManager> {
       ),
       body: Column(
         children: [
-          if (taskCubit.state.isNotEmpty)
+          if (taskCubit.state.tasks.isNotEmpty)
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: taskCubit.state.length,
+                itemCount: taskCubit.state.tasks.length,
                 itemBuilder:
                     (context, index) => UploadTaskListTile(
-                      task: taskCubit.state[index],
+                      task: taskCubit.state.tasks[index],
                       onDelete: () {
-                        taskCubit.removeTask(
-                          taskCubit.state[index].snapshot.ref,
-                        );
+                        taskCubit.removeTask(taskCubit.state.tasks[index]);
                       },
                     ),
               ),
@@ -145,7 +145,7 @@ class _TaskManagerState extends State<TaskManager> {
                   itemCount: uploadedCubit.state.length,
                   itemBuilder:
                       (context, index) => ItemThumbnail(
-                        uploadedRecord: uploadedCubit.state[index],
+                        uploadedRecord: uploadedCubit.state[index].toMap(),
                         onDelete: () async {
                           uploadedCubit.removeUploaded(
                             uploadedCubit.state[index],
@@ -188,13 +188,13 @@ Future<Map<String, dynamic>> _recordUploaded(Reference photoRef) async {
   return record;
 }
 
-Future<Map<String, dynamic>> _recordPublish(
+Future<Record> _recordPublish(
   BuildContext context,
   Map<String, dynamic> defaultRecord,
 ) async {
-  final userCubit = BlocProvider.of<UserCubit>(context, listen: false);
+  final auth = BlocProvider.of<UserBloc>(context, listen: false);
   Map<String, dynamic> record;
-  final email = userCubit.state!['email'];
+  final email = auth.state.user!.email;
 
   var exif = await readExif(defaultRecord['filename']);
   if (exif.isEmpty) {
@@ -215,7 +215,7 @@ Future<Map<String, dynamic>> _recordPublish(
     'tags': [],
   };
 
-  return record;
+  return record as Record;
 }
 
 class UploadTaskListTile extends StatefulWidget {
@@ -286,7 +286,7 @@ class _UploadTaskListTileState extends State<UploadTaskListTile>
               // controller.stop();
               TaskCubit().removeTask(snapshot.ref);
               _recordUploaded(snapshot.ref).then((record) {
-                UploadedCubit().addUploaded(record);
+                UploadedCubit().add(record as Record);
               });
             }
           }
