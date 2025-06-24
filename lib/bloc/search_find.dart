@@ -28,12 +28,12 @@ class SearchFindState {
 
   SearchFindState({this.find});
 
-  int? get year => find!.year;
-  int? get month => find!.month;
-  List<String> get tags => find!.tags;
-  String get model => find!.model;
-  String get lens => find!.lens;
-  String get nick => find!.nick;
+  int? get year => 2024; // ind!.year;
+  int? get month => 4; // find!.month;
+  List<String> get tags => find?.tags ?? [];
+  String? get model => find?.model;
+  String? get lens => find?.lens;
+  String? get nick => find?.nick;
 
   SearchFindState copyWith({Find? find}) {
     return SearchFindState(find: find ?? this.find);

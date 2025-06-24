@@ -2,33 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'search_find.dart';
 import '../model/record.dart';
-
-// Future<void> fetchRecords() async {
-//   final db = FirebaseFirestore.instance;
-//   final _find = SearchFindBloc().state;
-//     debugPrint('FIND ------------------------------- ${_find.toString()}');
-//     try {
-//       Query<Map<String, dynamic>> query = db.collection('Photo');
-//       query = query.where('year', isEqualTo: _find['year']);
-//       query = query.where('month', isEqualTo: _find['month']);
-//       query = query.where('tags', arrayContainsAny: _find['tags']);
-//       query = query.where('model', isEqualTo: _find['model']);
-//       query = query.where('lens', isEqualTo: _find['lens']);
-//       query = query.where('nick', isEqualTo: _find['nick']);
-
-//       final querySnapshot =
-//           await query.orderBy('date', descending: true).limit(100).get();
-
-//       if (querySnapshot.docs.isNotEmpty) {
-//         _records.clear();
-//         _records = querySnapshot.docs.map((doc) => doc.data()).toList();
-//       } else {
-//         _records.clear();
-//       }
-//     } catch (e) {
-//       print('Error completing: $e');
-//     }
-//   }
+import '../model/find.dart';
 
 // Events
 abstract class RecordsEvent {}
@@ -83,29 +57,17 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
     emit(RecordsLoading());
     try {
       final db = FirebaseFirestore.instance;
-      final find = SearchFindBloc().state as Map<String, dynamic>;
+      final find = SearchFindBloc().state as Find;
       Query<Map<String, dynamic>> query = db.collection('Photo');
-      if (find['year'] != null) {
-        query = query.where('year', isEqualTo: find['year']);
-      }
-      if (find['month'] != null) {
-        query = query.where('month', isEqualTo: find['month']);
-      }
-      if (find['tags'] != null && (find['tags'] as List).isNotEmpty) {
-        query = query.where('tags', arrayContainsAny: find['tags']);
-      }
-      if (find['model'] != null) {
-        query = query.where('model', isEqualTo: find['model']);
-      }
-      if (find['lens'] != null) {
-        query = query.where('lens', isEqualTo: find['lens']);
-      }
-      if (find['nick'] != null) {
-        query = query.where('nick', isEqualTo: find['nick']);
-      }
+      query = query.where('year', isEqualTo: find.year);
+      query = query.where('month', isEqualTo: find.month);
+      query = query.where('tags', arrayContainsAny: find.tags);
+      query = query.where('model', isEqualTo: find.model);
+      query = query.where('lens', isEqualTo: find.lens);
+      query = query.where('nick', isEqualTo: find.nick);
+
       final querySnapshot =
           await query.orderBy('date', descending: true).limit(100).get();
-
       final records =
           querySnapshot.docs.map((doc) => Record.fromMap(doc.data())).toList();
       emit(RecordsLoaded(records));

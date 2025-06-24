@@ -21,73 +21,74 @@ class _ListPageState extends State<ListPage> {
   Widget build(BuildContext context) {
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
 
-    return RepositoryProvider(
-      create: (context) => RecordsBloc().add(FetchRecords()),
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<EditModeCubit>(create: (context) => EditModeCubit()),
-          BlocProvider<UserBloc>(create: (context) => UserBloc()),
-          BlocProvider<SearchFindBloc>(create: (context) => SearchFindBloc()),
-          BlocProvider<RecordsBloc>(
-            create: (context) => RecordsBloc()..add(FetchRecords()),
-          ),
-        ],
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(widget.title),
-            actions: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: BlocBuilder<UserBloc, UserState>(
-                  builder: (context, auth) {
-                    final user = auth.user;
-                    if (user != null && user.isAuthenticated) {
-                      return BlocBuilder<EditModeCubit, bool>(
-                        builder: (context, mode) {
-                          return TextButton(
-                            onPressed:
-                                () => context.read<EditModeCubit>().toggle(),
-                            child: Text(
-                              mode ? 'EDIT MODE' : 'VIEW MODE',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<EditModeCubit>(create: (context) => EditModeCubit()),
+        BlocProvider<UserBloc>(create: (context) => UserBloc()),
+        BlocProvider<SearchFindBloc>(create: (context) => SearchFindBloc()),
+        BlocProvider<RecordsBloc>(
+          create: (context) {
+            final bloc = RecordsBloc();
+            bloc.add(FetchRecords());
+            return bloc;
+          },
+        ),
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          actions: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: BlocBuilder<UserBloc, UserState>(
+                builder: (context, auth) {
+                  final user = auth.user;
+                  if (user != null && user.isAuthenticated) {
+                    return BlocBuilder<EditModeCubit, bool>(
+                      builder: (context, mode) {
+                        return TextButton(
+                          onPressed:
+                              () => context.read<EditModeCubit>().toggle(),
+                          child: Text(
+                            mode ? 'EDIT MODE' : 'VIEW MODE',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
                             ),
-                          );
-                        },
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
               ),
-            ],
-          ),
-          drawer: isLargeScreen ? null : const _SidebarDrawer(),
-          body: BlocBuilder<RecordsBloc, RecordsState>(
-            builder: (context, state) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isLargeScreen) const _SidebarDrawer(),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child:
-                          (state is RecordsLoaded && state.records.isNotEmpty)
-                              ? SimpleGridView(records: state.records)
-                              : AlertBox(
-                                title: 'No Records',
-                                content:
-                                    'No records found. Please try again later.',
-                              ),
-                    ),
+            ),
+          ],
+        ),
+        drawer: isLargeScreen ? null : const _SidebarDrawer(),
+        body: BlocBuilder<RecordsBloc, RecordsState>(
+          builder: (context, state) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isLargeScreen) const _SidebarDrawer(),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child:
+                        (state is RecordsLoaded && state.records.isNotEmpty)
+                            ? SimpleGridView(records: state.records)
+                            : AlertBox(
+                              title: 'No Records',
+                              content:
+                                  'No records found. Please try again later.',
+                            ),
                   ),
-                ],
-              );
-            },
-          ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

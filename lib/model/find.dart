@@ -1,21 +1,14 @@
 import 'dart:convert';
 
 class Find {
-  int year;
-  int month;
-  List<String> tags;
-  String model;
-  String lens;
-  String nick;
+  int? year;
+  int? month;
+  List<String>? tags;
+  String? model;
+  String? lens;
+  String? nick;
 
-  Find({
-    required this.year,
-    required this.month,
-    required this.tags,
-    required this.model,
-    required this.lens,
-    required this.nick,
-  });
+  Find({this.year, this.month, this.tags, this.model, this.lens, this.nick});
 
   Map<String, dynamic> toMap() {
     return {
@@ -50,7 +43,7 @@ class Find {
   }
 
   String toJson() {
-    return '{"year":$year,"month":$month,"tags":${tags.map((e) => '"$e"').toList()},"model":"$model","lens":"$lens","nick":"$nick"}';
+    return '{"year":$year,"month":$month,"tags":${tags != null ? tags!.map((e) => '"$e"').toList() : []},"model":"$model","lens":"$lens","nick":"$nick"}';
   }
 
   factory Find.fromJson(String source) {
