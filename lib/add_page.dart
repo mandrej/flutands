@@ -95,84 +95,91 @@ class _TaskManagerState extends State<TaskManager> {
 
   @override
   Widget build(BuildContext context) {
-    final uploadTaskCubit = BlocProvider.of<UploadTaskCubit>(context);
-    final publishCubit = BlocProvider.of<PublishCubit>(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                FilledButton(
-                  onPressed: () {
-                    handleUploads();
-                  },
-                  child: Text('Upload local files'),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          if (uploadTaskCubit.state.isNotEmpty)
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: uploadTaskCubit.state.length,
-                itemBuilder:
-                    (context, index) => UploadTaskListTile(
-                      task: uploadTaskCubit.state[index],
-                      onDelete: () {
-                        uploadTaskCubit.remove(uploadTaskCubit.state[index]);
-                      },
-                    ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<UploadTaskCubit>(create: (context) => UploadTaskCubit()),
+        BlocProvider<PublishCubit>(create: (context) => PublishCubit()),
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Add'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  FilledButton(
+                    onPressed: () {
+                      handleUploads();
+                    },
+                    child: Text('Upload local files'),
+                  ),
+                ],
               ),
             ),
-          if (publishCubit.state.isNotEmpty)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: MediaQuery.of(context).size.width ~/ 200,
-                    mainAxisSpacing: 8.0,
-                    crossAxisSpacing: 8.0,
-                    childAspectRatio: 1,
-                  ),
+          ],
+        ),
+        body: Column(
+          children: [
+            if (UploadTaskCubit().state.isNotEmpty)
+              Expanded(
+                child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: publishCubit.state.length,
+                  itemCount: UploadTaskCubit().state.length,
                   itemBuilder:
-                      (context, index) => ItemThumbnail(
-                        uploadedRecord: publishCubit.state[index].toMap(),
-                        onDelete: () async {
-                          publishCubit.removeUploaded(
-                            publishCubit.state[index],
-                          );
-                        },
-                        onPublish: () async {
-                          var editRecord = await _recordPublish(
-                            context,
-                            publishCubit.state[index] as Map<String, dynamic>,
-                          );
-                          await showDialog(
-                            context: context,
-                            builder:
-                                (context) => EditDialog(editRecord: editRecord),
-                            barrierDismissible: false,
+                      (context, index) => UploadTaskListTile(
+                        task: UploadTaskCubit().state[index],
+                        onDelete: () {
+                          UploadTaskCubit().remove(
+                            UploadTaskCubit().state[index],
                           );
                         },
                       ),
                 ),
               ),
-            )
-          else
-            SizedBox(height: 16.0),
-        ],
+            if (PublishCubit().state.isNotEmpty)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width ~/ 200,
+                      mainAxisSpacing: 8.0,
+                      crossAxisSpacing: 8.0,
+                      childAspectRatio: 1,
+                    ),
+                    shrinkWrap: true,
+                    itemCount: PublishCubit().state.length,
+                    itemBuilder:
+                        (context, index) => ItemThumbnail(
+                          uploadedRecord: PublishCubit().state[index].toMap(),
+                          onDelete: () async {
+                            PublishCubit().removeUploaded(
+                              PublishCubit().state[index],
+                            );
+                          },
+                          onPublish: () async {
+                            var editRecord = await _recordPublish(
+                              context,
+                              PublishCubit().state[index]
+                                  as Map<String, dynamic>,
+                            );
+                            await showDialog(
+                              context: context,
+                              builder:
+                                  (context) =>
+                                      EditDialog(editRecord: editRecord),
+                              barrierDismissible: false,
+                            );
+                          },
+                        ),
+                  ),
+                ),
+              )
+            else
+              SizedBox(height: 16.0),
+          ],
+        ),
       ),
     );
   }

@@ -190,7 +190,14 @@ class FronTitle extends StatelessWidget {
                     },
                   ),
                   SizedBox(height: 16.0),
-                  BlocBuilder<UserBloc, UserState>(
+                  BlocConsumer<UserBloc, UserState>(
+                    listener: (context, state) {
+                      // if (state.errorMessage != null) {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     SnackBar(content: Text(state.errorMessage!)),
+                      //   );
+                      // }
+                    },
                     builder: (context, auth) {
                       if (auth.user != null) {
                         return Column(
@@ -207,30 +214,40 @@ class FronTitle extends StatelessWidget {
                                     Theme.of(context).colorScheme.onSecondary,
                               ),
                             ),
-                            if (AvailableValuesBloc().state.email != null)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children:
-                                    (AvailableValuesBloc().state.email
-                                            as Map<String, int>)
-                                        .keys
-                                        .map<Widget>((email) {
-                                          return Padding(
-                                            padding: EdgeInsets.all(4.0),
-                                            child: Text(
-                                              nickEmail(email),
-                                              style:
-                                                  Theme.of(
-                                                    context,
-                                                  ).textTheme.headlineSmall,
-                                            ),
-                                          );
-                                        })
-                                        .toList(),
-                              ),
+                            BlocBuilder<
+                              AvailableValuesBloc,
+                              AvailableValuesState
+                            >(
+                              builder: (context, values) {
+                                if (values.email != null &&
+                                    values.email is Map<String, int>) {
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children:
+                                        (values.email as Map<String, int>).keys
+                                            .map<Widget>((email) {
+                                              return Padding(
+                                                padding: EdgeInsets.all(4.0),
+                                                child: Text(
+                                                  nickEmail(email),
+                                                  style:
+                                                      Theme.of(
+                                                        context,
+                                                      ).textTheme.headlineSmall,
+                                                ),
+                                              );
+                                            })
+                                            .toList(),
+                                  );
+                                }
+                                return SizedBox.shrink();
+                              },
+                            ),
                             TextButton(
                               onPressed: () {
-                                UserBloc().add(UserSignOutRequested());
+                                context.read<UserBloc>().add(
+                                  UserSignOutRequested(),
+                                );
                               },
                               child: Text('Sign out ${auth.user!.displayName}'),
                             ),
@@ -242,7 +259,9 @@ class FronTitle extends StatelessWidget {
                           children: [
                             FilledButton(
                               onPressed: () {
-                                UserBloc().add(UserSignInRequested());
+                                context.read<UserBloc>().add(
+                                  UserSignInRequested(),
+                                );
                               },
                               child: Text('Sign in with Google'),
                             ),
