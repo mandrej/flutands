@@ -17,8 +17,8 @@ void removeFromStorage(String fileName) {
   });
 }
 
-class UploadedCubit extends HydratedCubit<List<Record>> {
-  UploadedCubit() : super([]);
+class PublishCubit extends HydratedCubit<List<Record>> {
+  PublishCubit() : super([]);
 
   void add(Record record) {
     if (state.any((item) => item.filename != record.filename)) {

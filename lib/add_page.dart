@@ -12,8 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'bloc/task.dart';
-import 'bloc/uploaded.dart';
+import 'bloc/upload_task.dart';
+import 'bloc/publish.dart';
 import 'bloc/user.dart';
 import 'model/record.dart';
 import 'package:intl/intl.dart';
@@ -72,7 +72,10 @@ class _TaskManagerState extends State<TaskManager> {
   }
 
   Future<void> handleUploads() async {
-    final taskCubit = BlocProvider.of<TaskCubit>(context, listen: false);
+    final uploadTaskCubit = BlocProvider.of<UploadTaskCubit>(
+      context,
+      listen: false,
+    );
     final ImagePicker _picker = ImagePicker();
     final List<XFile> images = await _picker.pickMultiImage();
     if (!mounted) return;
@@ -85,15 +88,15 @@ class _TaskManagerState extends State<TaskManager> {
     for (var file in images) {
       UploadTask? task = await uploadFile(file);
       if (task != null) {
-        taskCubit.addTask(task);
+        uploadTaskCubit.add(task);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final taskCubit = BlocProvider.of<TaskCubit>(context);
-    final uploadedCubit = BlocProvider.of<UploadedCubit>(context);
+    final uploadTaskCubit = BlocProvider.of<UploadTaskCubit>(context);
+    final publishCubit = BlocProvider.of<PublishCubit>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -116,21 +119,21 @@ class _TaskManagerState extends State<TaskManager> {
       ),
       body: Column(
         children: [
-          if (taskCubit.state.tasks.isNotEmpty)
+          if (uploadTaskCubit.state.isNotEmpty)
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: taskCubit.state.tasks.length,
+                itemCount: uploadTaskCubit.state.length,
                 itemBuilder:
                     (context, index) => UploadTaskListTile(
-                      task: taskCubit.state.tasks[index],
+                      task: uploadTaskCubit.state[index],
                       onDelete: () {
-                        taskCubit.removeTask(taskCubit.state.tasks[index]);
+                        uploadTaskCubit.remove(uploadTaskCubit.state[index]);
                       },
                     ),
               ),
             ),
-          if (uploadedCubit.state.isNotEmpty)
+          if (publishCubit.state.isNotEmpty)
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -142,19 +145,19 @@ class _TaskManagerState extends State<TaskManager> {
                     childAspectRatio: 1,
                   ),
                   shrinkWrap: true,
-                  itemCount: uploadedCubit.state.length,
+                  itemCount: publishCubit.state.length,
                   itemBuilder:
                       (context, index) => ItemThumbnail(
-                        uploadedRecord: uploadedCubit.state[index].toMap(),
+                        uploadedRecord: publishCubit.state[index].toMap(),
                         onDelete: () async {
-                          uploadedCubit.removeUploaded(
-                            uploadedCubit.state[index],
+                          publishCubit.removeUploaded(
+                            publishCubit.state[index],
                           );
                         },
                         onPublish: () async {
                           var editRecord = await _recordPublish(
                             context,
-                            uploadedCubit.state[index],
+                            publishCubit.state[index] as Map<String, dynamic>,
                           );
                           await showDialog(
                             context: context,
@@ -211,7 +214,7 @@ Future<Record> _recordPublish(
     ...defaultRecord,
     ...exif,
     'email': email,
-    'nick': nickEmail(email!),
+    'nick': nickEmail(email),
     'tags': [],
   };
 
@@ -259,8 +262,8 @@ class _UploadTaskListTileState extends State<UploadTaskListTile>
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<TaskCubit>(create: (context) => TaskCubit()),
-        BlocProvider<UploadedCubit>(create: (context) => UploadedCubit()),
+        BlocProvider<UploadTaskCubit>(create: (context) => UploadTaskCubit()),
+        BlocProvider<PublishCubit>(create: (context) => PublishCubit()),
       ],
       child: StreamBuilder<TaskSnapshot>(
         stream: widget.task.snapshotEvents,
@@ -284,9 +287,9 @@ class _UploadTaskListTileState extends State<UploadTaskListTile>
           } else if (snapshot != null) {
             if (state == TaskState.success) {
               // controller.stop();
-              TaskCubit().removeTask(snapshot.ref);
+              UploadTaskCubit().remove(widget.task);
               _recordUploaded(snapshot.ref).then((record) {
-                UploadedCubit().add(record as Record);
+                PublishCubit().add(record as Record);
               });
             }
           }

@@ -15,7 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'home_page.dart';
 import 'list_page.dart';
-// import 'add_page.dart';
+import 'add_page.dart';
 import 'bloc/available_values.dart';
 
 Future<void> main() async {
@@ -55,7 +55,6 @@ Future<void> main() async {
   );
 
   runApp(const MyApp());
-  // Ava: Application entry point
 }
 
 // https://rydmike.com/flexcolorscheme/themesplayground-latest/?config=H4sIAHiALWgA_61UTY-bMBC9769AnFdRlijqNrd8rRRVkaqSntGsGRKrxkb2OBu02v_ewcC2gai9hAvI78288fMz7w8RP3GloD5a43We5UAQL6L4cMISXfT9E4kaJMJLZSxhHiVPk-l8kkyTeTT9uki-LOZJ_DjqdkbrpNFNw-dJMpn2FGHKCgTtTY6MFaAcdkiOBXhFPyCX3jH23K0XygBJfVwK4oYrT2T0Ur1B7dbSCq_ADhrdKvjpMD1BNdSUuvK0QWEskLErY3O0hzrQ3gOjnQwsZdQux6h9mRUKL1kozl5DUQs__qk5g_KBz2agVVJjHMCPm8o79yKVwnw0HqGFsI1tUaCgxheyvseVdHSQClNUDGKeiubs1kYZ-78duEDNRODemruysgRbX089FAzfdxQ1OmVLdD4Sbit37OWFecmsXz6Zt7SD2M8wxMAjJ0vOCHu8rKq-fjrE1pxKo1GTG1E0iF8rsCt-tdG-8369LUAMwtGL3lPK9caujSbgPNprTWrqu2v5T6VAzMqGeUtHyeOJBq2bHOcb6eCVM97oW6MGx0SmkiKYv2WLZRgjGWEp8Tgd-tQfkXf4wvcx2NQ6dt2a8d3VbTu0gdlIUOboRuRvWH8G6e_byNA-SalWuJFnnsHu9H42qt7PttY2iRpHsUGBbzTrjutS_9r-ea8R_o-SFKC6k2mQh4_fXD9cIL0FAAA=
@@ -234,10 +233,9 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         initialRoute: '/',
         routes: {
-          // '/': (context) => FronTitle(title: 'milan', width: 400, height: 400),
           '/': (context) => HomePage(title: 'Andrejeвићи'),
           '/list': (context) => ListPage(title: 'Andrejeвићи'),
-          // '/add': (context) => TaskManager(),
+          '/add': (context) => TaskManager(),
         },
       ),
     );

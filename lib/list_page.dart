@@ -5,8 +5,6 @@ import 'bloc/edit_mode.dart';
 import 'bloc/records.dart';
 import 'bloc/user.dart';
 import 'bloc/search_find.dart';
-// import 'providers/api_provider.dart';
-// import 'providers/user_provider.dart';
 // import 'parts/search_form.dart';
 import 'parts/simple_grid_view.dart';
 
