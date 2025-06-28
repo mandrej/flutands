@@ -2,23 +2,24 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/record.dart';
 
-Future<Record?> getRecord(String kind, bool descending) async {
+Future<Record?> getRecord(String kind, bool descending) {
   final db = FirebaseFirestore.instance;
-  try {
-    final querySnapshot =
-        await db
-            .collection(kind)
-            .orderBy('date', descending: descending)
-            .limit(1)
-            .get();
-    if (querySnapshot.docs.isNotEmpty) {
-      final data = querySnapshot.docs.first.data();
-      return Record.fromMap(data);
-    }
-  } catch (e) {
-    print('Error completing: $e');
-  }
-  return null;
+  return db
+      .collection(kind)
+      .orderBy('date', descending: descending)
+      .limit(1)
+      .get()
+      .then((querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          final data = querySnapshot.docs.first.data();
+          return Record.fromMap(data);
+        }
+        return null;
+      })
+      .catchError((e) {
+        print('Error completing: $e');
+        return null;
+      });
 }
 
 abstract class FirstRecordEvent {}
@@ -35,7 +36,7 @@ class FirstRecordState {
   FirstRecordState({this.record, this.loading = false, this.error});
   // String? get filename => record?.filename;
   // String? get url => record!.url as String?;
-  int? get year => record?.year as int;
+  int get year => record!.year;
 
   FirstRecordState copyWith({Record? record, bool? loading, String? error}) {
     return FirstRecordState(

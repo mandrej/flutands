@@ -1,7 +1,7 @@
 // import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -16,7 +16,31 @@ import 'package:path_provider/path_provider.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 import 'add_page.dart';
-import 'bloc/available_values.dart';
+// import 'bloc/available_values.dart';
+
+void handleFlutterError(FlutterErrorDetails details) {
+  FlutterError.presentError(details);
+  // Optionally log to a service or file here.
+}
+
+bool handlePlatformError(Object error, StackTrace stack) {
+  // Optionally log to a service or file here.
+  return true; // Prevents the app from crashing.
+}
+
+void setupGlobalErrorHandling() {
+  FlutterError.onError = handleFlutterError;
+  PlatformDispatcher.instance.onError = handlePlatformError;
+}
+
+class SimpleBlocObserver extends BlocObserver {
+  @override
+  void onChange(BlocBase bloc, Change change) {
+    super.onChange(bloc, change);
+    // print('${bloc.runtimeType} $change');
+    print('${bloc.runtimeType}---');
+  }
+}
 
 Future<void> main() async {
   setPathUrlStrategy();
@@ -36,16 +60,6 @@ Future<void> main() async {
       // ignore: avoid_print
       print(e);
     }
-    FlutterError.onError = (details) {
-      debugPrint('************************* onErrorDetails');
-      debugPrint(details.toString());
-    };
-    PlatformDispatcher.instance.onError = (error, stack) {
-      debugPrint('************************* onError');
-      debugPrint(error.toString());
-      debugPrint(stack.toString());
-      return true;
-    };
   }
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory:
@@ -54,6 +68,7 @@ Future<void> main() async {
             : HydratedStorageDirectory((await getTemporaryDirectory()).path),
   );
 
+  Bloc.observer = SimpleBlocObserver();
   runApp(const MyApp());
 }
 
@@ -221,23 +236,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = AvailableValuesBloc();
-        bloc.add(FetchAvailableValues());
-        return bloc;
+    return MaterialApp(
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePage(title: 'Andrejeвићи'),
+        '/list': (context) => ListPage(title: 'Andrejeвићи'),
+        '/add': (context) => TaskManager(),
       },
-      child: MaterialApp(
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.system,
-        initialRoute: '/',
-        routes: {
-          '/': (context) => HomePage(title: 'Andrejeвићи'),
-          '/list': (context) => ListPage(title: 'Andrejeвићи'),
-          '/add': (context) => TaskManager(),
-        },
-      ),
     );
   }
 }

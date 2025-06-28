@@ -15,11 +15,8 @@ class SearchForm extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AvailableValuesBloc>(
-          create: (context) {
-            final bloc = AvailableValuesBloc();
-            bloc.add(FetchAvailableValues());
-            return bloc;
-          },
+          create:
+              (context) => AvailableValuesBloc()..add(FetchAvailableValues()),
         ),
         BlocProvider<SearchFindBloc>(create: (context) => SearchFindBloc()),
       ],
@@ -37,7 +34,7 @@ class SearchForm extends StatelessWidget {
                   // Text(find.model.toString()),
                   AutoSuggestField(
                     hintText: 'by year',
-                    initialValue: find.year.toString(),
+                    initialValue: find.year?.toString() ?? '',
                     options:
                         AvailableValuesBloc().state.year!.keys
                             .map((e) => e.toString())

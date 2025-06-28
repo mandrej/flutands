@@ -1,12 +1,13 @@
 import 'package:flutands/parts/alert_box.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'bloc/edit_mode.dart';
+// import 'bloc/edit_mode.dart';
 import 'bloc/records.dart';
-import 'bloc/user.dart';
+// import 'bloc/user.dart';
 import 'bloc/search_find.dart';
 import 'parts/search_form.dart';
 import 'parts/simple_grid_view.dart';
+import 'parts/edit_view.dart';
 
 class ListPage extends StatefulWidget {
   const ListPage({super.key, required this.title});
@@ -23,72 +24,53 @@ class _ListPageState extends State<ListPage> {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider<EditModeCubit>(create: (context) => EditModeCubit()),
-        BlocProvider<UserBloc>(create: (context) => UserBloc()),
         BlocProvider<SearchFindBloc>(create: (context) => SearchFindBloc()),
-        BlocProvider<RecordsBloc>(
-          create: (context) {
-            final bloc = RecordsBloc();
-            bloc.add(FetchRecords());
-            return bloc;
-          },
-        ),
+        BlocProvider<RecordsBloc>(create: (context) => RecordsBloc()),
       ],
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          actions: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: BlocBuilder<UserBloc, UserState>(
-                builder: (context, auth) {
-                  final user = auth.user;
-                  if (user != null && user.isAuthenticated) {
-                    return BlocBuilder<EditModeCubit, bool>(
-                      builder: (context, mode) {
-                        return TextButton(
-                          onPressed:
-                              () => context.read<EditModeCubit>().toggle(),
-                          child: Text(
-                            mode ? 'EDIT MODE' : 'VIEW MODE',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
+        appBar: AppBar(title: Text(widget.title), actions: [EditView()]),
         drawer: isLargeScreen ? null : const _SidebarDrawer(),
-        body: BlocBuilder<RecordsBloc, RecordsState>(
-          builder: (context, state) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isLargeScreen) const _SidebarDrawer(),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child:
-                        (state is RecordsLoaded && state.records.isNotEmpty)
-                            ? SimpleGridView(records: state.records)
-                            : AlertBox(
-                              title: 'No Records',
-                              content:
-                                  'No records found. Please try again later.',
-                            ),
-                  ),
-                ),
-              ],
-            );
+        body: BlocListener<SearchFindBloc, SearchFindState>(
+          listener: (context, state) {
+            if (state.find != null) {
+              // Trigger a fetch of records based on the current search criteria
+              context.read<RecordsBloc>().add(FetchRecords(find: state.find));
+            }
           },
+          child: BlocListener<RecordsBloc, RecordsState>(
+            listener: (context, state) {
+              if (state is RecordsError) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              }
+
+              // TODO: implement listener
+            },
+            child: BlocBuilder<RecordsBloc, RecordsState>(
+              builder: (context, state) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isLargeScreen) const _SidebarDrawer(),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child:
+                            (state is RecordsLoaded && state.records.isNotEmpty)
+                                ? SimpleGridView(records: state.records)
+                                : AlertBox(
+                                  title: 'No Records',
+                                  content:
+                                      'No records found. Please try again.',
+                                ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
         ),
       ),
     );

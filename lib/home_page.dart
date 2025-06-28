@@ -112,11 +112,7 @@ class FrontButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        final bloc = LastRecordBloc();
-        bloc.add(FetchLastRecord());
-        return bloc;
-      },
+      create: (context) => LastRecordBloc()..add(FetchLastRecord()),
       child: BlocBuilder<LastRecordBloc, LastRecordState>(
         builder: (context, record) {
           return ElevatedButton(
@@ -157,17 +153,13 @@ class FronTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<UserBloc>(create: (context) => UserBloc()),
-        BlocProvider<AvailableValuesBloc>(
-          create:
-              (context) => AvailableValuesBloc()..add(FetchAvailableValues()),
-        ),
+        // BlocProvider<UserBloc>(create: (context) => UserBloc()),
+        // BlocProvider<AvailableValuesBloc>(
+        //   create:
+        //       (context) => AvailableValuesBloc()..add(FetchAvailableValues()),
+        // ),
         BlocProvider<FirstRecordBloc>(
-          create: (context) {
-            final bloc = FirstRecordBloc();
-            bloc.add(FetchFirstRecord());
-            return bloc;
-          },
+          create: (context) => FirstRecordBloc()..add(FetchFirstRecord()),
         ),
       ],
       child: Expanded(
@@ -191,13 +183,7 @@ class FronTitle extends StatelessWidget {
                   ),
                   SizedBox(height: 16.0),
                   BlocConsumer<UserBloc, UserState>(
-                    listener: (context, state) {
-                      // if (state.errorMessage != null) {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     SnackBar(content: Text(state.errorMessage!)),
-                      //   );
-                      // }
-                    },
+                    listener: (context, state) {},
                     builder: (context, auth) {
                       if (auth.user != null) {
                         return Column(

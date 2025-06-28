@@ -1,13 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'search_find.dart';
+// import 'search_find.dart';
 import '../model/record.dart';
 import '../model/find.dart';
 
 // Events
 abstract class RecordsEvent {}
 
-class FetchRecords extends RecordsEvent {}
+class FetchRecords extends RecordsEvent {
+  final Find? find;
+  FetchRecords({this.find});
+}
 
 class AddRecord extends RecordsEvent {
   final Record record;
@@ -57,7 +60,16 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
     emit(RecordsLoading());
     try {
       final db = FirebaseFirestore.instance;
-      final find = SearchFindBloc().state as Find;
+      final find =
+          event.find ??
+          Find(
+            year: DateTime.now().year,
+            month: DateTime.now().month,
+            tags: [],
+            model: '',
+            lens: '',
+            nick: '',
+          );
       Query<Map<String, dynamic>> query = db.collection('Photo');
       query = query.where('year', isEqualTo: find.year);
       query = query.where('month', isEqualTo: find.month);
@@ -80,7 +92,7 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
     try {
       final db = FirebaseFirestore.instance;
       await db.collection('Photo').add(event.record.toMap());
-      add(FetchRecords());
+      // add(FetchRecords());
     } catch (e) {
       emit(RecordsError('Error adding record: $e'));
     }
@@ -96,7 +108,7 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
           .collection('Photo')
           .doc(event.updatedData.filename)
           .update(event.updatedData.toMap());
-      add(FetchRecords());
+      // add(FetchRecords());
     } catch (e) {
       emit(RecordsError('Error updating record: $e'));
     }
@@ -109,7 +121,7 @@ class RecordsBloc extends Bloc<RecordsEvent, RecordsState> {
     try {
       final db = FirebaseFirestore.instance;
       await db.collection('Photo').doc(event.id).delete();
-      add(FetchRecords());
+      // add(FetchRecords());
     } catch (e) {
       emit(RecordsError('Error deleting record: $e'));
     }
